@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
+import io.github.syst3ms.skriptparser.docs.Documentation;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
@@ -18,17 +19,19 @@ public class SyntaxInfo<C> {
     private final List<PatternElement> patterns;
     private final int priority;
     private final SkriptAddon registerer;
+    private final Documentation documentation;
     protected final Map<String, Object> data;
 
-    public SyntaxInfo(SkriptAddon registerer, Class<C> c, int priority, List<PatternElement> patterns) {
-        this(registerer, c, priority, patterns, new HashMap<>());
+    public SyntaxInfo(SkriptAddon registerer, Class<C> c, int priority, List<PatternElement> patterns, Documentation documentation) {
+        this(registerer, c, priority, patterns, documentation, new HashMap<>());
     }
 
-    public SyntaxInfo(SkriptAddon registerer, Class<C> c, int priority, List<PatternElement> patterns, Map<String, Object> data) {
+    public SyntaxInfo(SkriptAddon registerer, Class<C> c, int priority, List<PatternElement> patterns, Documentation documentation, Map<String, Object> data) {
         this.c = c;
         this.patterns = patterns;
         this.priority = priority;
         this.registerer = registerer;
+        this.documentation = documentation;
         this.data = data;
     }
 
@@ -46,6 +49,10 @@ public class SyntaxInfo<C> {
 
     public List<PatternElement> getPatterns() {
         return patterns;
+    }
+
+    public Documentation getDocumentation() {
+        return this.documentation;
     }
 
     /**

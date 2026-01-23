@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
+import io.github.syst3ms.skriptparser.docs.Documentation;
 import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.pattern.PatternElement;
@@ -15,8 +16,8 @@ import java.util.Set;
 public class SkriptEventInfo<E extends SkriptEvent> extends SyntaxInfo<E> {
     private final Set<Class<? extends TriggerContext>> contexts;
 
-    public SkriptEventInfo(SkriptAddon registerer, Class<E> c, Set<Class<? extends TriggerContext>> handledContexts, int priority, List<PatternElement> patterns, Map<String, Object> data) {
-        super(registerer, c, priority, patterns, data);
+    public SkriptEventInfo(SkriptAddon registerer, Class<E> c, Set<Class<? extends TriggerContext>> handledContexts, int priority, List<PatternElement> patterns, Documentation documentation, Map<String, Object> data) {
+        super(registerer, c, priority, patterns, documentation, data);
         this.contexts = handledContexts;
     }
 
