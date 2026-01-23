@@ -40,6 +40,7 @@ import io.github.syst3ms.skriptparser.types.conversions.ConverterInfo;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import io.github.syst3ms.skriptparser.util.MultiMap;
+import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -617,12 +618,13 @@ public class SkriptRegistration {
         private Changer<? super C> defaultChanger;
         @Nullable
         private Arithmetic<C, ?> arithmetic;
-        private Documentation documentation = new Documentation();
+        private final Documentation documentation = new Documentation();
 
         public TypeRegistrar(Class<C> c, String baseName, String pattern) {
             this.c = c;
             this.baseName = baseName;
             this.pattern = pattern;
+            this.documentation.setName(StringUtils.toTitleCase(baseName, true)); // Dummy name if not specified
         }
 
         /**
@@ -701,12 +703,11 @@ public class SkriptRegistration {
         protected final List<String> patterns = new ArrayList<>();
         protected int priority;
         protected final Map<String, Object> data = new HashMap<>();
-        protected final Documentation documentation;
+        protected final Documentation documentation = new Documentation();
 
         SyntaxRegistrar(Class<C> c, String... patterns) {
             this.c = c;
             Collections.addAll(this.patterns, patterns);
-            this.documentation = new Documentation();
             this.documentation.setName(c.getSimpleName()); // Dummy name if not specified
             typeCheck();
         }
@@ -836,6 +837,7 @@ public class SkriptRegistration {
 
         EventRegistrar(Class<T> c, String... patterns) {
             super(c, patterns);
+            this.documentation.setName(c.getSimpleName()); // Dummy name if not specified
             typeCheck();
         }
 
