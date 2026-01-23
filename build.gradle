@@ -1,18 +1,12 @@
 plugins {
     id "java"
-    id "application"
+    id("maven-publish")
 }
-
-mainClassName = "io.github.syst3ms.skriptparser.Parser"
-
-sourceCompatibility = 1.11
+group = "com.github.SkriptDev"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
-}
-
-test {
-    useJUnitPlatform()
 }
 
 dependencies {
@@ -24,10 +18,9 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.4.1"
 }
 
-jar {
-    manifest {
-        attributes("Main-Class": mainClassName,
-                "Implementation-Title": "skript-parser",
-                "Implementation-Version": "alpha")
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+        }
     }
 }
