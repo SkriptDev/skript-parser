@@ -121,7 +121,7 @@ public interface Expression<T> extends SyntaxElement {
                 continue;
             if (haystack.isArray())
                 haystack = haystack.getComponentType();
-            if (haystack.isAssignableFrom(needle))
+            if (needle == Object.class || haystack.isAssignableFrom(needle))
                 return true;
         }
         return false;
