@@ -18,9 +18,14 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-api:5.4.1"
 }
 
+java {
+    withSourcesJar()
+}
+
 publishing {
     publications {
         mavenJava(MavenPublication) {
+            from components.java
         }
     }
 }
