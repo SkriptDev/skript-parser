@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.types;
 
+import io.github.syst3ms.skriptparser.docs.Documentation;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.changers.Changer;
 import io.github.syst3ms.skriptparser.util.StringUtils;
@@ -25,6 +26,7 @@ public class Type<T> {
     private final Changer<? super T> defaultChanger;
     @Nullable
     private final Arithmetic<T, ?> arithmetic;
+    private final Documentation documentation;
 
     /**
      * Constructs a new Type.
@@ -38,8 +40,8 @@ public class Type<T> {
      *                  <li>{@code part&brvbar;y&brvbar;ies} -> {@literal party} and {@literal parties} (irregular plural)</li>
      *                </ul>
      */
-    public Type(Class<T> typeClass, String baseName, String pattern) {
-        this(typeClass, baseName, pattern, null);
+    public Type(Class<T> typeClass, String baseName, String pattern, Documentation documentation) {
+        this(typeClass, baseName, pattern, null, documentation);
     }
 
     /**
@@ -59,8 +61,9 @@ public class Type<T> {
     public Type(Class<T> typeClass,
                 String baseName,
                 String pattern,
-                @Nullable Function<String, ? extends T> literalParser) {
-        this(typeClass, baseName, pattern, literalParser, Objects::toString);
+                @Nullable Function<String, ? extends T> literalParser,
+                Documentation documentation) {
+        this(typeClass, baseName, pattern, literalParser, Objects::toString, documentation);
     }
 
     /**
@@ -83,8 +86,9 @@ public class Type<T> {
                 String baseName,
                 String pattern,
                 @Nullable Function<String, ? extends T> literalParser,
-                Function<? super T, String> toStringFunction) {
-        this(typeClass, baseName, pattern, literalParser, toStringFunction, null);
+                Function<? super T, String> toStringFunction,
+                Documentation documentation) {
+        this(typeClass, baseName, pattern, literalParser, toStringFunction, null, documentation);
     }
 
     public Type(Class<T> typeClass,
@@ -92,8 +96,9 @@ public class Type<T> {
                 String pattern,
                 @Nullable Function<String, ? extends T> literalParser,
                 Function<? super T, String> toStringFunction,
-                @Nullable Changer<? super T> defaultChanger) {
-        this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger, null);
+                @Nullable Changer<? super T> defaultChanger,
+                Documentation documentation) {
+        this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger, null, documentation);
     }
 
     @SuppressWarnings("unchecked")
@@ -103,7 +108,8 @@ public class Type<T> {
                 @Nullable Function<String, ? extends T> literalParser,
                 Function<? super T, String> toStringFunction,
                 @Nullable Changer<? super T> defaultChanger,
-                @Nullable Arithmetic<T, ?> arithmetic) {
+                @Nullable Arithmetic<T, ?> arithmetic,
+                Documentation documentation) {
         this.typeClass = typeClass;
         this.baseName = baseName;
         this.literalParser = literalParser;
@@ -111,6 +117,7 @@ public class Type<T> {
         this.pluralForms = StringUtils.getForms(pattern.strip());
         this.defaultChanger = defaultChanger;
         this.arithmetic = arithmetic;
+        this.documentation = documentation;
     }
 
     public Class<T> getTypeClass() {
@@ -139,6 +146,10 @@ public class Type<T> {
 
     public Optional<? extends Arithmetic<T, ?>> getArithmetic() {
         return Optional.ofNullable(arithmetic);
+    }
+
+    public Documentation getDocumentation() {
+        return this.documentation;
     }
 
     /**

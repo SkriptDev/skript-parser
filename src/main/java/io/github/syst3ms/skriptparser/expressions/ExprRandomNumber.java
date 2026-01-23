@@ -25,13 +25,18 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class ExprRandomNumber implements Expression<Number> {
     static {
-        Parser.getMainRegistration().addExpression(
+        Parser.getMainRegistration().newExpression(
                 ExprRandomNumber.class,
                 Number.class,
                 true,
                 "[a] random integer [1:strictly] (from|between) %integer% (to|and) %integer%",
-                "[a] random number [1:strictly] (from|between) %number% (to|and) %number%"
-        );
+                "[a] random number [1:strictly] (from|between) %number% (to|and) %number%")
+            .name("Random Number")
+            .description("Generates a random number between two numbers.")
+            .examples("set {_random} to random integer between 10 and 20",
+                "set {_random} to random number between 10.5 and 20.5")
+            .since("INSERT VERSION")
+            .register();
     }
 
     private static final ThreadLocalRandom random = ThreadLocalRandom.current();

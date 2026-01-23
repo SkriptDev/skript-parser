@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.registration;
 
+import io.github.syst3ms.skriptparser.docs.Documentation;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
@@ -616,6 +617,7 @@ public class SkriptRegistration {
         private Changer<? super C> defaultChanger;
         @Nullable
         private Arithmetic<C, ?> arithmetic;
+        private Documentation documentation = new Documentation();
 
         public TypeRegistrar(Class<C> c, String baseName, String pattern) {
             this.c = c;
@@ -659,13 +661,38 @@ public class SkriptRegistration {
             return this;
         }
 
+        public <R> TypeRegistrar<C> name(String name) {
+            this.documentation.setName(name);
+            return this;
+        }
+
+        public <R> TypeRegistrar<C> description(String... description) {
+            this.documentation.setDescription(description);
+            return this;
+        }
+
+        public <R> TypeRegistrar<C> examples(String... examples) {
+            this.documentation.setExamples(examples);
+            return this;
+        }
+
+        public <R> TypeRegistrar<C> usage(String usage) {
+            this.documentation.setUsage(usage);
+            return this;
+        }
+
+        public <R> TypeRegistrar<C> since(String since) {
+            this.documentation.setSince(since);
+            return this;
+        }
+
         /**
          * Adds this type to the list of currently registered syntaxes
          */
         @Override
         public void register() {
             newTypes = true;
-            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic));
+            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic, this.documentation));
         }
     }
 
@@ -674,10 +701,13 @@ public class SkriptRegistration {
         protected final List<String> patterns = new ArrayList<>();
         protected int priority;
         protected final Map<String, Object> data = new HashMap<>();
+        protected final Documentation documentation;
 
         SyntaxRegistrar(Class<C> c, String... patterns) {
             this.c = c;
             Collections.addAll(this.patterns, patterns);
+            this.documentation = new Documentation();
+            this.documentation.setName(c.getSimpleName()); // Dummy name if not specified
             typeCheck();
         }
 
@@ -688,6 +718,26 @@ public class SkriptRegistration {
          */
         public SyntaxRegistrar<C> addPatterns(String... patterns) {
             Collections.addAll(this.patterns, patterns);
+            return this;
+        }
+
+        public SyntaxRegistrar<C> name(String name) {
+            this.documentation.setName(name);
+            return this;
+        }
+
+        public SyntaxRegistrar<C> description(String... description) {
+            this.documentation.setDescription(description);
+            return this;
+        }
+
+        public SyntaxRegistrar<C> examples(String... examples) {
+            this.documentation.setExamples(examples);
+            return this;
+        }
+
+        public SyntaxRegistrar<C> since(String since) {
+            this.documentation.setSince(since);
             return this;
         }
 
@@ -747,7 +797,7 @@ public class SkriptRegistration {
                 logger.error("Couldn't find a type corresponding to the class '" + returnType.getName() + "'", ErrorType.NO_MATCH);
                 return;
             }
-            expressions.putOne(super.c, new ExpressionInfo<>(registerer, super.c, type.get(), isSingle, priority, parsePatterns(), super.data));
+            expressions.putOne(super.c, new ExpressionInfo<>(registerer, super.c, type.get(), isSingle, priority, parsePatterns(), this.documentation, super.data));
         }
     }
 
@@ -761,7 +811,7 @@ public class SkriptRegistration {
          */
         @Override
         public void register() {
-            effects.add(new SyntaxInfo<>(registerer, super.c, priority, parsePatterns(), super.data));
+            effects.add(new SyntaxInfo<>(registerer, super.c, priority, parsePatterns(), this.documentation, super.data));
         }
     }
 
@@ -776,12 +826,13 @@ public class SkriptRegistration {
          */
         @Override
         public void register() {
-            sections.add(new SyntaxInfo<>(registerer, super.c, priority, parsePatterns(), super.data));
+            sections.add(new SyntaxInfo<>(registerer, super.c, priority, parsePatterns(), this.documentation, super.data));
         }
     }
 
     public class EventRegistrar<T extends SkriptEvent> extends SyntaxRegistrar<T> {
         private Set<Class<? extends TriggerContext>> handledContexts = new HashSet<>();
+        private final Documentation documentation = new Documentation();
 
         EventRegistrar(Class<T> c, String... patterns) {
             super(c, patterns);
@@ -799,6 +850,26 @@ public class SkriptRegistration {
             return this;
         }
 
+        public final EventRegistrar<T> name(String name) {
+            this.documentation.setName(name);
+            return this;
+        }
+
+        public final EventRegistrar<T> description(String... description) {
+            this.documentation.setDescription(description);
+            return this;
+        }
+
+        public final EventRegistrar<T> examples(String... examples) {
+            this.documentation.setExamples(examples);
+            return this;
+        }
+
+        public final EventRegistrar<T> since(String since) {
+            this.documentation.setSince(since);
+            return this;
+        }
+
         /**
          * Adds this event to the list of currently registered syntaxes
          */
@@ -812,7 +883,7 @@ public class SkriptRegistration {
                     super.patterns.set(i, "[on] " + pattern);
                 }
             }
-            events.add(new SkriptEventInfo<>(registerer, super.c, handledContexts, priority, parsePatterns(), data));
+            events.add(new SkriptEventInfo<>(registerer, super.c, handledContexts, priority, parsePatterns(), this.documentation, data));
             registerer.addHandledEvent(this.c);
         }
     }
