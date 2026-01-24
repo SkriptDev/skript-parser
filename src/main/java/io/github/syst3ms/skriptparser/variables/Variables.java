@@ -117,4 +117,26 @@ public class Variables {
     public static void clearVariables() {
         variableMap.clearVariables();
     }
+
+    /**
+     * Copy local variables from one TriggerContext to another.
+     *
+     * @param from The source TriggerContext
+     * @param to The destination TriggerContext
+     */
+    public static void copyLocalVariables(TriggerContext from, TriggerContext to) {
+        if (localVariables.containsKey(from)) {
+            localVariables.put(to, localVariables.get(from));
+        }
+    }
+
+    /**
+     * Clear local variables for a specific TriggerContext.
+     *
+     * @param ctx The TriggerContext to clear variables for
+     */
+    public static void clearLocalVariables(TriggerContext ctx) {
+        localVariables.remove(ctx);
+    }
+
 }
