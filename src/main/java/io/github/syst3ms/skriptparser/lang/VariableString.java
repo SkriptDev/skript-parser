@@ -92,29 +92,29 @@ public class VariableString extends TaggedExpression {
                 }
                 data.add(expression.get());
                 i += content.get().length() + 1;
-            } else if (c == '<') {
-                if (i == charArray.length - 1
-                        || Character.isWhitespace(charArray[i + 1])) {
-                    sb.append(c);
-                    continue;
-                }
-                var content = StringUtils.getBracketContent(s, i + 1, '>');
-                if (content.isEmpty()) {
-                    sb.append(c);
-                    continue;
-                }
-                logger.recurse();
-                var tag = TagManager.parseTag(content.get(), logger);
-                logger.callback();
-                if (tag.isEmpty()) {
-                    return Optional.empty();
-                }
-                if (sb.length() > 0) {
-                    data.add(sb.toString());
-                    sb.setLength(0);
-                }
-                data.add(tag.get());
-                i += content.get().length() + ">".length();
+           // } else if (c == '<') {
+//                if (i == charArray.length - 1
+//                        || Character.isWhitespace(charArray[i + 1])) {
+//                    sb.append(c);
+//                    continue;
+//                }
+//                var content = StringUtils.getBracketContent(s, i + 1, '>');
+//                if (content.isEmpty()) {
+//                    sb.append(c);
+//                    continue;
+//                }
+//                logger.recurse();
+//                var tag = TagManager.parseTag(content.get(), logger);
+//                logger.callback();
+//                if (tag.isEmpty()) {
+//                    return Optional.empty();
+//                }
+//                if (sb.length() > 0) {
+//                    data.add(sb.toString());
+//                    sb.setLength(0);
+//                }
+//                data.add(tag.get());
+//                i += content.get().length() + ">".length();
             } else if (c == '\\') {
                 if (i == charArray.length - 1) {
                     return Optional.empty();
