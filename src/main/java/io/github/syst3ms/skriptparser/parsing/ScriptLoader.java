@@ -84,14 +84,26 @@ public class ScriptLoader {
             }
         }
         unloadedTriggers.sort((a, b) -> b.getTrigger().getEvent().getLoadingPriority() - a.getTrigger().getEvent().getLoadingPriority());
+
+
+        // Clear triggers from unloaded events
+        triggerMap.forEach((key, value) -> {
+            if (key.equals(scriptName)) {
+                List<Trigger> triggers = triggerMap.get(key);
+                triggers.forEach(trigger -> trigger.getEvent().clearTrigger(scriptName));
+            }
+        });
+        // Clear triggers of a script from the map
+        triggerMap.remove(scriptName);
+
         for (var unloaded : unloadedTriggers) {
             logger.finalizeLogs();
             logger.setLine(unloaded.getLine());
             var loaded = unloaded.getTrigger();
             loaded.loadSection(unloaded.getSection(), unloaded.getParserState(), logger);
             //unloaded.getEventInfo().getRegisterer().handleTrigger(scriptName,loaded);
+
             SkriptEvent event = unloaded.getTrigger().getEvent();
-            event.clearTrigger(scriptName);
             event.addTrigger(scriptName, loaded);
             triggerMap.putOne(scriptName, loaded);
         }

@@ -21,10 +21,10 @@ import java.util.Set;
 
 /**
  * The entry point for all code in Skript. Once an event triggers, all of the code inside it may be run.
- *
+ * <p>
  * Skript-parser's event system is composed of three interacting parts : {@link Trigger}, {@link SkriptEvent} and {@link TriggerContext}.
  * This is directly parallel to Skript's event system, with Bukkit's own Event class replacing TriggerContext.
- *
+ * <p>
  * Let's explain how this system works using a simple analogy : skript-parser is like a giant kitchen :
  * <ul>
  *   <li>The goal is to prepare food (write code).</li>
@@ -41,8 +41,21 @@ public abstract class SkriptEvent implements SyntaxElement {
         return TRIGGER_MAP.values().stream().flatMap(List::stream).toList();
     }
 
+    public void addTrigger(String scriptName, Trigger trigger) {
+        //TRIGGER_MAP.computeIfAbsent(scriptName, k -> Collections.synchronizedList(Collections.emptyList())).add(trigger);
+        if (!TRIGGER_MAP.containsKey(scriptName)) {
+            TRIGGER_MAP.put(scriptName, new ArrayList<>());
+        }
+        TRIGGER_MAP.get(scriptName).add(trigger);
+    }
+
+    public void clearTrigger(String scriptName) {
+        TRIGGER_MAP.put(scriptName, new ArrayList<>());
+    }
+
     /**
      * Whether this event should trigger, given the {@link TriggerContext}
+     *
      * @param ctx the TriggerContext to check
      * @return whether the event should trigger
      */
@@ -62,7 +75,7 @@ public abstract class SkriptEvent implements SyntaxElement {
      * code too often. Skript is no exception, however, by default, every trigger is loaded in the order it appears in the file,
      * This is undesirable if we don't want the restriction of having to declare functions before using them. This is especially
      * counter-productive if we're dealing with multiple scripts.
-     *
+     * <p>
      * To solve this problem, {@link Trigger triggers} with a higher loading priority number will be loaded first.
      *
      * @return the loading priority number. 0 by default
@@ -76,6 +89,7 @@ public abstract class SkriptEvent implements SyntaxElement {
      * is to return an empty list, which equates to no restrictions. If overridden, this allows the creation of specialized,
      * DSL-like sections in which only select {@linkplain Statement statements} and other {@linkplain CodeSection sections}
      * (and potentially, but not necessarily, expressions).
+     *
      * @return a list of the classes of each syntax allowed inside this SkriptEvent
      * or {@code null} if you don't want to allow any
      * @see #isRestrictingExpressions()
@@ -87,20 +101,13 @@ public abstract class SkriptEvent implements SyntaxElement {
     /**
      * Whether the syntax restrictions outlined in {@link #getAllowedSyntaxes()} should also apply to expressions.
      * This is usually undesirable, so it is false by default.
-     *
+     * <p>
      * This should return true <b>if and only if</b> {@link #getAllowedSyntaxes()} contains an {@linkplain Expression} class.
+     *
      * @return whether the use of expressions is also restricted by {@link #getAllowedSyntaxes()}. False by default.
      */
     public boolean isRestrictingExpressions() {
         return false;
-    }
-
-    public void addTrigger(String scriptName, Trigger trigger) {
-        TRIGGER_MAP.computeIfAbsent(scriptName, k -> Collections.synchronizedList(Collections.emptyList())).add(trigger);
-    }
-
-    public void clearTrigger(String scriptName) {
-        TRIGGER_MAP.put(scriptName, new ArrayList<>());
     }
 
 }
