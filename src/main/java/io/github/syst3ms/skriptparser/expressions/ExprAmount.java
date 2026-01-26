@@ -24,13 +24,10 @@ import java.util.Map;
  * @since ALPHA
  * @author Olyno, Mwexim
  */
-public class ExprAmount extends PropertyExpression<Number, Object> {
+public class ExprAmount extends PropertyExpression<Object, Number> {
 	static {
-		Parser.getMainRegistration().newPropertyExpression(
-				ExprAmount.class,
-				Number.class,
-				"~objects",
-				"[1:recursive] (amount|number|size)")
+		Parser.getMainRegistration().newPropertyExpression(ExprAmount.class, Number.class,
+				"[1:recursive] (amount|number|size)", "~objects")
 			.name("Amount")
 			.description("Returns the amount of elements in a given list.")
 			.examples("set {_size} to size of {_var::*}",

@@ -14,14 +14,13 @@ import java.math.BigInteger;
  * @since ALPHA
  * @author Romitou
  */
-public class ExprLength extends PropertyExpression<Number, String> {
+public class ExprLength extends PropertyExpression<String, Number> {
     static {
-        Parser.getMainRegistration().addPropertyExpression(
-                ExprLength.class,
-                Number.class,
-				"string",
-                "length"
-        );
+        Parser.getMainRegistration().newPropertyExpression(ExprLength.class, Number.class, "length", "string")
+            .name("Length")
+            .description("The length of a string.")
+            .since("INSERT VERSION")
+            .register();
     }
 
     @Override

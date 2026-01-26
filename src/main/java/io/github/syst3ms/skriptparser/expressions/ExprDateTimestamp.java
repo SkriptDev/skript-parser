@@ -22,14 +22,14 @@ import java.math.BigInteger;
  * @since ALPHA
  * @author Mwexim
  */
-public class ExprDateTimestamp extends PropertyExpression<Number, SkriptDate> {
+public class ExprDateTimestamp extends PropertyExpression<SkriptDate, Number> {
 	static {
-		Parser.getMainRegistration().addPropertyExpression(
-				ExprDateTimestamp.class,
-				Number.class,
-				"*[date] %date%",
-				"[1:unix] timestamp"
-		);
+		Parser.getMainRegistration().newPropertyExpression(ExprDateTimestamp.class, Number.class,
+				"[1:unix] timestamp", "*[date] %date%")
+			.name("Unix Timestamp")
+			.description("The unix timestamp of a date.")
+			.since("INSERT VERSION")
+			.register();
 	}
 
 	private boolean unix;
