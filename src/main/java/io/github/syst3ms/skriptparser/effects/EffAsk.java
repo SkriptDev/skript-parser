@@ -23,10 +23,11 @@ import java.util.Scanner;
 public class EffAsk extends Effect {
 
     static {
-        Parser.getMainRegistration().addEffect(
-                EffAsk.class,
-                "(ask [for] [input]|input) %string%"
-        );
+        // We don't need this
+//        Parser.getMainRegistration().addEffect(
+//                EffAsk.class,
+//                "(ask [for] [input]|input) %string%"
+//        );
     }
 
     private Expression<String> message;

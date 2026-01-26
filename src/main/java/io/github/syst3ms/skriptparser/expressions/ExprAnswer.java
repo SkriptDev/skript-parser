@@ -22,12 +22,13 @@ import java.util.Map;
 public class ExprAnswer implements Expression<String> {
 
     static {
-        Parser.getMainRegistration().addExpression(
-                ExprAnswer.class,
-                String.class,
-                true,
-                "[the] [last] (answer|response)"
-        );
+        // We won't be needing this
+//        Parser.getMainRegistration().addExpression(
+//                ExprAnswer.class,
+//                String.class,
+//                true,
+//                "[the] [last] (answer|response)"
+//        );
     }
 
     private static final Map<TriggerContext, String> answers = new HashMap<>();

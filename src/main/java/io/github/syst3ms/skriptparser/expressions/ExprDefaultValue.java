@@ -15,12 +15,13 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  */
 public class ExprDefaultValue implements Expression<Object> {
     static {
-        Parser.getMainRegistration().addExpression(
-                ExprDefaultValue.class,
-                Object.class,
-                false,
-                "%objects% (otherwise|?) %objects%"
-        );
+        Parser.getMainRegistration().newExpression(ExprDefaultValue.class, Object.class, false,
+                "%objects% (otherwise|?) %objects%")
+            .name("Default Value")
+            .description("Returns the first expression if it's set, otherwise the second expression.")
+            .examples("set {_var} to {_otherVarIfSet} otherwise \"world\"",
+                "send {_varIfSet} ? \"ruh roh, no message\"")
+            .since("INSERT VERSION");
     }
 
     private Expression<Object> firstValue, secondValue;

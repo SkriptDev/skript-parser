@@ -25,14 +25,18 @@ import org.jetbrains.annotations.Nullable;
  */
 public class CondExprContains extends ConditionalExpression {
     static {
-        Parser.getMainRegistration().addExpression(
-                CondExprContains.class,
-                Boolean.class,
-                true,
-                2,
+        Parser.getMainRegistration().newExpression(
+                CondExprContains.class, Boolean.class, true,
                 "%string% [1:does(n't| not)] contain[s] %string%",
                 "%objects% [1:do[es](n't| not)] contain[s] %objects%"
-        );
+            )
+            .setPriority(2)
+            .name("Contains")
+            .description("Checks if a given list of objects contain a given element. You can also check if a string contains another string.")
+            .examples("if {_string} contains \"hello\":",
+                "if {_list::*} contains player:")
+            .since("INSERT VERSION")
+            .register();
     }
 
     private Expression<Object> first, second;

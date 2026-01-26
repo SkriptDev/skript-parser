@@ -20,12 +20,15 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  */
 public class CondExprIsEmpty extends ConditionalExpression {
     static {
-        Parser.getMainRegistration().addExpression(CondExprIsEmpty.class,
-                Boolean.class,
-                true,
+        Parser.getMainRegistration().newExpression(CondExprIsEmpty.class, Boolean.class, true,
                 "%objects% (is|are)[1:( not|n't)] empty",
-                "%strings% (is|are)[1:( not|n't)] [an] empty string[s]"
-        );
+                "%strings% (is|are)[1:( not|n't)] [an] empty string[s]")
+            .name("Is Empty")
+            .description("Checks if a given string or list is empty.")
+            .examples("if {_list::*} is empty:",
+                "if {_string} is not empty:")
+            .since("INSERT VERSION")
+            .register();
     }
 
     private Expression<?> expression;

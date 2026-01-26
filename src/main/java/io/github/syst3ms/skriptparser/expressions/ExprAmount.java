@@ -26,12 +26,17 @@ import java.util.Map;
  */
 public class ExprAmount extends PropertyExpression<Number, Object> {
 	static {
-		Parser.getMainRegistration().addPropertyExpression(
+		Parser.getMainRegistration().newPropertyExpression(
 				ExprAmount.class,
 				Number.class,
 				"~objects",
-				"[1:recursive] (amount|number|size)"
-		);
+				"[1:recursive] (amount|number|size)")
+			.name("Amount")
+			.description("Returns the amount of elements in a given list.")
+			.examples("set {_size} to size of {_var::*}",
+				"if size of all players > 10:")
+			.since("INSERT VERSION")
+			.register();
 	}
 
 	private boolean recursive;

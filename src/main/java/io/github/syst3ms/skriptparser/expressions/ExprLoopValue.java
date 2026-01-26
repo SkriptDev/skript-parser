@@ -32,12 +32,19 @@ import java.util.regex.Pattern;
  */
 public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 	static {
-		Parser.getMainRegistration().addExpression(
-			ExprLoopValue.class,
-			Object.class,
-			true,
-			"[the] loop-<.+>"
-		);
+		Parser.getMainRegistration().newExpression(ExprLoopValue.class, Object.class, true,
+				"[the] loop-<.+>")
+			.name("Loop Value/Index")
+			.description("The currently looped value or index.",
+				"Index will always be represented as a string.")
+			.examples("loop all players:",
+				"\tsend \"hi\" to loop-player",
+				"",
+				"loop {_var::*}",
+				"\tif loop-index = \"bob\":",
+				"\t\tadd loop-value to inventory of player")
+			.since("INSERT VERSION")
+			.register();
 	}
 
 	private SecLoop loop;

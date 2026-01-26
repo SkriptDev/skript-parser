@@ -29,13 +29,13 @@ import java.util.function.Predicate;
  */
 public class SecConditional extends CodeSection {
     static {
-        Parser.getMainRegistration().addSection(
-                SecConditional.class,
-                6,
-                "if %=boolean%",
-                "else if %=boolean%",
-                "else"
-        );
+        Parser.getMainRegistration().newSection(SecConditional.class,
+                "if %=boolean%", "else if %=boolean%", "else")
+            .setPriority(6)
+            .name("Condition")
+            .description("Executes code within its section if a condition is verified to be true.")
+            .since("INSERT VERSION")
+            .register();
     }
 
     private ConditionalMode mode;

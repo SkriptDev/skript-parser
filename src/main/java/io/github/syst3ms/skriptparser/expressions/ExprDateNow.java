@@ -18,14 +18,17 @@ import java.time.Duration;
  * @author Mwexim
  */
 public class ExprDateNow implements Expression<SkriptDate> {
-	static {
-		Parser.getMainRegistration().addExpression(
-				ExprDateNow.class,
-				SkriptDate.class,
-				true,
-				"(0:yesterday|1:now|2:tomorrow)"
-		);
-	}
+    static {
+        Parser.getMainRegistration().newExpression(
+                ExprDateNow.class,
+                SkriptDate.class,
+                true,
+                "(0:yesterday|1:now|2:tomorrow)")
+            .name("Current Date")
+            .description("The current date, the one from yesterday or the one from tomorrow.")
+            .since("INSERT VERSION")
+            .register();
+    }
 
 	private int mark;
 

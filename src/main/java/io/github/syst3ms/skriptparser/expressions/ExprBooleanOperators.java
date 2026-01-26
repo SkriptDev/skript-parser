@@ -20,14 +20,18 @@ import java.util.Optional;
  */
 public class ExprBooleanOperators implements Expression<Boolean> {
     static {
-        Parser.getMainRegistration().addExpression(
-                ExprBooleanOperators.class,
-                Boolean.class,
-                true,
+        Parser.getMainRegistration().newExpression(
+            ExprBooleanOperators.class, Boolean.class, true,
                 "not %=boolean%",
                 "%=boolean% (or|\\|\\|) %=boolean%",
-                "%=boolean% (and|&&) %=boolean%"
-        );
+                "%=boolean% (and|&&) %=boolean%")
+            .name("Boolean Operators")
+            .description("Performs boolean operations on booleans.")
+            .examples("if {_boolean} and {_boolean2}:",
+                "if {_boolean} or {_boolean2}:",
+                "if not {_boolean}:")
+            .since("INSERT VERSION")
+            .register();
     }
 
     private int pattern;

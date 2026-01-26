@@ -19,13 +19,13 @@ import io.github.syst3ms.skriptparser.util.FileUtils;
  */
 public class LitScriptName implements Literal<String> {
     static {
-        Parser.getMainRegistration().addExpression(
-                LitScriptName.class,
-                String.class,
-                true,
+        Parser.getMainRegistration().newExpression(LitScriptName.class, String.class, true,
                 "[the] script[['s] name]",
-                "name of [the] script"
-        );
+                "name of [the] script")
+            .name("Script Name")
+            .description("The name of the current executed script, without the extension.")
+            .since("INSERT VERSION")
+            .register();
     }
 
     private SkriptLogger logger;

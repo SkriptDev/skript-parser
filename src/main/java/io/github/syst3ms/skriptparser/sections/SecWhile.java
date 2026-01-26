@@ -27,10 +27,14 @@ import java.util.Optional;
  */
 public class SecWhile extends CodeSection implements Continuable, SelfReferencing {
     static {
-        Parser.getMainRegistration().addSection(
-                SecWhile.class,
-                "while %=boolean%"
-        );
+        Parser.getMainRegistration().newSection(SecWhile.class, "while %=boolean%")
+            .name("While Loop")
+            .description("This section will continue to execute/loop until the condition is no longer met.")
+            .examples("while {_var} > 10:",
+                "\tremove 1 from {_var}",
+                "\twait 1 minute")
+            .since("INSERT VERSION")
+            .register();
     }
 
     @Nullable

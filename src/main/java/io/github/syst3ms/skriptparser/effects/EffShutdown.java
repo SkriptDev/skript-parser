@@ -18,10 +18,11 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  */
 public class EffShutdown extends Effect {
     static {
-        Parser.getMainRegistration().addEffect(
-            EffShutdown.class,
-            "shut[ ]down [[the] [current] session]"
-        );
+        // We shouldn't be using this on a Hytale Server
+//        Parser.getMainRegistration().addEffect(
+//            EffShutdown.class,
+//            "shut[ ]down [[the] [current] session]"
+//        );
     }
 
     @Override

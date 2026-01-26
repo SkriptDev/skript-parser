@@ -51,13 +51,15 @@ public class CondExprCompare extends ConditionalExpression {
     });
 
     static {
-        Parser.getMainRegistration().addExpression(
-                CondExprCompare.class,
-                Boolean.class,
-                true,
-                1,
-                PATTERNS.getPatterns()
-        );
+        Parser.getMainRegistration().newExpression(CondExprCompare.class, Boolean.class, true, PATTERNS.getPatterns())
+            .name("Compare")
+            .description("Compares two expressions/objects.")
+            .examples("if {_number} is greater than {_number2}:",
+                "if {_list::*} is equal to {_list::*}:",
+                "if {_string} is not equal to {_string2}:",
+                "if 1 = 1:")
+            .since("INSERT VERSION")
+            .register();
     }
 
     private Expression<?> first;

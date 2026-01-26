@@ -17,10 +17,11 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  */
 public class EffPrint extends Effect {
     static {
-        Parser.getMainRegistration().addEffect(
-            EffPrint.class,
-            "print %strings% [to [the] console]"
-        );
+        // We don't really need this
+//        Parser.getMainRegistration().addEffect(
+//            EffPrint.class,
+//            "print %strings% [to [the] console]"
+//        );
     }
 
     private Expression<String> expression;

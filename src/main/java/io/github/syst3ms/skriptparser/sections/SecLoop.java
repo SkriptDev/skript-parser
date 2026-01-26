@@ -35,13 +35,17 @@ import java.util.Optional;
  * @author Mwexim
  */
 public class SecLoop extends ArgumentSection implements Continuable, SelfReferencing {
-	static {
-		Parser.getMainRegistration().addSection(
-				SecLoop.class,
-				"loop %integer% times",
-				"loop %objects%"
-		);
-	}
+    static {
+        Parser.getMainRegistration().newSection(SecLoop.class, "loop %integer% times", "loop %objects%")
+            .name("Loop")
+            .description("Loops over all the values in a list or loop x number of times.")
+            .examples("loop 10 times:",
+                "\tsend \"hello:%loop-number%\" to all players",
+                "loop all players:",
+                "\tadd {_item} to inventory of loop-player")
+            .since("INSERT VERSION")
+            .register();
+    }
 
 	@Nullable
 	private Expression<?> expression;
