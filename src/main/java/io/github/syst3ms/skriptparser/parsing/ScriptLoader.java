@@ -88,7 +88,7 @@ public class ScriptLoader {
             logger.setLine(unloaded.getLine());
             var loaded = unloaded.getTrigger();
             loaded.loadSection(unloaded.getSection(), unloaded.getParserState(), logger);
-            unloaded.getEventInfo().getRegisterer().handleTrigger(loaded);
+            unloaded.getEventInfo().getRegisterer().handleTrigger(scriptName,loaded);
             triggerMap.putOne(scriptName, loaded);
         }
         logger.finalizeLogs();

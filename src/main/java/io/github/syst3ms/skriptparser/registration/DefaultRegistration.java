@@ -39,8 +39,13 @@ public class DefaultRegistration {
             .description("A number (can be an integer/float/double/etc).")
             .since("INSERT VERSION")
             .literalParser(s -> {
-                if (s.contains(".")) return Double.parseDouble(s);
-                else return Long.parseLong(s);
+                if (s == null) return null;
+                try {
+                    if (s.contains(".")) return Double.parseDouble(s);
+                    else return Long.parseLong(s);
+                } catch (NumberFormatException e) {
+                    return null;
+                }
             })
             .toStringFunction(Object::toString)
             .arithmetic(new Arithmetic<Number, Number>() {
@@ -66,7 +71,14 @@ public class DefaultRegistration {
             }).register();
 
         registration.newType(Integer.class, "integer", "integer@s")
-            .literalParser(Integer::parseInt)
+            .literalParser(s -> {
+                if (s == null) return null;
+                try {
+                    return Integer.parseInt(s);
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            })
             .name("Integer")
             .description("A whole number.")
             .since("INSERT VERSION")
@@ -97,7 +109,14 @@ public class DefaultRegistration {
             .name("Float")
             .description("A floating-point number.")
             .since("INSERT VERSION")
-            .literalParser(Float::parseFloat)
+            .literalParser(s -> {
+                if (s == null) return null;
+                try {
+                    return Float.parseFloat(s);
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            })
             .arithmetic(new Arithmetic<Float, Float>() {
                 @Override
                 public Float difference(Float first, Float second) {
@@ -125,7 +144,14 @@ public class DefaultRegistration {
             .name("Double")
             .description("A double floating-point number.")
             .since("INSERT VERSION")
-            .literalParser(Double::parseDouble)
+            .literalParser(s -> {
+                if (s == null) return null;
+                try {
+                    return Double.parseDouble(s);
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            })
             .arithmetic(new Arithmetic<Double, Double>() {
                 @Override
                 public Double difference(Double first, Double second) {

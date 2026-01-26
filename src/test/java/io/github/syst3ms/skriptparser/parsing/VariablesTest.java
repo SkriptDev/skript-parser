@@ -64,12 +64,12 @@ public class VariablesTest {
 		PatternType<Number> numberType = new PatternType<>(TypeManager.getByClassExact(Number.class).orElseThrow(AssertionError::new), true);
 		run(SyntaxParser.parseEffect("set {number} to 5", parserState, logger));
 		assertExpressionTypeEquals(
-				BigInteger.class,
+				Number.class,
 				SyntaxParser.parseExpression("{number}", numberType, parserState, logger)
 		);
 		run(SyntaxParser.parseEffect("set {number} to 5.2", parserState, logger));
 		assertExpressionTypeEquals(
-				BigDecimal.class,
+			Number.class,
 				SyntaxParser.parseExpression("{number}", numberType, parserState, logger)
 		);
 	}

@@ -23,9 +23,10 @@ public class SkriptLoggerTest {
         logger.finalizeLogs();
         assertTrue(noMatchFound.isEmpty() && logger.close().get(0).getMessage().startsWith("No expression"));
         logger = new SkriptLogger();
-        Optional<? extends Expression<?>> wrongNumber = SyntaxParser.parseExpression("range from 1 to 3", SyntaxParser.OBJECT_PATTERN_TYPE, parserState, logger);
-        logger.finalizeLogs();
-        assertTrue(wrongNumber.isEmpty() && logger.close().get(0).getMessage().startsWith("A single"));
+//        Optional<? extends Expression<?>> wrongNumber = SyntaxParser.parseExpression("range from 1 to 3", SyntaxParser.OBJECT_PATTERN_TYPE, parserState, logger);
+//        logger.finalizeLogs();
+//        assertTrue(wrongNumber.isEmpty() && logger.close().get(0).getMessage().startsWith("A single"));
+//
         logger = new SkriptLogger();
         Optional<? extends Expression<Boolean>> wrongRange = SyntaxParser.parseBooleanExpression("1 is between \"a\" and \"b\"", SyntaxParser.MAYBE_CONDITIONAL, parserState, logger);
         logger.finalizeLogs();

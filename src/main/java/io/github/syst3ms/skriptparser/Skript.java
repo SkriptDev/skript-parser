@@ -18,7 +18,9 @@ import io.github.syst3ms.skriptparser.util.Time;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The {@link SkriptAddon} representing Skript itself
@@ -27,53 +29,53 @@ public class Skript extends SkriptAddon {
 
     private final String[] mainArgs;
 
-    private final List<Trigger> mainTriggers = new ArrayList<>();
-    private final List<Trigger> periodicalTriggers = new ArrayList<>();
-    private final List<Trigger> whenTriggers = new ArrayList<>();
-    private final List<Trigger> atTimeTriggers = new ArrayList<>();
+    private final Map<String, List<Trigger>> mainTriggers = new HashMap<>();
+    private final Map<String, List<Trigger>> periodicalTriggers = new HashMap<>();
+    private final Map<String, List<Trigger>> whenTriggers = new HashMap<>();
+    private final Map<String, List<Trigger>> atTimeTriggers = new HashMap<>();
 
     public Skript(String[] mainArgs) {
         this.mainArgs = mainArgs;
     }
 
     @Override
-    public void handleTrigger(Trigger trigger) {
+    public void handleTrigger(String scriptName, Trigger trigger) {
         SkriptEvent event = trigger.getEvent();
 
         if (!canHandleEvent(event))
             return;
 
         if (event instanceof EvtScriptLoad) {
-            mainTriggers.add(trigger);
+            mainTriggers.getOrDefault(scriptName, new ArrayList<>()).add(trigger);
         } else if (event instanceof EvtPeriodical) {
-            periodicalTriggers.add(trigger);
+            periodicalTriggers.getOrDefault(scriptName, new ArrayList<>()).add(trigger);
         } else if (event instanceof EvtWhen) {
-            whenTriggers.add(trigger);
+            whenTriggers.getOrDefault(scriptName, new ArrayList<>()).add(trigger);
         } else if (event instanceof EvtAtTime) {
-            atTimeTriggers.add(trigger);
+            atTimeTriggers.getOrDefault(scriptName, new ArrayList<>()).add(trigger);
         }
     }
 
     @Override
     public void finishedLoading() {
-        for (Trigger trigger : mainTriggers) {
+        for (Trigger trigger : mainTriggers.values().stream().flatMap(List::stream).toList()) {
             Statement.runAll(trigger, new ScriptLoadContext(mainArgs));
         }
-        for (Trigger trigger : periodicalTriggers) {
+        for (Trigger trigger : periodicalTriggers.values().stream().flatMap(List::stream).toList()) {
             var ctx = new PeriodicalContext();
             var dur = ((EvtPeriodical) trigger.getEvent()).getDuration().getSingle().orElseThrow(AssertionError::new);
             ThreadUtils.runPeriodically(() -> Statement.runAll(trigger, ctx), dur);
         }
-        for (Trigger trigger : whenTriggers) {
+        for (Trigger trigger : whenTriggers.values().stream().flatMap(List::stream).toList()) {
             var ctx = new WhenContext();
             ThreadUtils.runPeriodically(() -> Statement.runAll(trigger, ctx), Duration.ofMillis(DurationUtils.TICK));
         }
-        for (Trigger trigger : atTimeTriggers) {
+        for (Trigger trigger : atTimeTriggers.values().stream().flatMap(List::stream).toList()) {
             var ctx = new AtTimeContext();
             var time = ((EvtAtTime) trigger.getEvent()).getTime().getSingle().orElseThrow(AssertionError::new);
             var initialDelay = (Time.now().getTime().isAfter(time.getTime())
-                    ? Time.now().difference(Time.LATEST).plus(time.difference(Time.MIDNIGHT))
-                    : Time.now().difference(time));
+                ? Time.now().difference(Time.LATEST).plus(time.difference(Time.MIDNIGHT))
+                : Time.now().difference(time));
             ThreadUtils.runPeriodically(() -> Statement.runAll(trigger, ctx), initialDelay, Duration.ofDays(1));
         }
     }

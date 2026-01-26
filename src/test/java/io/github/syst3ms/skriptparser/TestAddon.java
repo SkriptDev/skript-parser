@@ -8,26 +8,28 @@ import io.github.syst3ms.skriptparser.syntax.EvtTest;
 import io.github.syst3ms.skriptparser.syntax.TestContext;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TestAddon extends SkriptAddon {
-    private final List<Trigger> testTriggers = new ArrayList<>();
+    private final Map<String,List<Trigger>> testTriggers = new HashMap<>();
 
     @Override
-    public void handleTrigger(Trigger trigger) {
+    public void handleTrigger(String scriptName, Trigger trigger) {
         SkriptEvent event = trigger.getEvent();
 
         if (!canHandleEvent(event))
             return;
 
         if (event instanceof EvtTest) {
-            testTriggers.add(trigger);
+            testTriggers.getOrDefault(scriptName, new ArrayList<>()).add(trigger);
         }
     }
 
     @Override
     public void finishedLoading() {
-        for (Trigger trigger : testTriggers) {
+        for (Trigger trigger : testTriggers.values().stream().flatMap(List::stream).toList()) {
             Statement.runAll(trigger, new TestContext.SubTestContext());
         }
 

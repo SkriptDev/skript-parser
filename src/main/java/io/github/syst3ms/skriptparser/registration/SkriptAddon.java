@@ -32,10 +32,11 @@ public abstract class SkriptAddon {
     /**
      * When a {@linkplain Trigger} is successfully parsed, it is "broadcast" to all addons through this method,
      * in the hopes that one of them will be able to handle it.
+     * @param scriptName the name of the script the trigger is in
      * @param trigger the trigger to be handled
      * @see #canHandleEvent(SkriptEvent)
      */
-    public abstract void handleTrigger(Trigger trigger);
+    public abstract void handleTrigger(String scriptName, Trigger trigger);
 
     /**
      * Is called when a script has finished loading. Optionally overridable.
@@ -44,7 +45,7 @@ public abstract class SkriptAddon {
 
     /**
      * Checks to see whether the given event has been registered by this SkriptAddon ; a basic way to filter out
-     * triggers you aren't able to deal with in {@link SkriptAddon#handleTrigger(Trigger)}.
+     * triggers you aren't able to deal with in {@link SkriptAddon#handleTrigger(String,Trigger)}.
      * A simple example of application can be found in {@link Skript#handleTrigger(Trigger)}.
      * @param event the event to check
      * @return whether the event can be handled by the addon or not
