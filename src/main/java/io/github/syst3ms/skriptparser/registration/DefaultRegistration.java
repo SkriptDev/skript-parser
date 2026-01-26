@@ -217,6 +217,8 @@ public class DefaultRegistration {
         registration.newType(Duration.class, "duration", "duration@s")
             .name("Duration")
             .description("Represents a time-based amount of time, such as '34.5 seconds'.")
+            .usage(DurationUtils.getUsage())
+            .since("INSERT VERSION")
             .literalParser(s -> DurationUtils.parseDuration(s).orElse(null))
             .toStringFunction(DurationUtils::toStringDuration)
             .arithmetic(new Arithmetic<Duration, Duration>() {

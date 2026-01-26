@@ -15,9 +15,9 @@ public class DurationUtils {
      * about a certain time unit. Sadly, Java does not allow to create a
      * clean alternative for this.
      */
-    private static final String[] unitPatterns = {"days?", "hours?", "minutes?", "seconds?", "milli(second)?s?"};
-    private static final String[] unitNames = {"day", "hour", "minute", "second", "millisecond"};
-    private static final int[] unitMillis = {86_400_000, 3_600_000, 60_000, 1000, 1};
+    private static final String[] unitPatterns = {"years?", "weeks?", "days?", "hours?", "minutes?", "seconds?", "milli(second)?s?"};
+    private static final String[] unitNames = {"year", "week", "day", "hour", "minute", "second", "millisecond"};
+    private static final long[] unitMillis = {31_536_000_000L, 604_800_000, 86_400_000, 3_600_000, 60_000, 1000, 1};
 
     public static Optional<Duration> parseDuration(String value) {
         if (value.isBlank())
@@ -66,7 +66,7 @@ public class DurationUtils {
                 unit = unit.substring(0, unit.length() - 1);
             }
 
-            int millis = -1;
+            long millis = -1;
             int iteration = 0;
             for (int j = 0; j < unitPatterns.length; j++) {
                 if (unit.matches(unitPatterns[j]) && !usedUnits[iteration]) {
@@ -81,7 +81,7 @@ public class DurationUtils {
             if (millis == -1)
                 return Optional.empty();
 
-            duration += delta * millis;
+            duration += (long) (delta * millis);
         }
         return Optional.of(Duration.ofMillis(duration));
     }
@@ -95,10 +95,10 @@ public class DurationUtils {
             long result = Math.floorDiv(millis, unitMillis[i]);
             if (result > 0) {
                 builder.append(first ? "" : ", ")
-                        .append(result == 1 ? (unitNames[i].equals("hour") ? "an" : "a") : result)
-                        .append(' ')
-                        .append(unitNames[i])
-                        .append(result > 1 ? "s" : "");
+                    .append(result == 1 ? (unitNames[i].equals("hour") ? "an" : "a") : result)
+                    .append(' ')
+                    .append(unitNames[i])
+                    .append(result > 1 ? "s" : "");
                 millis -= result * unitMillis[i];
                 first = false;
             }
@@ -109,4 +109,9 @@ public class DurationUtils {
 
         return builder.toString();
     }
+
+    public static String getUsage() {
+        return String.join(", ", unitNames);
+    }
+
 }
