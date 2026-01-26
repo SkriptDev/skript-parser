@@ -27,16 +27,18 @@ import java.util.Optional;
  * One can also loop a certain amount of times instead. The looped expression will still be
  * valid in that case.
  *
+ * @author Mwexim/LimeGlass
  * @name Loop
  * @type SECTION
  * @pattern loop %integer% times
  * @pattern loop %objects%
  * @since ALPHA
- * @author Mwexim
  */
 public class SecLoop extends ArgumentSection implements Continuable, SelfReferencing {
+
     static {
-        Parser.getMainRegistration().newSection(SecLoop.class, "loop %integer% times", "loop %objects%")
+        Parser.getMainRegistration().newSection(SecLoop.class,
+                "loop %integer% times", "loop %objects%")
             .name("Loop")
             .description("Loops over all the values in a list or loop x number of times.")
             .examples("loop 10 times:",
@@ -47,131 +49,135 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
             .register();
     }
 
-	@Nullable
-	private Expression<?> expression;
-	private Expression<BigInteger> times;
-	private boolean isNumericLoop;
+    @Nullable
+    private Expression<?> expression;
+    private Expression<BigInteger> times;
+    private boolean isNumericLoop;
 
-	@Nullable
-	private Statement actualNext;
-	@Nullable
-	private Iterator<?> iterator;
+    @Nullable
+    private Statement actualNext;
 
-	@Override
-	public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
-		super.setNext(this);
-		return super.loadSection(section, parserState, logger);
-	}
+    @Nullable
+    private Iterator<?> iterator;
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		isNumericLoop = matchedPattern == 0;
-		if (isNumericLoop) {
-			times = (Expression<BigInteger>) expressions[0];
-			// We can do some certainty checks with Literals.
-			if (times instanceof Literal<?>) {
-				var t = ((Optional<BigInteger>) ((Literal<BigInteger>) times).getSingle()).orElse(BigInteger.ONE);
-				if (t.intValue() <= 0) {
-					parseContext.getLogger().error("Cannot loop a negative or zero amount of times", ErrorType.SEMANTIC_ERROR);
-					return false;
-				} else if (t.intValue() == 1) {
-					parseContext.getLogger().error(
-							"Cannot loop a single time",
-							ErrorType.SEMANTIC_ERROR,
-							"Remove this loop, because looping something once can be achieved without a loop-statement"
-					);
-					return false;
-				}
-			}
-		} else {
-			expression = expressions[0];
-			if (expression.isSingle()) {
-				parseContext.getLogger().error(
-						"Cannot loop a single value",
-						ErrorType.SEMANTIC_ERROR,
-						"Remove this loop, because you clearly don't need to loop a single value"
-				);
-				return false;
-			}
-		}
-		return true;
-	}
+    @Override
+    public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+        if (!super.loadSection(section, parserState, logger))
+            return false;
+        super.setNext(this);
+        return true;
+    }
 
-	@Override
-	public Optional<? extends Statement> walk(TriggerContext ctx) {
-		if (isNumericLoop && expression == null) {
-			// We just set the looped expression to a range from 1 to the amount of times.
-			// This allows the usage of 'loop-number' to get the current iteration
-			expression = rangeOf(ctx, times);
-		}
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        isNumericLoop = matchedPattern == 0;
+        if (isNumericLoop) {
+            times = (Expression<BigInteger>) expressions[0];
+            // We can do some certainty checks with Literals.
+            if (times instanceof Literal<?>) {
+                var t = ((Optional<BigInteger>) ((Literal<BigInteger>) times).getSingle()).orElse(BigInteger.ONE);
+                if (t.intValue() <= 0) {
+                    parseContext.getLogger().error("Cannot loop a negative or zero amount of times", ErrorType.SEMANTIC_ERROR);
+                    return false;
+                } else if (t.intValue() == 1) {
+                    parseContext.getLogger().error(
+                        "Cannot loop a single time",
+                        ErrorType.SEMANTIC_ERROR,
+                        "Remove this loop, because looping something once can be achieved without a loop-statement"
+                    );
+                    return false;
+                }
+            }
+        } else {
+            expression = expressions[0];
+            if (expression.isSingle()) {
+                parseContext.getLogger().error(
+                    "Cannot loop a single value",
+                    ErrorType.SEMANTIC_ERROR,
+                    "Remove this loop, because you clearly don't need to loop a single value"
+                );
+                return false;
+            }
+        }
+        return true;
+    }
 
-		if (iterator == null) {
-			assert expression != null;
-			iterator = expression instanceof Variable ? ((Variable<?>) expression).variablesIterator(ctx) : expression.iterator(ctx);
-		}
+    @Override
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
+        if (isNumericLoop && expression == null) {
+            // We just set the looped expression to a range from 1 to the amount of times.
+            // This allows the usage of 'loop-number' to get the current iteration
+            expression = rangeOf(ctx, times);
+        }
 
-		if (iterator.hasNext()) {
-			setArguments(iterator.next());
-			return start();
-		} else {
-			finish();
-			return Optional.ofNullable(actualNext);
-		}
-	}
+        if (iterator == null) {
+            assert expression != null;
+            iterator = expression instanceof Variable ? ((Variable<?>) expression).variablesIterator(ctx) : expression.iterator(ctx);
+        }
 
-	@Override
-	public Statement setNext(@Nullable Statement next) {
-		this.actualNext = next;
-		return this;
-	}
+        if (iterator.hasNext()) {
+            setArguments(iterator.next());
+            return start();
+        } else {
+            finish();
+            return Optional.ofNullable(actualNext);
+        }
+    }
 
-	@Override
-	public void finish() {
-		// Cache clearing
-		iterator = null;
-	}
+    @Override
+    public Statement setNext(@Nullable Statement next) {
+        this.actualNext = next;
+        return this;
+    }
 
-	@Override
-	public Optional<? extends Statement> getContinued(TriggerContext ctx) {
-		return Optional.of(this);
-	}
+    @Override
+    public void finish() {
+        // Cache clearing
+        iterator = null;
+    }
 
-	@Override
-	public Optional<Statement> getActualNext() {
-		return Optional.ofNullable(actualNext);
-	}
+    @Override
+    public Optional<? extends Statement> getContinued(TriggerContext ctx) {
+        return Optional.of(this);
+    }
 
-	@Override
-	public String toString(TriggerContext ctx, boolean debug) {
-		assert expression != null;
-		return "loop " + (isNumericLoop ? times.toString(ctx, debug) + " times" : expression.toString(ctx, debug));
-	}
+    @Override
+    public Optional<Statement> getActualNext() {
+        return Optional.ofNullable(actualNext);
+    }
 
-	/**
-	 * @return the expression whose values this loop is iterating over
-	 */
-	public Expression<?> getLoopedExpression() {
-		if (isNumericLoop && expression == null) {
-			expression = rangeOf(TriggerContext.DUMMY, times);
-		}
-		return expression;
-	}
+    @Override
+    public String toString(TriggerContext ctx, boolean debug) {
+        assert expression != null;
+        return "loop " + (isNumericLoop ? times.toString(ctx, debug) + " times" : expression.toString(ctx, debug));
+    }
 
-	/**
-	 * Returns a SimpleLiteral containing the numbers 1 up until a certain amount, specified
-	 * by the given expression.
-	 * @param ctx the context
-	 * @param size the expression
-	 * @return the SimpleLiteral
-	 */
-	private static Expression<BigInteger> rangeOf(TriggerContext ctx, Expression<BigInteger> size) {
-		BigInteger[] range = (BigInteger[]) size.getSingle(ctx)
-				.filter(t -> t.compareTo(BigInteger.ZERO) > 0)
-				.map(t -> Ranges.getRange(BigInteger.class).orElseThrow()
-						.getFunction()
-						.apply(BigInteger.ONE, t)) // Upper bound is inclusive
-				.orElse(new BigInteger[0]);
-		return new SimpleLiteral<>(BigInteger.class, range);
-	}
+    /**
+     * @return the expression whose values this loop is iterating over
+     */
+    public Expression<?> getLoopedExpression() {
+        if (isNumericLoop && expression == null) {
+            expression = rangeOf(TriggerContext.DUMMY, times);
+        }
+        return expression;
+    }
+
+    /**
+     * Returns a SimpleLiteral containing the numbers 1 up until a certain amount, specified
+     * by the given expression.
+     *
+     * @param ctx  the context
+     * @param size the expression
+     * @return the SimpleLiteral
+     */
+    private static Expression<BigInteger> rangeOf(TriggerContext ctx, Expression<BigInteger> size) {
+        BigInteger[] range = (BigInteger[]) size.getSingle(ctx)
+            .filter(t -> t.compareTo(BigInteger.ZERO) > 0)
+            .map(t -> Ranges.getRange(BigInteger.class).orElseThrow()
+                .getFunction()
+                .apply(BigInteger.ONE, t)) // Upper bound is inclusive
+            .orElse(new BigInteger[0]);
+        return new SimpleLiteral<>(BigInteger.class, range);
+    }
 }

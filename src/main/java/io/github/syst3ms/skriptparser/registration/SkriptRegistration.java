@@ -36,6 +36,7 @@ import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.changers.Changer;
+import io.github.syst3ms.skriptparser.types.changers.TypeSerializer;
 import io.github.syst3ms.skriptparser.types.conversions.ConverterInfo;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
@@ -226,7 +227,7 @@ public class SkriptRegistration {
      * @return an {@link ExpressionRegistrar} to continue the registration process
      */
     public <C extends PropertyExpression<?,T>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, String property, String owner) {
-        return (ExpressionRegistrar<C, T>) newExpression(c, returnType, false, PropertyExpression.composePatterns(property, owner))
+        return (ExpressionRegistrar<C, T>) newExpression(c, returnType, false, PropertyExpression. composePatterns(property, owner))
                 .addData(PropertyExpression.PROPERTY_IDENTIFIER, property);
     }
 
@@ -618,6 +619,8 @@ public class SkriptRegistration {
         private Changer<? super C> defaultChanger;
         @Nullable
         private Arithmetic<C, ?> arithmetic;
+        @Nullable
+        private TypeSerializer<C> serializer;
         private final Documentation documentation = new Documentation();
 
         public TypeRegistrar(Class<C> c, String baseName, String pattern) {
@@ -663,6 +666,15 @@ public class SkriptRegistration {
             return this;
         }
 
+        /**
+         * @param serializer add a type serializer that allows the type to be saved to databases.
+         * @return the registrar
+         */
+        public TypeRegistrar<C> serializer(TypeSerializer<C> serializer) {
+            this.serializer = serializer;
+            return this;
+        }
+
         public <R> TypeRegistrar<C> name(String name) {
             this.documentation.setName(name);
             return this;
@@ -694,7 +706,7 @@ public class SkriptRegistration {
         @Override
         public void register() {
             newTypes = true;
-            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic, this.documentation));
+            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic,  documentation, serializer));
         }
     }
 
@@ -942,6 +954,10 @@ public class SkriptRegistration {
             // Register the context value
             contextValues.add(new ContextValue<>(context, type.get(), isSingle, pattern.get(), function, state, usage, excluded));
         }
+    }
+
+    public SkriptLogger getLogger() {
+        return this.logger;
     }
 
     /**

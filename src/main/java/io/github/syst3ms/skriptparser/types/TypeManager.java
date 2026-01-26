@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -12,10 +13,12 @@ import java.util.Optional;
  */
 @SuppressWarnings("unchecked")
 public class TypeManager {
+
     /**
      * The string equivalent of null
      */
     public static final String NULL_REPRESENTATION = "<none>";
+
     /**
      * The string equivalent of an empty array
      */
@@ -50,7 +53,6 @@ public class TypeManager {
         }
         return Optional.empty();
     }
-
 
     /**
      * Gets a {@link Type} from its associated {@link Class}.
@@ -115,10 +117,18 @@ public class TypeManager {
         return Optional.empty();
     }
 
+    public static Type<?> parseType(String input) {
+        Optional<? extends Type<?>> type = TypeManager.getByExactName(input.toLowerCase(Locale.ENGLISH));
+        if (type.isPresent())
+            return type.get();
+        return TypeManager.getByName(input).orElse(null); // allows for plural inputs
+    }
+
     public static void register(SkriptRegistration reg) {
         for (var type : reg.getTypes()) {
             nameToType.put(type.getBaseName(), type);
             classToType.put(type.getTypeClass(), type);
         }
     }
+
 }

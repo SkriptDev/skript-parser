@@ -12,6 +12,7 @@ import io.github.syst3ms.skriptparser.lang.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
+import io.github.syst3ms.skriptparser.structures.functions.StructFunction;
 import io.github.syst3ms.skriptparser.util.DurationUtils;
 import io.github.syst3ms.skriptparser.util.ThreadUtils;
 import io.github.syst3ms.skriptparser.util.Time;
@@ -53,6 +54,8 @@ public class Skript extends SkriptAddon {
             whenTriggers.getOrDefault(scriptName, new ArrayList<>()).add(trigger);
         } else if (event instanceof EvtAtTime) {
             atTimeTriggers.getOrDefault(scriptName, new ArrayList<>()).add(trigger);
+        } else if (event instanceof StructFunction function) {
+            function.register(trigger);
         }
     }
 

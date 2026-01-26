@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.types;
 import io.github.syst3ms.skriptparser.docs.Documentation;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
 import io.github.syst3ms.skriptparser.types.changers.Changer;
+import io.github.syst3ms.skriptparser.types.changers.TypeSerializer;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,16 +17,23 @@ import java.util.function.Function;
  * @see PatternType
  */
 public class Type<T> {
-    private final Class<T> typeClass;
-    private final String baseName;
-    private final String[] pluralForms;
-    private final Function<Object, String> toStringFunction;
+
     @Nullable
     private final Function<String, ? extends T> literalParser;
+
     @Nullable
     private final Changer<? super T> defaultChanger;
+
+    @Nullable
+    private final TypeSerializer<T> serializer;
+
     @Nullable
     private final Arithmetic<T, ?> arithmetic;
+
+    private final Function<Object, String> toStringFunction;
+    private final String[] pluralForms;
+    private final Class<T> typeClass;
+    private final String baseName;
     private final Documentation documentation;
 
     /**
@@ -86,9 +94,8 @@ public class Type<T> {
                 String baseName,
                 String pattern,
                 @Nullable Function<String, ? extends T> literalParser,
-                Function<? super T, String> toStringFunction,
-                Documentation documentation) {
-        this(typeClass, baseName, pattern, literalParser, toStringFunction, null, documentation);
+                Function<? super T, String> toStringFunction, Documentation documentation) {
+        this(typeClass, baseName, pattern, literalParser, toStringFunction,  null, documentation);
     }
 
     public Type(Class<T> typeClass,
@@ -96,9 +103,19 @@ public class Type<T> {
                 String pattern,
                 @Nullable Function<String, ? extends T> literalParser,
                 Function<? super T, String> toStringFunction,
-                @Nullable Changer<? super T> defaultChanger,
+                @Nullable Changer<? super T> defaultChanger, Documentation documentation) {
+        this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger,  null, documentation);
+    }
+
+    public Type(Class<T> typeClass,
+            String baseName,
+            String pattern,
+            @Nullable Function<String, ? extends T> literalParser,
+            Function<? super T, String> toStringFunction,
+            @Nullable Changer<? super T> defaultChanger,
+            @Nullable Arithmetic<T, ?> arithmetic,
                 Documentation documentation) {
-        this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger, null, documentation);
+        this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic, documentation, null);
     }
 
     @SuppressWarnings("unchecked")
@@ -108,8 +125,7 @@ public class Type<T> {
                 @Nullable Function<String, ? extends T> literalParser,
                 Function<? super T, String> toStringFunction,
                 @Nullable Changer<? super T> defaultChanger,
-                @Nullable Arithmetic<T, ?> arithmetic,
-                Documentation documentation) {
+                @Nullable Arithmetic<T, ?> arithmetic, Documentation documentation, @Nullable TypeSerializer<T> serializer) {
         this.typeClass = typeClass;
         this.baseName = baseName;
         this.literalParser = literalParser;
@@ -118,6 +134,11 @@ public class Type<T> {
         this.defaultChanger = defaultChanger;
         this.arithmetic = arithmetic;
         this.documentation = documentation;
+        this.serializer = serializer;
+    }
+
+    public boolean isPlural(String input) {
+        return input.equalsIgnoreCase(getPluralForm());
     }
 
     public Class<T> getTypeClass() {
@@ -132,8 +153,19 @@ public class Type<T> {
         return pluralForms;
     }
 
+    /**
+     * @return strictly the plural form of the type, not including the regular form like {@link Type#getPluralForms()} does
+     */
+    public String getPluralForm() {
+        return pluralForms[1];
+    }
+
     public Function<Object, String> getToStringFunction() {
         return toStringFunction;
+    }
+
+    public Optional<TypeSerializer<T>> getSerializer() {
+        return Optional.ofNullable(serializer);
     }
 
     public Optional<Function<String, ? extends T>> getLiteralParser() {

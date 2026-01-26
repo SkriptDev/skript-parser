@@ -35,182 +35,191 @@ import java.util.Optional;
  * </ul>
  */
 public class SectionConfiguration {
-	@Nullable
-	private CodeSection parent;
-	private final List<EntryLoader> entries;
-	private final Map<String, Object> data = new HashMap<>();
-	private boolean loaded = false;
-	
-	private SectionConfiguration(List<EntryLoader> entries) {
-		this.entries = entries;
-	}
 
-	/**
-	 * Load the data of this {@link SectionConfiguration} into to the {@link #getData() data map} using
-	 * a FileSection instance. This method should be called only once and will throw an error if attempting
-	 * to load the configuration multiple times. The default use-case would be to load the configuration inside
-	 * CodeSection's {@link CodeSection#loadSection(FileSection, ParserState, SkriptLogger) load} method.
-	 * @param parent the parent section
-	 * @param section the file section
-	 * @param parserState the parse state
-	 * @param logger the logger
-	 * @return whether the section was loaded successfully or errors occurred
-	 */
-	public boolean loadConfiguration(@Nullable CodeSection parent, FileSection section, ParserState parserState, SkriptLogger logger) {
-		if (loaded)
-			throw new IllegalStateException("This section configuration has already been loaded once");
+    private final Map<String, Object> data = new HashMap<>();
+    private final List<EntryLoader> entries;
 
-		boolean successful = true;
-		this.parent = parent;
+    @Nullable
+    private CodeSection parent;
+    private boolean loaded;
 
-		outer:
-		for (var entry : entries) {
-			for (var el : section.getElements()) {
-				logger.setLine(el.getLine() - 1);
+    private SectionConfiguration(List<EntryLoader> entries) {
+        this.entries = entries;
+    }
 
-				if (logger.hasError()) {
-					/*
-					 * If the execution of 'loadEntry' caused errors, it means that we
-					 * should not continue parsing the other sections, as specified in
-					 * the Javadoc.
-					 * We finalize the logs and move on to the next entry.
-					 */
-					logger.finalizeLogs();
-					successful = false;
-					continue outer;
-				}
-				if (el instanceof VoidElement)
-					continue;
-				if (entry.loadEntry(this, el, parserState, logger))
-					continue outer;
-			}
-			if (entry.isOptional())
-				continue;
-			// If we're here, it means no value matched and the entry hasn't been configured.
-			// Only the section line is relevant.
-			logger.setLine(section.getLine() - 1);
-			logger.error("The entry named '" + entry.key + "' has not been configured", ErrorType.SEMANTIC_ERROR);
-			logger.finalizeLogs();
-			successful = false;
-		}
+    /**
+     * Load the data of this {@link SectionConfiguration} into to the {@link #getData() data map} using
+     * a FileSection instance. This method should be called only once and will throw an error if attempting
+     * to load the configuration multiple times. The default use-case would be to load the configuration inside
+     * CodeSection's {@link CodeSection#loadSection(FileSection, ParserState, SkriptLogger) load} method.
+     * 
+     * @param parent the parent section
+     * @param section the file section
+     * @param parserState the parse state
+     * @param logger the logger
+     * @return whether the section was loaded successfully or errors occurred
+     */
+    public boolean loadConfiguration(@Nullable CodeSection parent, FileSection section, ParserState parserState, SkriptLogger logger) {
+        if (loaded)
+            throw new IllegalStateException("This section configuration has already been loaded once");
 
-		if (!successful) {
-			// Add a final error message stating the section has not been configured correctly.
-			// Only the section line is relevant.
-			logger.setLine(section.getLine() - 1);
-			logger.error("The section '" + section.getLineContent() + "' has not been configured correctly", ErrorType.SEMANTIC_ERROR);
-		}
-		loaded = true;
-		return successful;
-	}
+        boolean successful = true;
+        this.parent = parent;
 
-	@Nullable
-	public CodeSection getParent() {
-		return parent;
-	}
+        outer:
+        for (var entry : entries) {
+            for (var element : section.getElements()) {
+                logger.setLine(element.getLine() - 1);
+                if (logger.hasError()) {
+                    /*
+                     * If the execution of 'loadEntry' caused errors, it means that we
+                     * should not continue parsing the other sections, as specified in
+                     * the Javadoc.
+                     * We finalize the logs and move on to the next entry.
+                     */
+                    logger.finalizeLogs();
+                    successful = false;
+                    continue outer;
+                }
+                if (element instanceof VoidElement)
+                    continue;
+                if (entry.loadEntry(this, element, parserState, logger))
+                    continue outer;
+            }
+            if (entry.isOptional())
+                continue;
+            // If we're here, it means no value matched and the entry hasn't been configured.
+            // Only the section line is relevant.
+            logger.setLine(section.getLine() - 1);
+            logger.error("The entry named '" + entry.key + "' has not been configured", ErrorType.SEMANTIC_ERROR);
+            logger.finalizeLogs();
+            successful = false;
+        }
 
-	/**
-	 * @return a modifiable map containing the loaded data
-	 */
-	public Map<String, Object> getData() {
-		return data;
-	}
+        if (!successful) {
+            // Add a final error message stating the section has not been configured correctly.
+            // Only the section line is relevant.
+            logger.setLine(section.getLine() - 1);
+            logger.error("The section '" + section.getLineContent() + "' has not been configured correctly", ErrorType.SEMANTIC_ERROR);
+        }
+        loaded = true;
+        return successful;
+    }
 
-	public Object getValue(String key) {
-		return data.get(key);
-	}
+    @Nullable
+    public CodeSection getParent() {
+        return parent;
+    }
 
-	/**
-	 * Tries to retrieve a value from its key and cast it to the correct class.
-	 * This can only be used when you register your option as a {@link Builder#addLiteral(String, Class) literal},
-	 * otherwise, the option will likely be parsed as a String and throw an exception.
-	 * Options that allow literal lists are saved as an array.
-	 * Returns an empty Optional if the key is not present. This is only possible for optional keys.
-	 *
-	 * @param key the key
-	 * @param cls the class to cast to
-	 * @return the value cast to the given class, or an empty Optional if the key was not specified
-	 * @param <T> the type of the value
-	 */
-	@SuppressWarnings("unchecked")
-	public <T> Optional<T> getValue(String key, Class<T> cls) {
-		var result = data.get(key);
-		if (result == null)
-			return Optional.empty();
-		if (result.getClass() == String.class && result.getClass() != cls)
-			throw new UnsupportedOperationException("The key '" + key + "' was not registered as a literal, was parsed as a String and can, therefore, not be cast to " + cls.getName());
-		return Optional.of((T) result);
-	}
+    /**
+     * @return a modifiable map containing the loaded data
+     */
+    public Map<String, Object> getData() {
+        return data;
+    }
 
-	/**
-	 * @param key the key
-	 * @return the option value, or an empty Optional if the key was not specified
-	 */
-	public Optional<String> getString(String key) {
-		return getValue(key, String.class);
-	}
+    public List<EntryLoader> getEntries() {
+        return entries;
+    }
 
-	/**
-	 * @param key the key
-	 * @return the list values, or an empty Optional if the key was not specified
-	 */
-	public Optional<String[]> getStringList(String key) {
-		return getValue(key, String[].class);
-	}
+    public Object getValue(String key) {
+        return data.get(key);
+    }
 
-	/**
-	 * @param key the key
-	 * @return the enclosed code section, or an empty Optional if the key was not specified
-	 */
-	public Optional<CodeSection> getSection(String key) {
-		return getValue(key, CodeSection.class);
-	}
-	
-	public static class Builder {
-		private final List<EntryLoader> entries = new ArrayList<>();
+    /**
+     * Tries to retrieve a value from its key and cast it to the correct class.
+     * This can only be used when you register your option as a {@link Builder#addLiteral(String, Class) literal},
+     * otherwise, the option will likely be parsed as a String and throw an exception.
+     * Options that allow literal lists are saved as an array.
+     * Returns an empty Optional if the key is not present. This is only possible for optional keys.
+     *
+     * @param key the key
+     * @param cls the class to cast to
+     * @return the value cast to the given class, or an empty Optional if the key was not specified
+     * @param <T> the type of the value
+     */
+    @SuppressWarnings("unchecked")
+    public <T> Optional<T> getValue(String key, Class<T> cls) {
+        var result = data.get(key);
+        if (result == null)
+            return Optional.empty();
+        if (result.getClass() == String.class && result.getClass() != cls)
+            throw new UnsupportedOperationException("The key '" + key + "' was not registered as a literal, was parsed as a String and can, therefore, not be cast to " + cls.getName());
+        return Optional.of((T) result);
+    }
 
-		public Builder addKey(String key) {
-			entries.add(new OptionLoader(key, false, false));
-			return this;
-		}
+    /**
+     * @param key the key
+     * @return the option value, or an empty Optional if the key was not specified
+     */
+    public Optional<String> getString(String key) {
+        return getValue(key, String.class);
+    }
 
-		public Builder addOptionalKey(String key) {
-			entries.add(new OptionLoader(key, false, true));
-			return this;
-		}
+    /**
+     * @param key the key
+     * @return the list values, or an empty Optional if the key was not specified
+     */
+    public Optional<String[]> getStringList(String key) {
+        return getValue(key, String[].class);
+    }
 
-		public Builder addList(String key) {
-			entries.add(new OptionLoader(key, true, false));
-			return this;
-		}
+    /**
+     * @param key the key
+     * @return the enclosed code section, or an empty Optional if the key was not specified
+     */
+    public Optional<CodeSection> getSection(String key) {
+        return getValue(key, CodeSection.class);
+    }
 
-		public Builder addOptionalList(String key) {
-			entries.add(new OptionLoader(key, true, true));
-			return this;
-		}
+    public static class Builder {
 
-		public Builder addLiteral(String key, Class<?> typeClass) {
-			entries.add(new LiteralLoader<>(key, typeClass, false, false));
-			return this;
-		}
+        private final List<EntryLoader> entries = new ArrayList<>();
 
-		public Builder addLiteralList(String key, Class<?> typeClass) {
-			entries.add(new LiteralLoader<>(key, typeClass, true, false));
-			return this;
-		}
+        public Builder addKey(String key) {
+            entries.add(new OptionLoader(key, false, false));
+            return this;
+        }
 
-		public Builder addSection(String key) {
-			entries.add(new SectionLoader(key, false));
-			return this;
-		}
+        public Builder addOptionalKey(String key) {
+            entries.add(new OptionLoader(key, false, true));
+            return this;
+        }
 
-		public Builder addLoader(EntryLoader loader) {
-			entries.add(loader);
-			return this;
-		}
+        public Builder addList(String key) {
+            entries.add(new OptionLoader(key, true, false));
+            return this;
+        }
 
-		public SectionConfiguration build() {
-			return new SectionConfiguration(entries);
-		}
-	}
+        public Builder addOptionalList(String key) {
+            entries.add(new OptionLoader(key, true, true));
+            return this;
+        }
+
+        public Builder addLiteral(String key, Class<?> typeClass) {
+            entries.add(new LiteralLoader<>(key, typeClass, false, false));
+            return this;
+        }
+
+        public Builder addLiteralList(String key, Class<?> typeClass) {
+            entries.add(new LiteralLoader<>(key, typeClass, true, false));
+            return this;
+        }
+
+        public Builder addSection(String key) {
+            entries.add(new SectionLoader(key, false));
+            return this;
+        }
+
+        public Builder addLoader(EntryLoader loader) {
+            entries.add(loader);
+            return this;
+        }
+
+        public SectionConfiguration build() {
+            return new SectionConfiguration(entries);
+        }
+
+    }
+
 }
