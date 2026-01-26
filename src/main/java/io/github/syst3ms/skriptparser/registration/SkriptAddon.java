@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.registration;
 import io.github.syst3ms.skriptparser.Skript;
 import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.Trigger;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -32,7 +33,14 @@ public abstract class SkriptAddon {
     /**
      * Is called when a script has finished loading. Optionally overridable.
      */
-    public void finishedLoading() {}
+    public void finishedLoading(@Nullable String scriptName) {}
+
+    /**
+     * Is called when all scripts have finished loading. Optionally overridable.
+     */
+    public void finishedLoading() {
+        finishedLoading(null);
+    }
 
     /**
      * Checks to see whether the given event has been registered by this SkriptAddon ; a basic way to filter out
