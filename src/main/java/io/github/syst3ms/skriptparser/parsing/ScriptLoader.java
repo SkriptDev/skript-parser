@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileParser;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.file.VoidElement;
+import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.lang.UnloadedTrigger;
@@ -20,7 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Contains the logic for loading, parsing and interpreting entire script files
+ * Contains the logic for loading, parsing, and interpreting entire script files
  */
 public class ScriptLoader {
 
@@ -88,7 +89,10 @@ public class ScriptLoader {
             logger.setLine(unloaded.getLine());
             var loaded = unloaded.getTrigger();
             loaded.loadSection(unloaded.getSection(), unloaded.getParserState(), logger);
-            unloaded.getEventInfo().getRegisterer().handleTrigger(scriptName,loaded);
+            //unloaded.getEventInfo().getRegisterer().handleTrigger(scriptName,loaded);
+            SkriptEvent event = unloaded.getTrigger().getEvent();
+            event.clearTrigger(scriptName);
+            event.addTrigger(scriptName, loaded);
             triggerMap.putOne(scriptName, loaded);
         }
         logger.finalizeLogs();

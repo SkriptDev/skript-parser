@@ -3,9 +3,13 @@ package io.github.syst3ms.skriptparser.event;
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
-import io.github.syst3ms.skriptparser.lang.SkriptEvent;
+import io.github.syst3ms.skriptparser.lang.Statement;
+import io.github.syst3ms.skriptparser.lang.Trigger;
+import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.event.StartOnLoadEvent;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.util.ThreadUtils;
 
 import java.time.Duration;
 
@@ -21,7 +25,7 @@ import java.time.Duration;
  * @since ALPHA
  * @author Mwexim
  */
-public class EvtPeriodical extends SkriptEvent {
+public class EvtPeriodical extends SkriptEvent implements StartOnLoadEvent {
     static {
         Parser.getMainRegistration()
                 .newEvent(EvtPeriodical.class, "*every %*duration%")
@@ -50,5 +54,12 @@ public class EvtPeriodical extends SkriptEvent {
 
     public Literal<Duration> getDuration() {
         return duration;
+    }
+
+    @Override
+    public void onInitialLoad(Trigger trigger) {
+        var ctx = new PeriodicalContext();
+        var dur = getDuration().getSingle().orElseThrow(AssertionError::new);
+        ThreadUtils.runPeriodically(() -> Statement.runAll(trigger, ctx), dur);
     }
 }

@@ -1,7 +1,7 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.Skript;
-import io.github.syst3ms.skriptparser.lang.SkriptEvent;
+import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 
 import java.util.ArrayList;
@@ -28,15 +28,6 @@ public abstract class SkriptAddon {
     public static List<SkriptAddon> getAddons() {
         return Collections.unmodifiableList(ADDONS);
     }
-
-    /**
-     * When a {@linkplain Trigger} is successfully parsed, it is "broadcast" to all addons through this method,
-     * in the hopes that one of them will be able to handle it.
-     * @param scriptName the name of the script the trigger is in
-     * @param trigger the trigger to be handled
-     * @see #canHandleEvent(SkriptEvent)
-     */
-    public abstract void handleTrigger(String scriptName, Trigger trigger);
 
     /**
      * Is called when a script has finished loading. Optionally overridable.

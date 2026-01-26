@@ -1,12 +1,22 @@
-package io.github.syst3ms.skriptparser.lang;
+package io.github.syst3ms.skriptparser.lang.event;
 
 import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.lang.CodeSection;
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.Statement;
+import io.github.syst3ms.skriptparser.lang.SyntaxElement;
+import io.github.syst3ms.skriptparser.lang.Trigger;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
+import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -24,6 +34,13 @@ import java.util.Set;
  * </ul>
  */
 public abstract class SkriptEvent implements SyntaxElement {
+
+    private final Map<String, List<Trigger>> TRIGGER_MAP = new HashMap<>();
+
+    public List<Trigger> getTriggers() {
+        return TRIGGER_MAP.values().stream().flatMap(List::stream).toList();
+    }
+
     /**
      * Whether this event should trigger, given the {@link TriggerContext}
      * @param ctx the TriggerContext to check
@@ -33,6 +50,11 @@ public abstract class SkriptEvent implements SyntaxElement {
 
     public List<Statement> loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
         return ScriptLoader.loadItems(section, parserState, logger);
+    }
+
+    @Override
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        return false;
     }
 
     /**
@@ -58,7 +80,7 @@ public abstract class SkriptEvent implements SyntaxElement {
      * or {@code null} if you don't want to allow any
      * @see #isRestrictingExpressions()
      */
-    protected Set<Class<? extends SyntaxElement>> getAllowedSyntaxes() {
+    public Set<Class<? extends SyntaxElement>> getAllowedSyntaxes() {
         return Collections.emptySet();
     }
 
@@ -69,7 +91,16 @@ public abstract class SkriptEvent implements SyntaxElement {
      * This should return true <b>if and only if</b> {@link #getAllowedSyntaxes()} contains an {@linkplain Expression} class.
      * @return whether the use of expressions is also restricted by {@link #getAllowedSyntaxes()}. False by default.
      */
-    protected boolean isRestrictingExpressions() {
+    public boolean isRestrictingExpressions() {
         return false;
     }
+
+    public void addTrigger(String scriptName, Trigger trigger) {
+        TRIGGER_MAP.computeIfAbsent(scriptName, k -> Collections.synchronizedList(Collections.emptyList())).add(trigger);
+    }
+
+    public void clearTrigger(String scriptName) {
+        TRIGGER_MAP.put(scriptName, new ArrayList<>());
+    }
+
 }

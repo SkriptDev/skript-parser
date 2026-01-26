@@ -3,10 +3,16 @@ package io.github.syst3ms.skriptparser.event;
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
-import io.github.syst3ms.skriptparser.lang.SkriptEvent;
+import io.github.syst3ms.skriptparser.lang.Statement;
+import io.github.syst3ms.skriptparser.lang.Trigger;
+import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.event.StartOnLoadEvent;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.util.ThreadUtils;
 import io.github.syst3ms.skriptparser.util.Time;
+
+import java.time.Duration;
 
 /**
  * This event will trigger each day at a given time.
@@ -18,7 +24,7 @@ import io.github.syst3ms.skriptparser.util.Time;
  * @since ALPHA
  * @author Mwexim
  */
-public class EvtAtTime extends SkriptEvent {
+public class EvtAtTime extends SkriptEvent implements StartOnLoadEvent {
     static {
         Parser.getMainRegistration()
                 .newEvent(EvtAtTime.class, "*at %*time%")
@@ -48,4 +54,15 @@ public class EvtAtTime extends SkriptEvent {
     public Literal<Time> getTime() {
         return time;
     }
+
+    @Override
+    public void onInitialLoad(Trigger trigger) {
+        var ctx = new AtTimeContext();
+        var time = getTime().getSingle().orElseThrow(AssertionError::new);
+        var initialDelay = (Time.now().getTime().isAfter(time.getTime())
+            ? Time.now().difference(Time.LATEST).plus(time.difference(Time.MIDNIGHT))
+            : Time.now().difference(time));
+        ThreadUtils.runPeriodically(() -> Statement.runAll(trigger, ctx), initialDelay, Duration.ofDays(1));
+    }
+
 }

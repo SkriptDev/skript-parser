@@ -2,9 +2,16 @@ package io.github.syst3ms.skriptparser.event;
 
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.SkriptEvent;
+import io.github.syst3ms.skriptparser.lang.Statement;
+import io.github.syst3ms.skriptparser.lang.Trigger;
+import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.event.StartOnLoadEvent;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.util.DurationUtils;
+import io.github.syst3ms.skriptparser.util.ThreadUtils;
+
+import java.time.Duration;
 
 /**
  * This event will check against a certain condition and will trigger when the condition is met.
@@ -16,7 +23,7 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  * @since ALPHA
  * @author Mwexim
  */
-public class EvtWhen extends SkriptEvent {
+public class EvtWhen extends SkriptEvent implements StartOnLoadEvent {
     static {
         Parser.getMainRegistration()
                 .newEvent(EvtWhen.class, "*when %=boolean%")
@@ -44,4 +51,11 @@ public class EvtWhen extends SkriptEvent {
     public String toString(TriggerContext ctx, boolean debug) {
         return "when " + condition.toString(ctx, debug);
     }
+
+    @Override
+    public void onInitialLoad(Trigger trigger) {
+        var ctx = new WhenContext();
+        ThreadUtils.runPeriodically(() -> Statement.runAll(trigger, ctx), Duration.ofMillis(DurationUtils.TICK));
+    }
+
 }
