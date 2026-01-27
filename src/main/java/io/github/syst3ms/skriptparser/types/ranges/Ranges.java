@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.types.ranges;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -9,7 +10,7 @@ import java.util.function.BiFunction;
  * A class handling registration of ranges
  */
 public class Ranges {
-    private static final Map<Class<?>, RangeInfo<?, ?>> rangeMap = new HashMap<>();
+    private static final Map<Class<?>, RangeInfo<?, ?>> rangeMap = new LinkedHashMap<>();
 
     public static <B, T> void registerRange(Class<B> bound, Class<T> to, BiFunction<? super B, ? super B, T[]> function) {
         rangeMap.put(

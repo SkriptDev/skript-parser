@@ -139,6 +139,10 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 			one[0] = current.getSecond();
 			return one;
 		}
+		Object[] arguments = loop.getArguments();
+		if (arguments == null || arguments.length == 0) {
+			return new Object[0];
+		}
 		one[0] = loop.getArguments()[0];
 		return one;
 	}

@@ -432,10 +432,27 @@ public class DefaultRegistration {
             }
         );
         Ranges.registerRange(
+            Integer.class,
+            Integer.class,
+            (l, r) -> {
+                if (l >= r) {
+                    return new Integer[0];
+                } else {
+                    List<Integer> elements = new ArrayList<>();
+                    int current = l;
+                    do {
+                        elements.add(current);
+                        current = current + 1;
+                    } while (current <= r);
+                    return elements.toArray(new Integer[0]);
+                }
+            }
+        );
+        Ranges.registerRange(
             Number.class,
             Number.class,
             (l, r) -> {
-                if (l.doubleValue() >= 0) {
+                if (l.doubleValue() >= r.doubleValue()) {
                     return new Number[0];
                 } else {
                     List<Number> elements = new ArrayList<>();
@@ -443,7 +460,7 @@ public class DefaultRegistration {
                     do {
                         elements.add(current);
                         current = current.doubleValue() + 1;
-                    } while (current.intValue() <= 0);
+                    } while (current.doubleValue() <= r.doubleValue());
                     return elements.toArray(new Number[0]);
                 }
             }
@@ -458,6 +475,10 @@ public class DefaultRegistration {
         registration.addConverter(Integer.class, Long.class, i -> Optional.of(i.longValue()));
         registration.addConverter(Double.class, Float.class, d -> Optional.of(d.floatValue()));
         registration.addConverter(Float.class, Double.class, f -> Optional.of(f.doubleValue()));
+        registration.addConverter(Number.class, Integer.class, n -> Optional.of(n.intValue()));
+        registration.addConverter(Number.class, Long.class, n -> Optional.of(n.longValue()));
+        registration.addConverter(Number.class, Float.class, n -> Optional.of(n.floatValue()));
+        registration.addConverter(Number.class, Double.class, n -> Optional.of(n.doubleValue()));
         registration.register(true); // Ignoring logs here, we control the input
     }
 }

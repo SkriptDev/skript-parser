@@ -18,6 +18,7 @@ import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -37,7 +38,7 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
 
     static {
         Parser.getMainRegistration().newSection(SecLoop.class,
-                "loop %number% times", "loop %objects%")
+                "loop %integer% times", "loop %objects%")
             .name("Loop")
             .description("Loops over all the values in a list or loop x number of times.")
             .examples("loop 10 times:",
@@ -50,7 +51,7 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
 
     @Nullable
     private Expression<?> expression;
-    private Expression<Number> times;
+    private Expression<Integer> times;
     private boolean isNumericLoop;
 
     @Nullable
@@ -72,14 +73,14 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         isNumericLoop = matchedPattern == 0;
         if (isNumericLoop) {
-            times = (Expression<Number>) expressions[0];
+            times = (Expression<Integer>) expressions[0];
             // We can do some certainty checks with Literals.
             if (times instanceof Literal<?>) {
-                var t = ((Optional<Number>) ((Literal<Number>) times).getSingle()).orElse(1);
-                if (t.intValue() <= 0) {
+                int t = ((Optional<Integer>) ((Literal<Integer>) times).getSingle()).orElse(1);
+                if (t <= 0) {
                     parseContext.getLogger().error("Cannot loop a negative or zero amount of times", ErrorType.SEMANTIC_ERROR);
                     return false;
-                } else if (t.intValue() == 1) {
+                } else if (t == 1) {
                     parseContext.getLogger().error(
                         "Cannot loop a single time",
                         ErrorType.SEMANTIC_ERROR,
@@ -170,13 +171,13 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
      * @param size the expression
      * @return the SimpleLiteral
      */
-    private static Expression<Number> rangeOf(TriggerContext ctx, Expression<Number> size) {
-        Number[] range = (Number[]) size.getSingle(ctx)
-            .filter(t -> t.intValue() > 0)
-            .map(t -> Ranges.getRange(Number.class).orElseThrow()
+    private static Expression<Integer> rangeOf(TriggerContext ctx, Expression<Integer> size) {
+        Integer[] range = (Integer[]) size.getSingle(ctx)
+            .filter(t -> t > 0)
+            .map(t -> Ranges.getRange(Integer.class).orElseThrow()
                 .getFunction()
                 .apply(1, t)) // Upper bound is inclusive
-            .orElse(new Number[0]);
-        return new SimpleLiteral<>(Number.class, range);
+            .orElse(new Integer[0]);
+        return new SimpleLiteral<>(Integer.class, range);
     }
 }
