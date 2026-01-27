@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.Parser;
+import io.github.syst3ms.skriptparser.structures.functions.FunctionParameter;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
@@ -204,6 +205,10 @@ public class DefaultRegistration {
             .since("INSERT VERSION")
             .literalParser(s -> TypeManager.getByExactName(s.toLowerCase()).orElse(null))
             .toStringFunction(Type::getBaseName)
+            .register();
+
+        registration.newType(FunctionParameter.class, "functionparameter", "functionparameter@s")
+            .toStringFunction(parameter -> parameter.getName() + ": " + parameter.getType().getName())
             .register();
 
         registration.newType(Color.class, "color", "color@s")
