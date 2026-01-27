@@ -19,6 +19,9 @@ public class StructFunction extends Structure {
             .newEvent(StructFunction.class, "*[:local[ ]] func[tion] <" + Functions.FUNCTION_NAME_REGEX + ">" +
                 "\\([params:%*functionparameters%]\\)[return: \\:\\: <.+>]")
             .setHandledContexts(FunctionContext.class)
+            .name("Function")
+            .description("Creates a function that can be called from other scripts.")
+            .since("INSERT VERSION")
             .register();
     }
 
