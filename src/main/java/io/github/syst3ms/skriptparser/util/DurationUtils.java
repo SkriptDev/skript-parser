@@ -8,16 +8,22 @@ public class DurationUtils {
      * The amount of milliseconds it takes for a tick to pass.
      * A 'tick' is a predetermined time-unit of 50 milliseconds.
      */
-    public static final int TICK = 50;
+    public static long TICK = 50;
 
     /*
      * See these arrays as one single array with triplets of information
      * about a certain time unit. Sadly, Java does not allow to create a
      * clean alternative for this.
      */
-    private static final String[] unitPatterns = {"years?", "weeks?", "days?", "hours?", "minutes?", "seconds?", "milli(second)?s?"};
-    private static final String[] unitNames = {"year", "week", "day", "hour", "minute", "second", "millisecond"};
-    private static final long[] unitMillis = {31_536_000_000L, 604_800_000, 86_400_000, 3_600_000, 60_000, 1000, 1};
+    private static final String[] unitPatterns = {"years?", "weeks?", "days?", "hours?", "minutes?", "seconds?", "ticks?", "milli(second)?s?"};
+    private static final String[] unitNames = {"year", "week", "day", "hour", "minute", "second", "tick", "millisecond"};
+    private static long[] unitMillis = {31_536_000_000L, 604_800_000, 86_400_000, 3_600_000, 60_000, 1000, TICK, 1};
+
+    public static void overrideTickLength(long nanoTick) {
+        long milliTick = nanoTick / 1_000_000;
+        TICK = nanoTick;
+        unitMillis = new long[]{31_536_000_000L, 604_800_000, 86_400_000, 3_600_000, 60_000, 1000, milliTick, 1};
+    }
 
     public static Optional<Duration> parseDuration(String value) {
         if (value.isBlank())
@@ -26,7 +32,7 @@ public class DurationUtils {
         // Normal duration
         long duration = 0;
         var split = value.toLowerCase().split("\\s+");
-        var usedUnits = new boolean[5]; // Defaults to false
+        var usedUnits = new boolean[unitNames.length]; // Defaults to false
 
         for (int i = 0; i < split.length; i++) {
             var unit = split[i];
