@@ -25,7 +25,7 @@ public class Skript extends SkriptAddon {
         if (scriptName == null) {
             triggers = ScriptLoader.getTriggerMap().values().stream().flatMap(List::stream).toList();
         } else {
-            triggers = ScriptLoader.getTriggerMap().get(scriptName);
+            triggers = ScriptLoader.getTriggerMap().computeIfAbsent(scriptName, k -> List.of());
         }
         triggers.forEach(trigger -> {
             if (trigger.getEvent() instanceof StartOnLoadEvent event) {
