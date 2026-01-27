@@ -47,10 +47,22 @@ public class ScriptLoader {
      */
     public static List<LogEntry> loadScript(Path scriptPath, SkriptLogger logger, boolean debug) {
         List<FileElement> elements;
-        String scriptName;
+        String scriptName = scriptPath.getFileName().toString().replaceAll("(.+)\\..+", "$1");
+
+        // Clear triggers from unloaded events
+        triggerMap.forEach((key, value) -> {
+            if (key.equals(scriptName)) {
+                List<Trigger> triggers = triggerMap.get(key);
+                triggers.forEach(trigger -> trigger.getEvent().clearTrigger(scriptName));
+            }
+        });
+        // Clear triggers of a script from the map
+        triggerMap.remove(scriptName);
+
+
         try {
             var lines = FileUtils.readAllLines(scriptPath);
-            scriptName = scriptPath.getFileName().toString().replaceAll("(.+)\\..+", "$1");
+
             elements = FileParser.parseFileLines(scriptName,
                     lines,
                     0,
@@ -84,17 +96,6 @@ public class ScriptLoader {
             }
         }
         unloadedTriggers.sort((a, b) -> b.getTrigger().getEvent().getLoadingPriority() - a.getTrigger().getEvent().getLoadingPriority());
-
-
-        // Clear triggers from unloaded events
-        triggerMap.forEach((key, value) -> {
-            if (key.equals(scriptName)) {
-                List<Trigger> triggers = triggerMap.get(key);
-                triggers.forEach(trigger -> trigger.getEvent().clearTrigger(scriptName));
-            }
-        });
-        // Clear triggers of a script from the map
-        triggerMap.remove(scriptName);
 
         for (var unloaded : unloadedTriggers) {
             logger.finalizeLogs();

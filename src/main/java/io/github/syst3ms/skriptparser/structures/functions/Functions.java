@@ -5,14 +5,17 @@ import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
 
 public class Functions {
 
-    private static final List<Function<?>> functions = new ArrayList<>();
+    private static final Map<String,List<Function<?>>> functionsMap = new HashMap<>();
 
+    private static final String GLOBAL_FUNCTIONS_NAME = "global_functions_dont_change";
     static final String FUNCTION_NAME_REGEX = "^[a-zA-Z0-9_]*";
     private static final Pattern FUNCTION_NAME_PATTERN = Pattern.compile(FUNCTION_NAME_REGEX);
     static final String FUNCTION_CALL_PATTERN = "<(" + Functions.FUNCTION_NAME_REGEX + ")\\((.*)\\)>";
@@ -20,19 +23,32 @@ public class Functions {
     private Functions() {}
 
     static void preRegisterFunction(ScriptFunction<?> function) {
-        functions.add(function);
+        String scriptName = function.getScriptName();
+        functionsMap.computeIfAbsent(scriptName, k -> new ArrayList<>()).add(function);
     }
 
     public static void registerFunction(ScriptFunction<?> function, Trigger trigger) {
         function.setTrigger(trigger);
     }
 
+    public static void removeFunctions(String scriptName) {
+        if (functionsMap.containsKey(scriptName)) {
+            for (Function<?> function : functionsMap.get(scriptName)) {
+                if (function instanceof ScriptFunction<?> sf) {
+                    sf.setTrigger(null);
+                }
+            }
+        }
+        functionsMap.put(scriptName, new ArrayList<>());
+    }
+
     public static void registerFunction(JavaFunction<?> function) {
-        functions.add(function);
+        functionsMap.computeIfAbsent(GLOBAL_FUNCTIONS_NAME, k -> new ArrayList<>()).add(function);
     }
 
     public static boolean isValidFunction(ScriptFunction<?> function, SkriptLogger logger) {
-        for (Function<?> registeredFunction : functions) {
+        String scriptName = function.getScriptName();
+        for (Function<?> registeredFunction : functionsMap.computeIfAbsent(scriptName, k -> new ArrayList<>())) {
             String registeredFunctionName = registeredFunction.getName();
             String providedFunctionName = function.getName();
             if (!registeredFunctionName.equals(providedFunctionName)) continue;
@@ -64,7 +80,9 @@ public class Functions {
     }
 
     public static Optional<Function<?>> getFunctionByName(String name, String scriptName) {
-        for (Function<?> registeredFunction : functions) {
+        if (scriptName.endsWith(".sk")) scriptName = scriptName.substring(0, scriptName.length() - 3);
+
+        for (Function<?> registeredFunction : functionsMap.computeIfAbsent(scriptName, k -> new ArrayList<>())) {
             if (!registeredFunction.getName().equals(name)) continue; // we don't care then!!!! goodbye continue to the next one
             if (registeredFunction instanceof ScriptFunction<?> registeredScriptFunction
                         && registeredScriptFunction.isLocal()

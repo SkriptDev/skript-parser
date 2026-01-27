@@ -74,7 +74,8 @@ public class StructFunction extends Structure {
             }
             if (type.isPlural(rawReturnType)) returnSingle = false;
         }
-        function = new ScriptFunction<>(parseContext.getLogger().getFileName(), local, functionName, parameters, returnType, returnSingle);
+        String scriptName = parseContext.getLogger().getFileName().replace(".sk", "");
+        function = new ScriptFunction<>(scriptName, local, functionName, parameters, returnType, returnSingle);
         if (!Functions.isValidFunction(function, parseContext.getLogger())) {
             return false;
         }
@@ -96,4 +97,15 @@ public class StructFunction extends Structure {
         Functions.registerFunction(function, trigger);
     }
 
+    @Override
+    public void addTrigger(String scriptName, Trigger trigger) {
+        register(trigger);
+        super.addTrigger(scriptName, trigger);
+    }
+
+    @Override
+    public void clearTrigger(String scriptName) {
+        Functions.removeFunctions(scriptName);
+        super.clearTrigger(scriptName);
+    }
 }
