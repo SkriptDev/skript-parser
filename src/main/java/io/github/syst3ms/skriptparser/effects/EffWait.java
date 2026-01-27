@@ -31,11 +31,12 @@ import java.util.function.Consumer;
  */
 public class EffWait extends Effect {
     static {
-        Parser.getMainRegistration().addEffect(
-                EffWait.class,
-                "(wait|halt) [for] %duration%",
-                "(wait|halt) (0:until|1:while) %=boolean% [for %*duration%]"
-        );
+        // Handle this in HySkript (different scheduler)
+//        Parser.getMainRegistration().addEffect(
+//                EffWait.class,
+//                "(wait|halt) [for] %duration%",
+//                "(wait|halt) (0:until|1:while) %=boolean% [for %*duration%]"
+//        );
     }
 
     private Expression<Duration> duration;
