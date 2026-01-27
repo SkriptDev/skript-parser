@@ -247,7 +247,7 @@ public abstract class VariableStorage implements Closeable {
      * @param type the type of the variable.
      * @param value the serialized value of the variable.
      */
-    protected void loadVariable(String name, @NotNull String type, @NotNull byte[] value) {
+    protected void loadVariable(String name, @NotNull String type, @NotNull JsonElement value) {
         if (value == null || type == null)
             throw new IllegalArgumentException("value and/or typeName cannot be null");
         Variables.queueVariableChange(name, deserialize(type, value));
@@ -312,7 +312,7 @@ public abstract class VariableStorage implements Closeable {
         if (serializer == null)
             throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be serialized. No type serializer.");
         JsonElement element = serializer.serialize(gson, value);
-        return new SerializedVariable(name, new Value(type.getBaseName(), gson.toJson(element).getBytes()));
+        return new SerializedVariable(name, new Value(type.getBaseName(), element));
     }
 
     /**
@@ -323,7 +323,7 @@ public abstract class VariableStorage implements Closeable {
      * @param value The value that represents a object.
      * @return The Object after deserialization, not present if not possible to deserialize due to missing serializer on Type.
      */
-    protected Optional<?> deserialize(@NotNull String typeName, @NotNull byte[] value) {
+    protected Optional<?> deserialize(@NotNull String typeName, @NotNull JsonElement value) {
         if (value == null || typeName == null)
             throw new IllegalArgumentException("value and/or typeName cannot be null");
         Type<?> type = TypeManager.getByExactName(typeName).orElse(null);
@@ -332,9 +332,7 @@ public abstract class VariableStorage implements Closeable {
         TypeSerializer<?> serializer = type.getSerializer().orElse(null);
         if (serializer == null)
             throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be deserialized. No type serializer.");
-        String json = new String(value);
-        JsonReader reader = gson.newJsonReader(new StringReader(json));
-        return Optional.ofNullable(serializer.deserialize(gson, JsonParser.parseReader(reader)));
+        return Optional.ofNullable(serializer.deserialize(gson, value));
     }
 
     private long lastError = Long.MIN_VALUE;
@@ -378,6 +376,6 @@ public abstract class VariableStorage implements Closeable {
      * @param value the serialized value of the variable.
      * @return Whether the variable was saved.
      */
-    protected abstract boolean save(String name, @Nullable String type, @Nullable byte[] value);
+    protected abstract boolean save(String name, @Nullable String type, @Nullable JsonElement value);
 
 }

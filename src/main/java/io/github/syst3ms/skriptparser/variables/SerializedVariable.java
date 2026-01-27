@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.variables;
 
+import com.google.gson.JsonElement;
 import org.jetbrains.annotations.Nullable;
 
 public class SerializedVariable {
@@ -41,14 +42,14 @@ public class SerializedVariable {
         /**
          * The serialized value data.
          */
-        public final byte[] data;
+        public final JsonElement data;
 
         /**
          * Creates a new serialized value.
          * @param type the value type.
          * @param data the serialized value data.
          */
-        public Value(String type, byte[] data) {
+        public Value(String type, JsonElement data) {
             this.type = type;
             this.data = data;
         }

@@ -18,6 +18,7 @@ import io.github.syst3ms.skriptparser.util.Time;
 import io.github.syst3ms.skriptparser.util.color.Color;
 
 import java.time.Duration;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,53 +39,6 @@ public class DefaultRegistration {
             .name("Object")
             .description("Any possible object.")
             .since("INSERT VERSION")
-            .register();
-
-        registration.newType(Number.class, "number", "number@s")
-            .name("Number")
-            .description("A number (can be an integer/float/double/etc).")
-            .since("INSERT VERSION")
-            .literalParser(s -> {
-                if (s == null) return null;
-                try {
-                    return Double.parseDouble(s);
-                } catch (NumberFormatException e) {
-                    return null;
-                }
-            })
-            .toStringFunction(Object::toString)
-            .arithmetic(new Arithmetic<Number, Number>() {
-                @Override
-                public Number difference(Number first, Number second) {
-                    return first.doubleValue() - second.doubleValue();
-                }
-
-                @Override
-                public Number add(Number value, Number difference) {
-                    return value.doubleValue() + difference.doubleValue();
-                }
-
-                @Override
-                public Number subtract(Number value, Number difference) {
-                    return value.doubleValue() - difference.doubleValue();
-                }
-
-                @Override
-                public Class<? extends Number> getRelativeType() {
-                    return Number.class;
-                }
-            })
-            .serializer(new TypeSerializer<>() {
-                @Override
-                public JsonElement serialize(Gson gson, Number value) {
-                    return gson.toJsonTree(value.doubleValue());
-                }
-
-                @Override
-                public Number deserialize(Gson gson, JsonElement element) {
-                    return gson.fromJson(element, Double.class);
-                }
-            })
             .register();
 
         registration.newType(Integer.class, "integer", "integer@s")
@@ -222,6 +176,53 @@ public class DefaultRegistration {
             })
             .register();
 
+        registration.newType(Number.class, "number", "number@s")
+            .name("Number")
+            .description("A number (can be an integer/float/double/etc).")
+            .since("INSERT VERSION")
+            .literalParser(s -> {
+                if (s == null) return null;
+                try {
+                    return Double.parseDouble(s);
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            })
+            .toStringFunction(Object::toString)
+            .arithmetic(new Arithmetic<Number, Number>() {
+                @Override
+                public Number difference(Number first, Number second) {
+                    return first.doubleValue() - second.doubleValue();
+                }
+
+                @Override
+                public Number add(Number value, Number difference) {
+                    return value.doubleValue() + difference.doubleValue();
+                }
+
+                @Override
+                public Number subtract(Number value, Number difference) {
+                    return value.doubleValue() - difference.doubleValue();
+                }
+
+                @Override
+                public Class<? extends Number> getRelativeType() {
+                    return Number.class;
+                }
+            })
+            .serializer(new TypeSerializer<>() {
+                @Override
+                public JsonElement serialize(Gson gson, Number value) {
+                    return gson.toJsonTree(value.doubleValue());
+                }
+
+                @Override
+                public Number deserialize(Gson gson, JsonElement element) {
+                    return gson.fromJson(element, Double.class);
+                }
+            })
+            .register();
+
         registration.newType(String.class, "string", "string@s")
             .name("String")
             .description("A string of characters.")
@@ -347,6 +348,9 @@ public class DefaultRegistration {
             .register();
 
         registration.newType(Time.class, "time", "time@s")
+            .name("Time")
+            .description("A time, represented as a string in the format 'HH:mm:ss'.")
+            .since("INSERT VERSION")
             .literalParser(s -> Time.parse(s).orElse(null))
             .toStringFunction(Time::toString)
             .arithmetic(new Arithmetic<Time, Duration>() {
@@ -370,9 +374,19 @@ public class DefaultRegistration {
                     return Duration.class;
                 }
             })
-            .name("Time")
-            .description("A time, represented as a string in the format 'HH:mm:ss'.")
-            .since("INSERT VERSION")
+            .serializer(new TypeSerializer<>() {
+                @Override
+                public JsonElement serialize(Gson gson, Time value) {
+                    int nano = value.getTime().getNano();
+                    return gson.toJsonTree(nano, Integer.class);
+                }
+                @Override
+                public Time deserialize(Gson gson, JsonElement element) {
+                    int asInt = element.getAsInt();
+                    LocalTime localTime = LocalTime.ofNanoOfDay(asInt);
+                    return Time.of(localTime);
+                }
+            })
             .register();
 
         /*
