@@ -118,7 +118,7 @@ public class EffChange extends Effect {
             changed.change(ctx, mode, new Object[0]);
         } else {
             var values = changeWith.getValues(ctx);
-            if (values.length == 0)
+            if (values == null || values.length == 0)
                 return;
             changed.change(ctx, mode, values);
         }
