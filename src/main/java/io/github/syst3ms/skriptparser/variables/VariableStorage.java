@@ -48,7 +48,7 @@ public abstract class VariableStorage implements Closeable {
     /**
      * The name of the database used in the configurations.
      */
-    protected final String[] names;
+    protected final String name;
 
     /**
      * The pattern of the variable name this storage accepts.
@@ -70,13 +70,13 @@ public abstract class VariableStorage implements Closeable {
      * @param logger the logger to print logs to.
      * @param name the name.
      */
-    protected VariableStorage(SkriptLogger logger, @NotNull String... names) {
+    protected VariableStorage(SkriptLogger logger, @NotNull String name) {
         this(logger, new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
                 .serializeNulls()
                 .setLenient()
                 .create(),
-        names);
+            name);
     }
 
     /**
@@ -86,9 +86,9 @@ public abstract class VariableStorage implements Closeable {
      * @param gson the gson that controls the serialization of the json elements.
      * @param name the name.
      */
-    protected VariableStorage(SkriptLogger logger, @NotNull Gson gson, @NotNull String... names) {
+    protected VariableStorage(SkriptLogger logger, @NotNull Gson gson, @NotNull String name) {
         this.logger = logger;
-        this.names = names;
+        this.name = name;
         this.gson = gson;
         // TODO allow this runnable to be interupted.
         CompletableFuture.runAsync(() -> {
@@ -126,7 +126,7 @@ public abstract class VariableStorage implements Closeable {
      *
      * @param section the file section.
      * @param key the key node.
-     * @param type the class type.
+     * @param classType the class type.
      * @return the parsed value, or {@code null} if the value was invalid,
      * or not found.
      * @param <T> the class type generic.
@@ -136,12 +136,12 @@ public abstract class VariableStorage implements Closeable {
     protected <T> T getConfigurationValue(FileSection section, String key, Class<T> classType) {
         Optional<FileElement> value = section.get(key);
         if (!value.isPresent()) {
-            logger.error("The configuration is missing the entry for '" + key + "' for the database '" + names[0] + "'", ErrorType.SEMANTIC_ERROR);
+            logger.error("The configuration is missing the entry for '" + key + "' for the database '" + name + "'", ErrorType.SEMANTIC_ERROR);
             return null;
         }
         String[] split = value.get().getLineContent().split(OptionLoader.OPTION_SPLIT_PATTERN);
         if (split.length < 2) {
-            logger.error("The configuration entry '" + key + "' is not a option entry (key: value) for the database '" + names[0] + "'", ErrorType.SEMANTIC_ERROR);
+            logger.error("The configuration entry '" + key + "' is not a option entry (key: value) for the database '" + name + "'", ErrorType.SEMANTIC_ERROR);
             return null;
         }
         String content = split[1];
@@ -150,7 +150,7 @@ public abstract class VariableStorage implements Closeable {
 
         Optional<? extends Type<T>> type = TypeManager.getByClassExact(classType);
         if (!type.isPresent()) {
-            logger.error("The class type '" + classType.getName() + "' is not registered. Cannot parse node '" + key + "' for database '" + names[0] + "'", ErrorType.SEMANTIC_ERROR);
+            logger.error("The class type '" + classType.getName() + "' is not registered. Cannot parse node '" + key + "' for database '" + name + "'", ErrorType.SEMANTIC_ERROR);
             return null;
         }
 
@@ -162,7 +162,7 @@ public abstract class VariableStorage implements Closeable {
 
         T parsedValue = parser.get().apply(content);
         if (parsedValue == null) {
-            logger.error("The entry for '" + key + "' in the database '" + names[0] + "' must be " +
+            logger.error("The entry for '" + key + "' in the database '" + name + "' must be " +
                     type.get().withIndefiniteArticle(true), ErrorType.SEMANTIC_ERROR);
             return null;
         }
@@ -173,7 +173,7 @@ public abstract class VariableStorage implements Closeable {
      * Loads the configuration for this variable storage
      * from the given section node.
      *
-     * @param sectionNode the section node.
+     * @param section the section node.
      * @return whether the loading succeeded.
      */
     public final boolean loadConfiguration(FileSection section) {
@@ -281,7 +281,7 @@ public abstract class VariableStorage implements Closeable {
     /**
      * Checks if this variable storage accepts the given variable name.
      *
-     * @param var the variable name.
+     * @param variableName the variable name.
      * @return if this storage accepts the variable name.
      *
      * @see #variableNamePattern
@@ -316,7 +316,7 @@ public abstract class VariableStorage implements Closeable {
     }
 
     /**
-     * Used by {@link #load(String, String, byte[]).
+     * Used by {@link #loadVariable(String, String, byte[])}.
      * You don't need to use this method, but if you need to read the Object, this method allows for deserialization.
      * 
      * @param typeName The name of the type.
@@ -349,7 +349,7 @@ public abstract class VariableStorage implements Closeable {
         if (!changesQueue.offer(variable)) {
             if (lastError < System.currentTimeMillis() - ERROR_INTERVAL * 1000) {
                 // Inform console about overload of variable changes
-                System.out.println("Skript cannot save any variables to the database '" + names[0] + "'. " +
+                System.out.println("Skript cannot save any variables to the database '" + name + "'. " +
                         "The thread will hang to avoid losing variable.");
 
                 lastError = System.currentTimeMillis();

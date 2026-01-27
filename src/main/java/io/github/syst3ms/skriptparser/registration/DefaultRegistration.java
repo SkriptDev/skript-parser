@@ -1,10 +1,13 @@
 package io.github.syst3ms.skriptparser.registration;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.structures.functions.FunctionParameter;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
+import io.github.syst3ms.skriptparser.types.changers.TypeSerializer;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparator;
 import io.github.syst3ms.skriptparser.types.comparisons.Comparators;
 import io.github.syst3ms.skriptparser.types.comparisons.Relation;
@@ -15,6 +18,8 @@ import io.github.syst3ms.skriptparser.util.Time;
 import io.github.syst3ms.skriptparser.util.color.Color;
 
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -42,8 +47,7 @@ public class DefaultRegistration {
             .literalParser(s -> {
                 if (s == null) return null;
                 try {
-                    if (s.contains(".")) return Double.parseDouble(s);
-                    else return Long.parseLong(s);
+                    return Double.parseDouble(s);
                 } catch (NumberFormatException e) {
                     return null;
                 }
@@ -69,7 +73,19 @@ public class DefaultRegistration {
                 public Class<? extends Number> getRelativeType() {
                     return Number.class;
                 }
-            }).register();
+            })
+            .serializer(new TypeSerializer<>() {
+                @Override
+                public JsonElement serialize(Gson gson, Number value) {
+                    return gson.toJsonTree(value.doubleValue());
+                }
+
+                @Override
+                public Number deserialize(Gson gson, JsonElement element) {
+                    return gson.fromJson(element, Double.class);
+                }
+            })
+            .register();
 
         registration.newType(Integer.class, "integer", "integer@s")
             .literalParser(s -> {
@@ -102,6 +118,16 @@ public class DefaultRegistration {
                 @Override
                 public Class<? extends Integer> getRelativeType() {
                     return Integer.class;
+                }
+            })
+            .serializer(new TypeSerializer<>() {
+                @Override
+                public JsonElement serialize(Gson gson, Integer value) {
+                    return gson.toJsonTree(value, Integer.class);
+                }
+                @Override
+                public Integer deserialize(Gson gson, JsonElement element) {
+                    return gson.fromJson(element, Integer.class);
                 }
             })
             .register();
@@ -139,6 +165,16 @@ public class DefaultRegistration {
                     return Float.class;
                 }
             })
+            .serializer(new TypeSerializer<>() {
+                @Override
+                public JsonElement serialize(Gson gson, Float value) {
+                    return gson.toJsonTree(value, Float.class);
+                }
+                @Override
+                public Float deserialize(Gson gson, JsonElement element) {
+                    return gson.fromJson(element, Float.class);
+                }
+            })
             .register();
 
         registration.newType(Double.class, "double", "double@s")
@@ -174,6 +210,16 @@ public class DefaultRegistration {
                     return Double.class;
                 }
             })
+            .serializer(new TypeSerializer<>() {
+                @Override
+                public JsonElement serialize(Gson gson, Double value) {
+                    return gson.toJsonTree(value, Double.class);
+                }
+                @Override
+                public Double deserialize(Gson gson, JsonElement element) {
+                    return gson.fromJson(element, Double.class);
+                }
+            })
             .register();
 
         registration.newType(String.class, "string", "string@s")
@@ -181,6 +227,17 @@ public class DefaultRegistration {
             .description("A string of characters.")
             .examples("set {_string} to \"Hello World!\"")
             .since("INSERT VERSION")
+            .serializer(new TypeSerializer<>() {
+                @Override
+                public JsonElement serialize(Gson gson, String value) {
+                    return gson.toJsonTree(value, String.class);
+                }
+
+                @Override
+                public String deserialize(Gson gson, JsonElement element) {
+                    return gson.fromJson(element, String.class);
+                }
+            })
             .register();
 
         registration.newType(Boolean.class, "boolean", "boolean@s")
@@ -197,6 +254,18 @@ public class DefaultRegistration {
             .description("A boolean value, represented as 'true' or 'false'.")
             .since("INSERT VERSION")
             .toStringFunction(String::valueOf)
+            .serializer(new TypeSerializer<>() {
+                @Override
+                public JsonElement serialize(Gson gson, Boolean value) {
+                    return gson.toJsonTree(value, Boolean.class);
+                }
+
+                @Override
+                public Boolean deserialize(Gson gson, JsonElement jsonElement) {
+                    return gson.fromJson(jsonElement, Boolean.class);
+                }
+
+            })
             .register();
 
         registration.newType(Type.class, "type", "type@s")
@@ -348,13 +417,33 @@ public class DefaultRegistration {
                     .toArray(String[]::new);
             }
         );
+        Ranges.registerRange(
+            Number.class,
+            Number.class,
+            (l, r) -> {
+                if (l.doubleValue() >= 0) {
+                    return new Number[0];
+                } else {
+                    List<Number> elements = new ArrayList<>();
+                    Number current = l;
+                    do {
+                        elements.add(current);
+                        current = current.doubleValue() + 1;
+                    } while (current.intValue() <= 0);
+                    return elements.toArray(new Number[0]);
+                }
+            }
+        );
 
         /*
          * Converters
          */
 
         registration.addConverter(SkriptDate.class, Time.class, da -> Optional.of(Time.of(da)));
-
+        registration.addConverter(Long.class, Integer.class, l -> Optional.of(l.intValue()));
+        registration.addConverter(Integer.class, Long.class, i -> Optional.of(i.longValue()));
+        registration.addConverter(Double.class, Float.class, d -> Optional.of(d.floatValue()));
+        registration.addConverter(Float.class, Double.class, f -> Optional.of(f.doubleValue()));
         registration.register(true); // Ignoring logs here, we control the input
     }
 }

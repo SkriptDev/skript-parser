@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 
+import io.github.syst3ms.skriptparser.lang.entries.OptionLoader;
 import org.jetbrains.annotations.Nullable;
 
 import io.github.syst3ms.skriptparser.file.FileElement;
@@ -76,19 +77,42 @@ public class Variables {
      */
     public static void load(SkriptLogger logger, FileSection section) throws IllegalArgumentException {
         for (FileElement databaseElement : section.getElements()) {
-            if (!(databaseElement instanceof FileSection)) {
+            if (!(databaseElement instanceof FileSection databaseSection)) {
                 logger.error("The file node 'databases." + databaseElement.getLineContent() + "' was not a section.", ErrorType.STRUCTURE_ERROR);
                 continue;
             }
             String databaseName = databaseElement.getLineContent();
+            String databaseType = null;
+
+            for (FileElement element : databaseSection.getElements()) {
+                if (!(element instanceof FileSection)) {
+                    Optional<FileElement> value = databaseSection.get("type");
+                    if (value.isEmpty()) {
+                        logger.error("The configuration is missing the entry for 'type' for the database '" + databaseName + "'", ErrorType.SEMANTIC_ERROR);
+                    } else {
+                        String[] split = value.get().getLineContent().split(OptionLoader.OPTION_SPLIT_PATTERN);
+                        if (split.length < 2) {
+                            logger.error("The configuration entry 'type' is not a option entry (key: value) for the database '" + databaseName + "'", ErrorType.SEMANTIC_ERROR);
+                            continue;
+                        }
+                        databaseType = split[1];
+                    }
+                }
+            }
+
+            if (databaseType == null) {
+                continue;
+            }
+
+
             if (databaseName.isBlank()) {
                 logger.error("A database name was incorrect, cannot be an empty string. (line " + databaseElement.getLine() + ")", ErrorType.SEMANTIC_ERROR);
                 continue;
             }
-            FileSection databaseSection = (FileSection) databaseElement;
+            String finalDatabaseType = databaseType;
             Class<? extends VariableStorage> storageClass = AVAILABLE_STORAGES.entrySet().stream()
-                    .filter(entry -> entry.getValue().contains(databaseName.toLowerCase(Locale.ENGLISH)))
-                    .map(entry -> entry.getKey())
+                    .filter(entry -> entry.getValue().contains(finalDatabaseType.toLowerCase(Locale.ENGLISH)))
+                    .map(Map.Entry::getKey)
                     .findFirst()
                     .orElse(null);
             if (storageClass == null) {
@@ -97,8 +121,8 @@ public class Variables {
             }
 
             try {
-                Constructor<? extends VariableStorage> constructor = storageClass.getConstructor(SkriptLogger.class);
-                VariableStorage storage = constructor.newInstance(logger);
+                Constructor<? extends VariableStorage> constructor = storageClass.getConstructor(SkriptLogger.class, String.class);
+                VariableStorage storage = constructor.newInstance(logger, databaseName);
                 if (storage.loadConfiguration(databaseSection))
                     STORAGES.add(storage);
             } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | InvocationTargetException e) {

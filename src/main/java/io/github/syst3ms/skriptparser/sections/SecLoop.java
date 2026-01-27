@@ -18,7 +18,6 @@ import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import org.jetbrains.annotations.Nullable;
 
-import java.math.BigInteger;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -38,7 +37,7 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
 
     static {
         Parser.getMainRegistration().newSection(SecLoop.class,
-                "loop %integer% times", "loop %objects%")
+                "loop %number% times", "loop %objects%")
             .name("Loop")
             .description("Loops over all the values in a list or loop x number of times.")
             .examples("loop 10 times:",
@@ -51,7 +50,7 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
 
     @Nullable
     private Expression<?> expression;
-    private Expression<BigInteger> times;
+    private Expression<Number> times;
     private boolean isNumericLoop;
 
     @Nullable
@@ -73,10 +72,10 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         isNumericLoop = matchedPattern == 0;
         if (isNumericLoop) {
-            times = (Expression<BigInteger>) expressions[0];
+            times = (Expression<Number>) expressions[0];
             // We can do some certainty checks with Literals.
             if (times instanceof Literal<?>) {
-                var t = ((Optional<BigInteger>) ((Literal<BigInteger>) times).getSingle()).orElse(BigInteger.ONE);
+                var t = ((Optional<Number>) ((Literal<Number>) times).getSingle()).orElse(1);
                 if (t.intValue() <= 0) {
                     parseContext.getLogger().error("Cannot loop a negative or zero amount of times", ErrorType.SEMANTIC_ERROR);
                     return false;
@@ -171,13 +170,13 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
      * @param size the expression
      * @return the SimpleLiteral
      */
-    private static Expression<BigInteger> rangeOf(TriggerContext ctx, Expression<BigInteger> size) {
-        BigInteger[] range = (BigInteger[]) size.getSingle(ctx)
-            .filter(t -> t.compareTo(BigInteger.ZERO) > 0)
-            .map(t -> Ranges.getRange(BigInteger.class).orElseThrow()
+    private static Expression<Number> rangeOf(TriggerContext ctx, Expression<Number> size) {
+        Number[] range = (Number[]) size.getSingle(ctx)
+            .filter(t -> t.intValue() > 0)
+            .map(t -> Ranges.getRange(Number.class).orElseThrow()
                 .getFunction()
-                .apply(BigInteger.ONE, t)) // Upper bound is inclusive
-            .orElse(new BigInteger[0]);
-        return new SimpleLiteral<>(BigInteger.class, range);
+                .apply(1, t)) // Upper bound is inclusive
+            .orElse(new Number[0]);
+        return new SimpleLiteral<>(Number.class, range);
     }
 }
