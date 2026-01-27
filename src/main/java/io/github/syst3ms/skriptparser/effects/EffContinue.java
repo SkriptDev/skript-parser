@@ -11,7 +11,6 @@ import io.github.syst3ms.skriptparser.lang.lambda.ArgumentSection;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 
-import java.math.BigInteger;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -19,10 +18,10 @@ import java.util.stream.Collectors;
 /**
  * Skips the current looped value and continues to the next one in the list, if it exists.
  *
+ * @author Mwexim
  * @name Continue
  * @pattern continue [%*integer% loop[s]]
  * @since ALPHA
- * @author Mwexim
  */
 public class EffContinue extends Effect {
     static {
@@ -33,19 +32,19 @@ public class EffContinue extends Effect {
         );
     }
 
-    private Expression<BigInteger> position;
+    private Expression<Integer> position;
     private List<? extends Continuable> sections;
 
     @SuppressWarnings("unchecked")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         if (expressions.length == 1)
-            position = (Expression<BigInteger>) expressions[0];
+            position = (Expression<Integer>) expressions[0];
 
         sections = parseContext.getParserState().getCurrentSections().stream()
-                .filter(sec -> sec instanceof Continuable)
-                .map(sec -> (Continuable) sec)
-                .collect(Collectors.toList());
+            .filter(sec -> sec instanceof Continuable)
+            .map(sec -> (Continuable) sec)
+            .collect(Collectors.toList());
         if (sections.size() == 0) {
             parseContext.getLogger().error("You cannot use the 'continue'-effect here", ErrorType.SEMANTIC_ERROR);
             return false;
@@ -59,12 +58,12 @@ public class EffContinue extends Effect {
     }
 
     @Override
-	public Optional<? extends Statement> walk(TriggerContext ctx) {
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
         // Indices start at 1
         int pos = position != null ? position.getSingle(ctx)
-                .filter(val -> val.compareTo(BigInteger.ZERO) > 0 && val.compareTo(BigInteger.valueOf(sections.size())) <= 0)
-                .map(val -> val.intValue() - 1)
-                .orElse(-1) : 0;
+            .filter(val -> val.compareTo(0) > 0 && val.compareTo(Integer.valueOf(sections.size())) <= 0)
+            .map(val -> val.intValue() - 1)
+            .orElse(-1) : 0;
         if (pos == -1)
             return Optional.empty();
 
@@ -76,7 +75,7 @@ public class EffContinue extends Effect {
         if (sections.get(pos) instanceof ArgumentSection) {
             ((ArgumentSection) sections.get(0)).step(this);
         }
-		return sections.get(pos).getContinued(ctx);
+        return sections.get(pos).getContinued(ctx);
     }
 
     @Override

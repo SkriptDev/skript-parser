@@ -14,7 +14,6 @@ import io.github.syst3ms.skriptparser.sections.SecConditional;
 import io.github.syst3ms.skriptparser.sections.SecLoop;
 import io.github.syst3ms.skriptparser.sections.SecWhile;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -25,22 +24,22 @@ import java.util.Optional;
  * than the total amount of nested sections, the trigger will stop.
  * Note that stopping loops also stops while-loops.
  *
- * @name Exit
- * @pattern (exit|stop) [[the] trigger]
- * @pattern (exit|stop) [a|the [current]|this] (section|loop|condition[al])
- * @pattern (exit|stop) %*integer% (section|loop|condition[al])[s]
- * @pattern (exit|stop) (every|all [[of] the]) (section|loop|condition[al])s
- * @since ALPHA
  * @author Mwexim
+ * @name Exit
+ * @pattern (exit | stop) [[the] trigger]
+ * @pattern (exit | stop) [a|the [current]|this] (section|loop|condition[al])
+ * @pattern (exit | stop) %*integer% (section|loop|condition[al])[s]
+ * @pattern (exit | stop) (every|all [[of] the]) (section|loop|condition[al])s
+ * @since ALPHA
  */
 public class EffExit extends Effect {
     static {
         Parser.getMainRegistration().addEffect(
-                EffExit.class,
-                "(exit|stop) [[the] trigger]",
-                "(exit|stop) [a|the [current]|this] (0:section|1:loop|2:condition[al])",
-                "(exit|stop) %*integer% (0:section|1:loop|2:condition[al])[s]",
-                "(exit|stop) (every|all [[of] the]) (0:section|1:loop|2:condition[al])[s]"
+            EffExit.class,
+            "(exit|stop) [[the] trigger]",
+            "(exit|stop) [a|the [current]|this] (0:section|1:loop|2:condition[al])",
+            "(exit|stop) %*integer% (0:section|1:loop|2:condition[al])[s]",
+            "(exit|stop) (every|all [[of] the]) (0:section|1:loop|2:condition[al])[s]"
         );
     }
 
@@ -49,7 +48,7 @@ public class EffExit extends Effect {
     private final List<CodeSection> currentSections = new ArrayList<>();
     private int pattern;
     private int mark;
-    private Literal<BigInteger> amount;
+    private Literal<Integer> amount;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -58,7 +57,7 @@ public class EffExit extends Effect {
         pattern = matchedPattern;
         mark = parseContext.getNumericMark();
         if (pattern == 2)
-            amount = (Literal<BigInteger>) expressions[0];
+            amount = (Literal<Integer>) expressions[0];
         return true;
     }
 
@@ -78,7 +77,7 @@ public class EffExit extends Effect {
                 return escapeSections(1, this);
             case 2:
                 return amount.getSingle()
-                        .flatMap(sec -> escapeSections(sec.intValue(), this));
+                    .flatMap(sec -> escapeSections(sec.intValue(), this));
             case 3:
                 // The current trigger is also a part of the current sections!
                 return escapeSections(currentSections.size() - 1, this);
@@ -116,8 +115,8 @@ public class EffExit extends Effect {
             stm = statement.get();
             // 0 = all, 1 = only loops, 2 = only conditionals
             if (mark == 0
-                    || mark == 1 && (stm instanceof SecLoop || stm instanceof SecWhile)
-                    || mark == 2 && stm instanceof SecConditional) {
+                || mark == 1 && (stm instanceof SecLoop || stm instanceof SecWhile)
+                || mark == 2 && stm instanceof SecConditional) {
                 if (stm instanceof Finishing)
                     ((Finishing) stm).finish();
                 amount--;
@@ -128,7 +127,8 @@ public class EffExit extends Effect {
         }
 
         return stm instanceof SelfReferencing
-                ? ((SelfReferencing) stm).getActualNext()
-                : (Optional<Statement>) stm.getNext();
+            ? ((SelfReferencing) stm).getActualNext()
+            : (Optional<Statement>) stm.getNext();
     }
+
 }
