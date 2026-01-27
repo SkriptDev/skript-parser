@@ -24,6 +24,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author WeeskyBDW
  */
 public class ExprRandomNumber implements Expression<Number> {
+    // TODO get rid of BigInt/BigDecimal
     static {
         Parser.getMainRegistration().newExpression(
                 ExprRandomNumber.class,

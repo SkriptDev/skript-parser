@@ -6,8 +6,6 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.color.Color;
 
-import java.math.BigInteger;
-
 /**
  * A color specified by its RGB value.
  * Each value, this means red, green and blue, can be a range from 0 to 255.
@@ -31,18 +29,18 @@ public class ExprColorFromRGB implements Expression<Color> {
 		);
 	}
 
-	private Expression<BigInteger> rgb;
+	private Expression<Integer> rgb;
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		rgb = (Expression<BigInteger>) expressions[0];
+		rgb = (Expression<Integer>) expressions[0];
 		return true;
 	}
 
 	@Override
 	public Color[] getValues(TriggerContext ctx) {
-		var values = rgb.stream(ctx).map(BigInteger::intValue).toArray(Integer[]::new);
+		var values = rgb.stream(ctx).map(Integer::intValue).toArray(Integer[]::new);
 		if (values.length == 3) {
 			return Color.of(values[0], values[1], values[2])
 					.map(val -> new Color[] {val})

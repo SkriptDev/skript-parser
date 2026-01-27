@@ -3,16 +3,14 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
 
-import java.math.BigInteger;
-
 /**
  * Length of a string.
  *
+ * @author Romitou
  * @name Length
  * @pattern [the] length of %string%
  * @pattern %string%'s length
  * @since ALPHA
- * @author Romitou
  */
 public class ExprLength extends PropertyExpression<String, Number> {
     static {
@@ -25,6 +23,7 @@ public class ExprLength extends PropertyExpression<String, Number> {
 
     @Override
     public Number getProperty(String owner) {
-        return BigInteger.valueOf(owner.length());
+        return owner.length();
     }
+
 }

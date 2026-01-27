@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
 import org.jetbrains.annotations.Nullable;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -42,7 +41,7 @@ public class ExprStringSplitJoin implements Expression<String> {
 	private Expression<String> expression;
 	@Nullable
 	private Expression<String> delimiter;
-	private Expression<BigInteger> step;
+	private Expression<Integer> step;
 
 	private int pattern;
 	private boolean regex;
@@ -63,7 +62,7 @@ public class ExprStringSplitJoin implements Expression<String> {
 				delimiter = (Expression<String>) expressions[1];
 				break;
 			case 2:
-				step = (Expression<BigInteger>) expressions[1];
+				step = (Expression<Integer>) expressions[1];
 				break;
 			default:
 				throw new IllegalStateException();
@@ -86,7 +85,7 @@ public class ExprStringSplitJoin implements Expression<String> {
 						.orElse(new String[0]);
 			case 2:
 				return DoubleOptional.ofOptional(expression.getSingle(ctx), step.getSingle(ctx))
-						.map(Function.identity(), BigInteger::intValue)
+						.map(Function.identity(), Integer::intValue)
 						.mapToOptional((val, step) -> {
 							List<String> ret = new ArrayList<>();
 							for (int i = 0; i < val.length(); i += step) {

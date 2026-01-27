@@ -9,7 +9,6 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -56,10 +55,10 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 	// 0 = last, 1 = first, 2 = indexed, 3 = spliced
 	private int type;
 	private Expression<Object> list;
-	private Expression<BigInteger> index;
-	private Expression<BigInteger> lower;
-	private Expression<BigInteger> upper;
-	private Expression<BigInteger> step;
+	private Expression<Integer> index;
+	private Expression<Integer> lower;
+	private Expression<Integer> upper;
+	private Expression<Integer> step;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -69,7 +68,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 				type = parseContext.getNumericMark();
 				list = (Expression<Object>) (type == 2 ? expressions[1] : expressions[0]);
 				if (type == 2)
-					index = (Expression<BigInteger>) expressions[0];
+					index = (Expression<Integer>) expressions[0];
 				break;
 			case 1:
 			case 2:
@@ -81,20 +80,20 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 				list = (Expression<Object>) expressions[0];
 				switch (parseContext.getNumericMark()) {
 					case 0:
-						lower = (Expression<BigInteger>) expressions[1];
-						upper = (Expression<BigInteger>) expressions[2];
+						lower = (Expression<Integer>) expressions[1];
+						upper = (Expression<Integer>) expressions[2];
 						if (expressions.length == 4)
-							step = (Expression<BigInteger>) expressions[3];
+							step = (Expression<Integer>) expressions[3];
 						break;
 					case 1:
-						lower = (Expression<BigInteger>) expressions[1];
+						lower = (Expression<Integer>) expressions[1];
 						if (expressions.length == 3)
-							step = (Expression<BigInteger>) expressions[2];
+							step = (Expression<Integer>) expressions[2];
 						break;
 					case 2:
-						upper = (Expression<BigInteger>) expressions[1];
+						upper = (Expression<Integer>) expressions[1];
 						if (expressions.length == 3)
-							step = (Expression<BigInteger>) expressions[2];
+							step = (Expression<Integer>) expressions[2];
 						break;
 					default:
 						throw new IllegalStateException();
@@ -136,7 +135,7 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 				return new Object[] {values[0]};
 			case 2:
 				int ind = index.getSingle(ctx)
-						.filter(n -> n.signum() > 0 && n.compareTo(BigInteger.valueOf(values.length)) <= 0)
+						.filter(n -> Integer.signum(n) > 0 && n.compareTo(Integer.valueOf(values.length)) <= 0)
 						.map(n -> n.intValue() - 1)
 						.orElse(-1);
 				if (ind == -1) {
@@ -157,13 +156,13 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
 				return new Object[] {values[ind]};
 			case 3:
 				var low = lower != null
-						? lower.getSingle(ctx).filter(n -> n.signum() > 0).map(n -> n.intValue() - 1).orElse(-1)
+						? lower.getSingle(ctx).filter(n -> Integer.signum(n) > 0).map(n -> n.intValue() - 1).orElse(-1)
 						: 0;
 				var up = upper != null
-						? upper.getSingle(ctx).filter(n -> n.compareTo(BigInteger.valueOf(values.length)) <= 0).map(BigInteger::intValue).orElse(values.length)
+						? upper.getSingle(ctx).filter(n -> n.compareTo(Integer.valueOf(values.length)) <= 0).map(Integer::intValue).orElse(values.length)
 						: values.length;
 				var st = step != null
-						? step.getSingle(ctx).filter(n -> n.signum() != 0 && n.compareTo(BigInteger.valueOf(-values.length)) >= 0 && n.compareTo(BigInteger.valueOf(values.length)) <= 0).map(BigInteger::intValue).orElse(0)
+						? step.getSingle(ctx).filter(n -> Integer.signum(n) != 0 && n.compareTo(Integer.valueOf(-values.length)) >= 0 && n.compareTo(Integer.valueOf(values.length)) <= 0).map(Integer::intValue).orElse(0)
 						: 1;
 
 				if (st < 0) {

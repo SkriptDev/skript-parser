@@ -22,6 +22,7 @@ import java.util.Objects;
  * @author Mwexim, WeeskyBDW
  */
 public class ExprNumberConvertBase implements Expression<String> {
+	// TODO remove Big
 	static {
 		Parser.getMainRegistration().addExpression(
 				ExprNumberConvertBase.class,

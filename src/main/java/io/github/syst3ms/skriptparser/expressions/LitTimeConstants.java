@@ -8,30 +8,28 @@ import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.Time;
 
-import java.math.BigInteger;
-
 /**
  * Midnight and noon time constants and the ability to use
  * expressions like {@code 12 o' clock} for literal usage.
  *
+ * @author Mwexim
  * @name Time Constants
- * @pattern (midnight|noon|midday)
+ * @pattern (midnight | noon | midday)
  * @pattern %*integer% o'[ ]clock
  * @since ALPHA
- * @author Mwexim
  */
 public class LitTimeConstants implements Literal<Time> {
     static {
         Parser.getMainRegistration().addExpression(
-                LitTimeConstants.class,
-                Time.class,
-                true,
-                "(0:noon|0:midday|1:midnight)",
-                "%*integer% o'[ ]clock"
+            LitTimeConstants.class,
+            Time.class,
+            true,
+            "(0:noon|0:midday|1:midnight)",
+            "%*integer% o'[ ]clock"
         );
     }
 
-    private Literal<BigInteger> hours;
+    private Literal<Integer> hours;
     private boolean onClock;
     private boolean midnight;
 
@@ -41,15 +39,12 @@ public class LitTimeConstants implements Literal<Time> {
         onClock = matchedPattern == 1;
         midnight = parseContext.getNumericMark() == 1;
         if (onClock) {
-            hours = (Literal<BigInteger>) expressions[0];
+            hours = (Literal<Integer>) expressions[0];
             if (hours.getSingle().isPresent()) {
-                var h = hours.getSingle().get();
-                if (h.compareTo(BigInteger.ZERO) < 0
-                        || h.compareTo(BigInteger.valueOf(24)) > 0) {
-                    parseContext.getLogger().error("The given hour ('"
-                                    + h + "') is not in between 0 and 24",
-                            ErrorType.SEMANTIC_ERROR
-                    );
+                int h = hours.getSingle().get();
+                if (h < 0 || h > 24) {
+                    parseContext.getLogger().error("The given hour ('" + h + "') is not in between 0 and 24",
+                        ErrorType.SEMANTIC_ERROR);
                     return false;
                 }
             }
@@ -61,11 +56,11 @@ public class LitTimeConstants implements Literal<Time> {
     public Time[] getValues() {
         if (onClock) {
             return hours.getSingle()
-                    .map(h -> Time.of(h.intValue(), 0, 0, 0))
-                    .map(t -> new Time[] {t})
-                    .orElse(new Time[0]);
+                .map(h -> Time.of(h.intValue(), 0, 0, 0))
+                .map(t -> new Time[]{t})
+                .orElse(new Time[0]);
         } else {
-            return new Time[] {midnight ? Time.MIDNIGHT : Time.NOON};
+            return new Time[]{midnight ? Time.MIDNIGHT : Time.NOON};
         }
     }
 
@@ -77,4 +72,5 @@ public class LitTimeConstants implements Literal<Time> {
             return midnight ? "midnight" : "noon";
         }
     }
+
 }

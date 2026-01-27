@@ -43,6 +43,7 @@ import java.util.Optional;
  * @author Syst3ms
  */
 public class ExprArithmeticOperators implements Expression<Number> {
+    // TODO remove Big
     public static final PatternInfos<Operator> PATTERNS = new PatternInfos<>(new Object[][]{
             {"%number%[ ]+[ ]%number%", Operator.PLUS},
             {"%number%[ ]-[ ]%number%", Operator.MINUS},
