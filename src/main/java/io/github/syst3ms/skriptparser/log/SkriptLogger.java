@@ -51,7 +51,7 @@ public class SkriptLogger {
         }
     };
     // State
-    private final boolean debug;
+    private boolean debug;
     private boolean open = true;
     private boolean hasError = false;
     private final LinkedList<ErrorContext> errorContext = new LinkedList<>();
@@ -287,6 +287,15 @@ public class SkriptLogger {
      */
     public boolean isDebug() {
         return debug;
+    }
+
+    /**
+     * Set whether this logger will print debug messages
+     *
+     * @param debug Whether to enable debug mode
+     */
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 
     public String getFileName() {
