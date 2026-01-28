@@ -4,9 +4,6 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
-
 import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.entries.OptionLoader;
@@ -16,14 +13,12 @@ import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.TypeSerializer;
 import io.github.syst3ms.skriptparser.variables.SerializedVariable.Value;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -35,7 +30,7 @@ import java.util.regex.PatternSyntaxException;
  * A variable storage is holds the means and methods of storing variables.
  * <p>
  * This is usually some sort of database, and could be as simply as a text file.
- * 
+ * <p>
  * Must contain a constructor of just SkriptLogger.
  */
 public abstract class VariableStorage implements Closeable {
@@ -68,7 +63,7 @@ public abstract class VariableStorage implements Closeable {
      * Gson will be handled.
      *
      * @param logger the logger to print logs to.
-     * @param name the name.
+     * @param name   the name.
      */
     protected VariableStorage(SkriptLogger logger, @NotNull String name) {
         this(logger, new GsonBuilder()
@@ -83,8 +78,8 @@ public abstract class VariableStorage implements Closeable {
      * Creates a new variable storage with the given names.
      *
      * @param logger the logger to print logs to.
-     * @param gson the gson that controls the serialization of the json elements.
-     * @param name the name.
+     * @param gson   the gson that controls the serialization of the json elements.
+     * @param name   the name.
      */
     protected VariableStorage(SkriptLogger logger, @NotNull Gson gson, @NotNull String name) {
         this.logger = logger;
@@ -102,7 +97,8 @@ public abstract class VariableStorage implements Closeable {
                     } else {
                         save(variable.name, null, null);
                     }
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException ignored) {
+                }
             }
         });
     }
@@ -111,7 +107,7 @@ public abstract class VariableStorage implements Closeable {
      * Gets the string value at the given key of the given section node.
      *
      * @param section the file section.
-     * @param key the key node.
+     * @param key     the key node.
      * @return the value, or {@code null} if the value was invalid,
      * or not found.
      */
@@ -124,12 +120,12 @@ public abstract class VariableStorage implements Closeable {
      * Gets the value at the given key of the given section node,
      * parsed with the given class type.
      *
-     * @param section the file section.
-     * @param key the key node.
+     * @param section   the file section.
+     * @param key       the key node.
      * @param classType the class type.
+     * @param <T>       the class type generic.
      * @return the parsed value, or {@code null} if the value was invalid,
      * or not found.
-     * @param <T> the class type generic.
      */
     @Nullable
     @SuppressWarnings("unchecked")
@@ -156,14 +152,14 @@ public abstract class VariableStorage implements Closeable {
 
         Optional<Function<String, ? extends T>> parser = type.get().getLiteralParser();
         if (!parser.isPresent()) {
-             logger.error("Type " + type.get().withIndefiniteArticle(true) + " cannot be parsed as a literal.", ErrorType.SEMANTIC_ERROR);
-             return null;
+            logger.error("Type " + type.get().withIndefiniteArticle(true) + " cannot be parsed as a literal.", ErrorType.SEMANTIC_ERROR);
+            return null;
         }
 
         T parsedValue = parser.get().apply(content);
         if (parsedValue == null) {
             logger.error("The entry for '" + key + "' in the database '" + name + "' must be " +
-                    type.get().withIndefiniteArticle(true), ErrorType.SEMANTIC_ERROR);
+                type.get().withIndefiniteArticle(true), ErrorType.SEMANTIC_ERROR);
             return null;
         }
         return parsedValue;
@@ -243,8 +239,8 @@ public abstract class VariableStorage implements Closeable {
     /**
      * Loads a variable into Skript ram. Call this inside {@link #load(FileSection)}
      *
-     * @param name the name of the variable.
-     * @param type the type of the variable.
+     * @param name  the name of the variable.
+     * @param type  the type of the variable.
      * @param value the serialized value of the variable.
      */
     protected void loadVariable(String name, @NotNull String type, @NotNull JsonElement value) {
@@ -283,7 +279,6 @@ public abstract class VariableStorage implements Closeable {
      *
      * @param variableName the variable name.
      * @return if this storage accepts the variable name.
-     *
      * @see #variableNamePattern
      */
     boolean accept(@Nullable String variableName) {
@@ -297,7 +292,7 @@ public abstract class VariableStorage implements Closeable {
      * Can be overriden to add custom encryption in your implemented VariableStorage.
      * Call super.
      *
-     * @param name the variable name.
+     * @param name  the variable name.
      * @param value the variable value.
      * @return the serialized variable.
      */
@@ -318,12 +313,12 @@ public abstract class VariableStorage implements Closeable {
     /**
      * Used by {@link #loadVariable(String, String, byte[])}.
      * You don't need to use this method, but if you need to read the Object, this method allows for deserialization.
-     * 
+     *
      * @param typeName The name of the type.
-     * @param value The value that represents a object.
+     * @param value    The value that represents a object.
      * @return The Object after deserialization, not present if not possible to deserialize due to missing serializer on Type.
      */
-    protected Optional<?> deserialize(@NotNull String typeName, @NotNull JsonElement value) {
+    protected Object deserialize(@NotNull String typeName, @NotNull JsonElement value) {
         if (value == null || typeName == null)
             throw new IllegalArgumentException("value and/or typeName cannot be null");
         Type<?> type = TypeManager.getByExactName(typeName).orElse(null);
@@ -332,7 +327,7 @@ public abstract class VariableStorage implements Closeable {
         TypeSerializer<?> serializer = type.getSerializer().orElse(null);
         if (serializer == null)
             throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be deserialized. No type serializer.");
-        return Optional.ofNullable(serializer.deserialize(gson, value));
+        return serializer.deserialize(gson, value);
     }
 
     private long lastError = Long.MIN_VALUE;
@@ -348,7 +343,7 @@ public abstract class VariableStorage implements Closeable {
             if (lastError < System.currentTimeMillis() - ERROR_INTERVAL * 1000) {
                 // Inform console about overload of variable changes
                 System.out.println("Skript cannot save any variables to the database '" + name + "'. " +
-                        "The thread will hang to avoid losing variable.");
+                    "The thread will hang to avoid losing variable.");
 
                 lastError = System.currentTimeMillis();
             }
@@ -356,7 +351,8 @@ public abstract class VariableStorage implements Closeable {
                 try {
                     changesQueue.put(variable);
                     break;
-                } catch (InterruptedException ignored) {}
+                } catch (InterruptedException ignored) {
+                }
             }
         }
     }
@@ -371,8 +367,8 @@ public abstract class VariableStorage implements Closeable {
      * {@code type} and {@code value} are <i>both</i> {@code null}
      * if this call is to delete the variable.
      *
-     * @param name the name of the variable.
-     * @param type the type of the variable.
+     * @param name  the name of the variable.
+     * @param type  the type of the variable.
      * @param value the serialized value of the variable.
      * @return Whether the variable was saved.
      */

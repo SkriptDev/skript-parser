@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.variables;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import io.github.syst3ms.skriptparser.util.MultiMap;
 /**
  * A class handling operations on variables.
  */
+@SuppressWarnings("unused")
 public class Variables {
 
     static final MultiMap<Class<? extends VariableStorage>, String> AVAILABLE_STORAGES = new MultiMap<>();
@@ -43,8 +45,25 @@ public class Variables {
     public static final String LOCAL_VARIABLE_TOKEN = "_";
     public static final String LIST_SEPARATOR = "::";
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean hasStorages() {
         return !STORAGES.isEmpty();
+    }
+
+    public static ReentrantLock getLock() {
+        return LOCK;
+    }
+
+    public static void shutdown() {
+        for (VariableStorage STORAGE : STORAGES) {
+            try {
+                STORAGE.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        localVariables.clear();
+        variableMap.clearVariables();
     }
 
     /**
@@ -261,7 +280,7 @@ public class Variables {
         }
     }
 
-    public static final void clearVariables() {
+    public static void clearVariables() {
         variableMap.clearVariables();
     }
 
