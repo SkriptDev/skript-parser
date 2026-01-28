@@ -1,5 +1,16 @@
 package io.github.syst3ms.skriptparser.variables;
 
+import io.github.syst3ms.skriptparser.config.Config.ConfigSection;
+import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.Variable;
+import io.github.syst3ms.skriptparser.lang.VariableString;
+import io.github.syst3ms.skriptparser.log.ErrorType;
+import io.github.syst3ms.skriptparser.log.SkriptLogger;
+import io.github.syst3ms.skriptparser.parsing.ParserState;
+import io.github.syst3ms.skriptparser.util.MultiMap;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -13,20 +24,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
-
-import io.github.syst3ms.skriptparser.lang.entries.OptionLoader;
-import org.jetbrains.annotations.Nullable;
-
-import io.github.syst3ms.skriptparser.file.FileElement;
-import io.github.syst3ms.skriptparser.file.FileSection;
-import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.lang.Variable;
-import io.github.syst3ms.skriptparser.lang.VariableString;
-import io.github.syst3ms.skriptparser.log.ErrorType;
-import io.github.syst3ms.skriptparser.log.SkriptLogger;
-import io.github.syst3ms.skriptparser.parsing.ParserState;
-import io.github.syst3ms.skriptparser.util.MultiMap;
 
 /**
  * A class handling operations on variables.
@@ -68,10 +65,10 @@ public class Variables {
 
     /**
      * Register a VariableStorage class.
-     * 
+     *
      * @param storage The class of the VariableStorage implementation.
-     * @param names The names used to reference this storage.
-     * @param <T> Generic representing class that extends VariableStorage.
+     * @param names   The names used to reference this storage.
+     * @param <T>     Generic representing class that extends VariableStorage.
      * @return if the storage was registered, false if it's already registered.
      */
     public static <T extends VariableStorage> boolean registerStorage(Class<T> storage, String... names) {
@@ -88,52 +85,35 @@ public class Variables {
 
     /**
      * Loads a section configuration containing all the database info.
-     * Parent section node name must be 'databases:'
-     * 
-     * @param logger the SkriptLogger to print errors to.
-     * @param section the FileSection to load for the configurations.
+     * Parent section node name must be 'databases:'.
+     *
+     * @param logger  the SkriptLogger to print errors to.
+     * @param section the ConfigSection to load for the databases.
      * @throws IllegalArgumentException throws when the section is not valid.
      */
-    public static void load(SkriptLogger logger, FileSection section) throws IllegalArgumentException {
-        for (FileElement databaseElement : section.getElements()) {
-            if (!(databaseElement instanceof FileSection databaseSection)) {
-                logger.error("The file node 'databases." + databaseElement.getLineContent() + "' was not a section.", ErrorType.STRUCTURE_ERROR);
+    public static void load(SkriptLogger logger, ConfigSection section) throws IllegalArgumentException {
+        for (ConfigSection databaseSection : section.getSections()) {
+            String databaseName = databaseSection.getName();
+            logger.info("Loading database '" + databaseName + "'");
+
+            boolean enabled = databaseSection.getBoolean("enabled");
+            if (!enabled) {
+                logger.warn("Database '" + databaseName + "' is disabled. Skipping...");
                 continue;
             }
-            String databaseName = databaseElement.getLineContent();
-            String databaseType = null;
 
-            for (FileElement element : databaseSection.getElements()) {
-                if (!(element instanceof FileSection)) {
-                    Optional<FileElement> value = databaseSection.get("type");
-                    if (value.isEmpty()) {
-                        logger.error("The configuration is missing the entry for 'type' for the database '" + databaseName + "'", ErrorType.SEMANTIC_ERROR);
-                    } else {
-                        String[] split = value.get().getLineContent().split(OptionLoader.OPTION_SPLIT_PATTERN);
-                        if (split.length < 2) {
-                            logger.error("The configuration entry 'type' is not a option entry (key: value) for the database '" + databaseName + "'", ErrorType.SEMANTIC_ERROR);
-                            continue;
-                        }
-                        databaseType = split[1];
-                    }
-                }
-            }
-
+            String databaseType = databaseSection.getString("type");
             if (databaseType == null) {
+                logger.error("The configuration is missing the type for the database '" + databaseName + "'", ErrorType.SEMANTIC_ERROR);
                 continue;
             }
+            logger.debug("Database type: " + databaseType);
 
-
-            if (databaseName.isBlank()) {
-                logger.error("A database name was incorrect, cannot be an empty string. (line " + databaseElement.getLine() + ")", ErrorType.SEMANTIC_ERROR);
-                continue;
-            }
-            String finalDatabaseType = databaseType;
             Class<? extends VariableStorage> storageClass = AVAILABLE_STORAGES.entrySet().stream()
-                    .filter(entry -> entry.getValue().contains(finalDatabaseType.toLowerCase(Locale.ENGLISH)))
-                    .map(Map.Entry::getKey)
-                    .findFirst()
-                    .orElse(null);
+                .filter(entry -> entry.getValue().contains(databaseType.toLowerCase(Locale.ENGLISH)))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
             if (storageClass == null) {
                 logger.error("There is no database registered with the name '" + databaseName + "'", ErrorType.SEMANTIC_ERROR);
                 continue;
@@ -144,11 +124,13 @@ public class Variables {
                 VariableStorage storage = constructor.newInstance(logger, databaseName);
                 if (storage.loadConfiguration(databaseSection))
                     STORAGES.add(storage);
-            } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            } catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException |
+                     InvocationTargetException e) {
                 logger.error("VariableStorage class '" + storageClass.getName() + "' does not implement the correct constructors.", ErrorType.SEMANTIC_ERROR);
                 logger.debug("Exception: " + e.getLocalizedMessage());
             }
         }
+        logger.debug("Loaded " + STORAGES.size() + " databases.");
         STORAGES.forEach(VariableStorage::allLoaded);
         processChangeQueue();
     }
@@ -164,9 +146,9 @@ public class Variables {
             return Optional.empty();
         }
         var vs = VariableString.newInstance(
-                input.startsWith(LOCAL_VARIABLE_TOKEN) ? input.substring(LOCAL_VARIABLE_TOKEN.length()).strip() : input,
-                parserState,
-                logger
+            input.startsWith(LOCAL_VARIABLE_TOKEN) ? input.substring(LOCAL_VARIABLE_TOKEN.length()).strip() : input,
+            parserState,
+            logger
         );
         var finalS = input;
         return vs.map(v -> new Variable<>(v, finalS.startsWith(LOCAL_VARIABLE_TOKEN), finalS.endsWith(LIST_SEPARATOR + "*"), types));
@@ -175,9 +157,9 @@ public class Variables {
     /**
      * Checks whether a string is a valid variable name.
      *
-     * @param name The name to test
+     * @param name        The name to test
      * @param printErrors Whether to print errors when they are encountered
-     * @param logger the logger
+     * @param logger      the logger
      * @return true if the name is valid, false otherwise.
      */
     public static boolean isValidVariableName(String name, boolean printErrors, SkriptLogger logger) {
@@ -223,7 +205,7 @@ public class Variables {
     /**
      * Sets a variable.
      *
-     * @param name The variable's name. Can be a "list variable::*" (<tt>value</tt> must be <tt>null</tt> in this case)
+     * @param name  The variable's name. Can be a "list variable::*" (<tt>value</tt> must be <tt>null</tt> in this case)
      * @param value The variable's value. Use <tt>null</tt> to delete the variable.
      */
     public static void setVariable(String name, @Nullable Object value, @Nullable TriggerContext e, boolean local) {
@@ -272,11 +254,11 @@ public class Variables {
 
             variableMap.setVariable(change.name, change.value);
             STORAGES.stream()
-                    .filter(storage -> storage.accept(change.name))
-                    .forEach(storage -> {
-                        SerializedVariable serialized = storage.serialize(change.name, change.value);
-                        storage.save(serialized);
-                    });
+                .filter(storage -> storage.accept(change.name))
+                .forEach(storage -> {
+                    SerializedVariable serialized = storage.serialize(change.name, change.value);
+                    storage.save(serialized);
+                });
         }
     }
 
@@ -288,7 +270,7 @@ public class Variables {
      * Copy local variables from one TriggerContext to another.
      *
      * @param from The source TriggerContext
-     * @param to The destination TriggerContext
+     * @param to   The destination TriggerContext
      */
     public static void copyLocalVariables(TriggerContext from, TriggerContext to) {
         if (localVariables.containsKey(from)) {
@@ -325,7 +307,7 @@ public class Variables {
         /**
          * Creates a new {@link VariableChange} with the given name and value.
          *
-         * @param name the variable name.
+         * @param name  the variable name.
          * @param value the new variable value.
          */
         public VariableChange(String name, @Nullable Object value) {

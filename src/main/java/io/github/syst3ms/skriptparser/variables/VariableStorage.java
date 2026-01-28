@@ -4,6 +4,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import io.github.syst3ms.skriptparser.config.Config.ConfigSection;
 import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.entries.OptionLoader;
@@ -172,8 +173,8 @@ public abstract class VariableStorage implements Closeable {
      * @param section the section node.
      * @return whether the loading succeeded.
      */
-    public final boolean loadConfiguration(FileSection section) {
-        String pattern = getConfigurationValue(section, "pattern");
+    public final boolean loadConfiguration(ConfigSection section) {
+        String pattern = section.getString("pattern");
         if (pattern == null)
             return false;
 
@@ -186,7 +187,7 @@ public abstract class VariableStorage implements Closeable {
         }
 
         if (requiresFile()) {
-            String fileName = getConfigurationValue(section, "file");
+            String fileName = section.getString("file");
             if (fileName == null)
                 return false;
 
@@ -225,7 +226,7 @@ public abstract class VariableStorage implements Closeable {
      * @return Whether the database could be loaded successfully,
      * i.e. whether the configuration is correct and all variables could be loaded.
      */
-    protected abstract boolean load(FileSection section);
+    protected abstract boolean load(ConfigSection section);
 
     protected void loadVariable(String name, SerializedVariable variable) {
         Value value = variable.value;
@@ -237,7 +238,7 @@ public abstract class VariableStorage implements Closeable {
     }
 
     /**
-     * Loads a variable into Skript ram. Call this inside {@link #load(FileSection)}
+     * Loads a variable into Skript ram. Call this inside {@link #load(ConfigSection)}
      *
      * @param name  the name of the variable.
      * @param type  the type of the variable.
@@ -311,7 +312,7 @@ public abstract class VariableStorage implements Closeable {
     }
 
     /**
-     * Used by {@link #loadVariable(String, String, byte[])}.
+     * Used by {@link #loadVariable(String, String, JsonElement)}.
      * You don't need to use this method, but if you need to read the Object, this method allows for deserialization.
      *
      * @param typeName The name of the type.
