@@ -90,6 +90,13 @@ public class Functions {
     }
 
     public static Optional<Function<?>> getFunctionByName(String name, String scriptName) {
+        // Find a global function
+        for (Function<?> function : functionsMap.computeIfAbsent(GLOBAL_FUNCTIONS_NAME, k -> new ArrayList<>())) {
+            if (function.getName().equals(name)) {
+                return Optional.of(function);
+            }
+        }
+        // Find a function in a script file
         if (scriptName.endsWith(".sk")) scriptName = scriptName.substring(0, scriptName.length() - 3);
 
         for (Function<?> registeredFunction : functionsMap.computeIfAbsent(scriptName, k -> new ArrayList<>())) {
@@ -101,7 +108,7 @@ public class Functions {
                 continue;
                 //return Optional.of(registeredFunction); handled below
             }
-            return Optional.of(registeredFunction); // java function or global scriptfunction at this point
+            return Optional.of(registeredFunction); // java function or global script function at this point
         }
         return Optional.empty();
     }
