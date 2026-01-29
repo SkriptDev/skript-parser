@@ -23,15 +23,15 @@ import java.util.Objects;
  */
 public class ExprNumberConvertBase implements Expression<String> {
 	// TODO remove Big
-	static {
-		Parser.getMainRegistration().addExpression(
-				ExprNumberConvertBase.class,
-				String.class,
-				false,
-				"%integers% [converted] to (2:binary|8:octal|16:hex[adecimal]|64:base[ ]64|custom:base %integer%)",
-				"(2:binary|8:octal|10:decimal|16:hex[adecimal]|64:base[ ]64) %strings% [converted] to (2:binary|8:octal|10:decimal|16:hex[adecimal]|64:base[ ]64|custom:base %integer%)"
-		);
-	}
+//	static {
+//		Parser.getMainRegistration().addExpression(
+//				ExprNumberConvertBase.class,
+//				String.class,
+//				false,
+//				"%integers% [converted] to (2:binary|8:octal|16:hex[adecimal]|64:base[ ]64|custom:base %integer%)",
+//				"(2:binary|8:octal|10:decimal|16:hex[adecimal]|64:base[ ]64) %strings% [converted] to (2:binary|8:octal|10:decimal|16:hex[adecimal]|64:base[ ]64|custom:base %integer%)"
+//		);
+//	}
 
 	private Expression<?> expression;
 	private Expression<BigInteger> base;

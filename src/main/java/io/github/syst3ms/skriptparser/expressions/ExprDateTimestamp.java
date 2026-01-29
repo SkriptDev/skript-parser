@@ -24,8 +24,9 @@ public class ExprDateTimestamp extends PropertyExpression<SkriptDate, Number> {
     static {
         Parser.getMainRegistration().newPropertyExpression(ExprDateTimestamp.class, Number.class,
                 "[1:unix] timestamp", "*[date] %date%")
-            .name("Unix Timestamp")
-            .description("The unix timestamp of a date.")
+            .name("Timestamp of Date")
+            .description("The timestamp of a date in milliseconds.",
+                "The unix timestamp of a date in seconds.")
             .since("INSERT VERSION")
             .register();
     }

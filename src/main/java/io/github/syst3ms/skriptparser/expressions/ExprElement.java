@@ -29,9 +29,9 @@ public class ExprElement implements Expression<Object> {
             ExprElement.class,
             Object.class,
             true,
-            "(0:[the] first|1:[the] last|2:[a] random|3:[the] %integer%(st|nd|rd|th)) element out [of] %objects%",
-            "[the] (0:first|1:last) %integer% elements out [of] %objects%",
-            "%integer% random elements out [of] %objects%",
+            "(0:[the] first|1:[the] last|2:[a] random|3:[the] %integer%(st|nd|rd|th)) element [out] of %objects%",
+            "[the] (0:first|1:last) %integer% elements [out] of %objects%",
+            "%integer% random elements [out] of %objects%",
             "%objects%\\[%integer%\\]");
     }
 
