@@ -22,6 +22,14 @@ public class Functions {
 
     private Functions() {}
 
+    public static List<Function<?>> getFunctions(String scriptName) {
+        return functionsMap.getOrDefault(scriptName, List.of());
+    }
+
+    public static List<Function<?>> getGlobalFunctions() {
+        return functionsMap.getOrDefault(GLOBAL_FUNCTIONS_NAME, List.of());
+    }
+
     static void preRegisterFunction(ScriptFunction<?> function) {
         String scriptName = function.getScriptName();
         functionsMap.computeIfAbsent(scriptName, k -> new ArrayList<>()).add(function);
