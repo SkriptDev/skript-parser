@@ -8,10 +8,7 @@ import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
-import io.github.syst3ms.skriptparser.util.math.BigDecimalMath;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.util.Optional;
 
 /**
@@ -22,7 +19,6 @@ import java.util.Optional;
  *          <ul>
  *              <li>Two operands of the same type will yield a result of that type, except in the following special cases
  *                  <ul>
- *                      <li>Trying to divide in general will always return a {@link BigDecimal}</li>
  *                      <li>Trying to divide anything by 0 will return {@literal 0} regardless of the original types.</li>
  *                  </ul>
  *              </li>
@@ -32,7 +28,8 @@ import java.util.Optional;
  *      </li>
  *      <li>0<sup>0</sup> is defined to be 1</li>
  * </ul>
- * 
+ *
+ * @author Syst3ms
  * @name Arithmetic Operators
  * @pattern %number%[ ]+[ ]%number%
  * @pattern %number%[ ]-[ ]%number%
@@ -40,17 +37,15 @@ import java.util.Optional;
  * @pattern %number%[ ]/[ ]%number%
  * @pattern %number%[ ]^[ ]%number%
  * @since ALPHA
- * @author Syst3ms
  */
 public class ExprArithmeticOperators implements Expression<Number> {
-    // TODO remove Big
     public static final PatternInfos<Operator> PATTERNS = new PatternInfos<>(new Object[][]{
-            {"%number%[ ]+[ ]%number%", Operator.PLUS},
-            {"%number%[ ]-[ ]%number%", Operator.MINUS},
-            {"%number%[ ]*[ ]%number%", Operator.MULT},
-            {"%number%[ ]/[ ]%number%", Operator.DIV},
-            {"%number%[ ]^[ ]%number%", Operator.EXP},
-        }
+        {"%number%[ ]+[ ]%number%", Operator.PLUS},
+        {"%number%[ ]-[ ]%number%", Operator.MINUS},
+        {"%number%[ ]*[ ]%number%", Operator.MULT},
+        {"%number%[ ]/[ ]%number%", Operator.DIV},
+        {"%number%[ ]^[ ]%number%", Operator.EXP},
+    }
     );
 
     static {
@@ -71,13 +66,13 @@ public class ExprArithmeticOperators implements Expression<Number> {
         first = (Expression<? extends Number>) exprs[0];
         second = (Expression<? extends Number>) exprs[1];
         op = PATTERNS.getInfo(matchedPattern);
-        if (second instanceof Literal) {
+        if (op == Operator.DIV && second instanceof Literal) {
             Optional<? extends Number> value = ((Literal<? extends Number>) second).getSingle();
-            if (value.filter(Operator::isZero).isPresent()) {
+            if (value.filter(n -> n.doubleValue() == 0).isPresent()) {
                 parseContext.getLogger().error(
-                        "Cannot divide by 0!",
-                        ErrorType.SEMANTIC_ERROR,
-                        "Make sure the expression/variable you want to divide with does not represent 0, as dividing by 0 results in mathematical issues"
+                    "Cannot divide by 0!",
+                    ErrorType.SEMANTIC_ERROR,
+                    "Make sure the expression/variable you want to divide with does not represent 0, as dividing by 0 results in mathematical issues"
                 );
                 return false;
             }
@@ -88,9 +83,9 @@ public class ExprArithmeticOperators implements Expression<Number> {
     @Override
     public Number[] getValues(TriggerContext ctx) {
         return DoubleOptional.ofOptional(first.getSingle(ctx), second.getSingle(ctx))
-                .map(f -> (Number) f, s -> (Number) s)
-                .mapToOptional((f, s) -> new Number[]{op.calculate(f, s)})
-                .orElse(new Number[0]);
+            .map(f -> (Number) f, s -> (Number) s)
+            .mapToOptional((f, s) -> new Number[]{op.calculate(f, s)})
+            .orElse(new Number[0]);
     }
 
     @Override
@@ -98,68 +93,58 @@ public class ExprArithmeticOperators implements Expression<Number> {
         return first.toString(ctx, debug) + " " + op + " " + second.toString(ctx, debug);
     }
 
-    private enum Operator {
+    public enum Operator {
         PLUS('+') {
             @Override
             public Number calculate(Number left, Number right) {
-                if (left instanceof BigDecimal || right instanceof BigDecimal) {
-                    var l = BigDecimalMath.getBigDecimal(left);
-                    var r = BigDecimalMath.getBigDecimal(right);
-                    return l.add(r);
-                } else {
-                    assert left instanceof BigInteger && right instanceof BigInteger;
-                    return ((BigInteger) left).add(((BigInteger) right));
-                }
+                return switch (left) {
+                    case Long ignored -> (long) left + (long) right;
+                    case Integer ignored -> (int) left + (int) right;
+                    case Double ignored -> (double) left + (double) right;
+                    default -> left.floatValue() + right.floatValue();
+                };
             }
         },
         MINUS('-') {
             @Override
             public Number calculate(Number left, Number right) {
-                if (left instanceof BigDecimal || right instanceof BigDecimal) {
-                    var l = BigDecimalMath.getBigDecimal(left);
-                    var r = BigDecimalMath.getBigDecimal(right);
-                    return l.subtract(r);
-                } else {
-                    assert left instanceof BigInteger && right instanceof BigInteger;
-                    return ((BigInteger) left).subtract(((BigInteger) right));
-                }
+                return switch (left) {
+                    case Long ignored -> (long) left - (long) right;
+                    case Integer ignored -> (int) left - (int) right;
+                    case Double ignored -> (double) left - (double) right;
+                    default -> left.floatValue() - right.floatValue();
+                };
             }
         },
         MULT('*') {
             @Override
             public Number calculate(Number left, Number right) {
-                if (left instanceof BigDecimal || right instanceof BigDecimal) {
-                    var l = BigDecimalMath.getBigDecimal(left);
-                    var r = BigDecimalMath.getBigDecimal(right);
-                    return l.multiply(r);
-                } else {
-                    assert left instanceof BigInteger && right instanceof BigInteger;
-                    return ((BigInteger) left).multiply(((BigInteger) right));
-                }
+                return switch (left) {
+                    case Long ignored -> (long) left * (long) right;
+                    case Integer ignored -> (int) left * (int) right;
+                    case Double ignored -> (double) left * (double) right;
+                    default -> left.floatValue() * right.floatValue();
+                };
             }
         },
         DIV('/') {
             @Override
             public Number calculate(Number left, Number right) {
-                if (isZero(right)) {
-                    return BigInteger.ZERO;
-                } else {
-                    return BigDecimalMath.getBigDecimal(left).divide(BigDecimalMath.getBigDecimal(right), BigDecimalMath.DEFAULT_CONTEXT);
-                }
+                return switch (left) {
+                    case Long ignored -> (long) left / (long) right;
+                    case Integer ignored -> (int) left / (int) right;
+                    case Double ignored -> (double) left / (double) right;
+                    default -> left.floatValue() / right.floatValue();
+                };
             }
         },
         EXP('^') {
             @Override
             public Number calculate(Number left, Number right) {
-                if (isZero(right)) {
-                    return left instanceof BigDecimal ? BigDecimal.ONE : BigInteger.ONE;
-                }
-                if (left instanceof BigDecimal || right instanceof BigDecimal) {
-                    return BigDecimalMath.pow(BigDecimalMath.getBigDecimal(left), BigDecimalMath.getBigDecimal(right), BigDecimalMath.DEFAULT_CONTEXT);
-                } else {
-                    assert left instanceof BigInteger && right instanceof BigInteger;
-                    return pow((BigInteger) left, (BigInteger) right);
-                }
+                return switch (left) {
+                    case Long ignored -> (long) left ^ (long) right;
+                    default -> (int) left ^ (int) right;
+                };
             }
         };
 
@@ -175,26 +160,6 @@ public class ExprArithmeticOperators implements Expression<Number> {
         public String toString() {
             return String.valueOf(sign);
         }
-
-        private static boolean isZero(Number n) {
-            return BigDecimalMath.getBigDecimal(n).compareTo(BigDecimal.ZERO) == 0;
-        }
-
-        private static BigInteger pow(BigInteger x, BigInteger y) {
-            BigInteger z = x;
-            BigInteger result = BigInteger.ONE;
-            byte[] bytes = y.toByteArray();
-            for (int i = bytes.length - 1; i >= 0; i--) {
-                byte bits = bytes[i];
-                for (int j = 0; j < 8; j++) {
-                    if ((bits & 1) != 0)
-                        result = result.multiply(z);
-                    if ((bits >>= 1) == 0 && i == 0)
-                        return result;
-                    z = z.multiply(z);
-                }
-            }
-            return result;
-        }
     }
+
 }
