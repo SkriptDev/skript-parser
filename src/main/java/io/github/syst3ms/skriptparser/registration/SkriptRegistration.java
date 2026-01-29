@@ -675,6 +675,12 @@ public class SkriptRegistration {
             return this;
         }
 
+        public <R> TypeRegistrar<C> noDoc() {
+            this.documentation.noDoc();
+            return this;
+        }
+
+
         public <R> TypeRegistrar<C> name(String name) {
             this.documentation.setName(name);
             return this;
@@ -731,6 +737,11 @@ public class SkriptRegistration {
          */
         public SyntaxRegistrar<C> addPatterns(String... patterns) {
             Collections.addAll(this.patterns, patterns);
+            return this;
+        }
+
+        public SyntaxRegistrar<C> noDoc() {
+            this.documentation.noDoc();
             return this;
         }
 
@@ -861,6 +872,11 @@ public class SkriptRegistration {
         @SafeVarargs
         public final EventRegistrar<T> setHandledContexts(Class<? extends TriggerContext>... contexts) {
             this.handledContexts = Set.of(contexts);
+            return this;
+        }
+
+        public final EventRegistrar<T> noDoc() {
+            this.documentation.noDoc();
             return this;
         }
 

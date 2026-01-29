@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.structures.functions;
 
 import io.github.syst3ms.skriptparser.Parser;
+import io.github.syst3ms.skriptparser.docs.Documentation;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.ExpressionList;
@@ -19,10 +20,12 @@ import java.util.regex.MatchResult;
 public class EffFunctionCall extends Effect {
 
     static {
-        Parser.getMainRegistration().addEffect(
+        Parser.getMainRegistration().newEffect(
                 EffFunctionCall.class,
-                6,
-                Functions.FUNCTION_CALL_PATTERN);
+                Functions.FUNCTION_CALL_PATTERN)
+            .noDoc()
+            .setPriority(6)
+            .register();
     }
 
     private Function<?> function;

@@ -18,12 +18,14 @@ import java.util.regex.MatchResult;
 public class ExprFunctionCall implements Expression<Object> {
 
     static {
-        Parser.getMainRegistration().addExpression(
+        Parser.getMainRegistration().newExpression(
                 ExprFunctionCall.class,
                 Object.class,
                 true,
-                6,
-                Functions.FUNCTION_CALL_PATTERN);
+                Functions.FUNCTION_CALL_PATTERN)
+            .noDoc()
+            .setPriority(6)
+            .register();
     }
 
     private Function<?> function;

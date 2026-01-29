@@ -5,6 +5,8 @@ package io.github.syst3ms.skriptparser.docs;
  */
 public class Documentation {
 
+    public static final String NO_DOC = "no_doc";
+
     private String name;
     private String[] description;
     private String usage;
@@ -12,6 +14,10 @@ public class Documentation {
     private String since;
 
     public Documentation() {
+    }
+
+    public boolean isNoDoc() {
+        return NO_DOC.equals(this.name);
     }
 
     public String getName() {
@@ -36,6 +42,10 @@ public class Documentation {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void noDoc() {
+        this.name = NO_DOC;
     }
 
     public void setDescription(String[] description) {
