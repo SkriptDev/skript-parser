@@ -136,6 +136,16 @@ public class Functions {
             return this;
         }
 
+        public FunctionDefinition noDoc() {
+            this.documentation.noDoc();
+            return this;
+        }
+
+        public FunctionDefinition experimental() {
+            this.documentation.experimental();
+            return this;
+        }
+
         public FunctionDefinition description(String... description) {
             this.documentation.setDescription(description);
             return this;

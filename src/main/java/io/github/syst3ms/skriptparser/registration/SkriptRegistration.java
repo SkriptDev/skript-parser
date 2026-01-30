@@ -680,6 +680,11 @@ public class SkriptRegistration {
             return this;
         }
 
+        public <R> TypeRegistrar<C> experimental() {
+            this.documentation.experimental();
+            return this;
+        }
+
 
         public <R> TypeRegistrar<C> name(String name) {
             this.documentation.setName(name);
@@ -742,6 +747,11 @@ public class SkriptRegistration {
 
         public SyntaxRegistrar<C> noDoc() {
             this.documentation.noDoc();
+            return this;
+        }
+
+        public SyntaxRegistrar<C> experimental() {
+            this.documentation.experimental();
             return this;
         }
 
@@ -877,6 +887,11 @@ public class SkriptRegistration {
 
         public final EventRegistrar<T> noDoc() {
             this.documentation.noDoc();
+            return this;
+        }
+
+        public final EventRegistrar<T> experimental() {
+            this.documentation.experimental();
             return this;
         }
 

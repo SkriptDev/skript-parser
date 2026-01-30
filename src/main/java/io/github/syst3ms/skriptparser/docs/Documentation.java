@@ -5,8 +5,8 @@ package io.github.syst3ms.skriptparser.docs;
  */
 public class Documentation {
 
-    public static final String NO_DOC = "no_doc";
-
+    private boolean noDoc = false;
+    private boolean experimental = false;
     private String name;
     private String[] description;
     private String usage;
@@ -14,10 +14,6 @@ public class Documentation {
     private String since;
 
     public Documentation() {
-    }
-
-    public boolean isNoDoc() {
-        return NO_DOC.equals(this.name);
     }
 
     public String getName() {
@@ -45,7 +41,19 @@ public class Documentation {
     }
 
     public void noDoc() {
-        this.name = NO_DOC;
+        this.noDoc = true;
+    }
+
+    public boolean isNoDoc() {
+        return this.noDoc;
+    }
+
+    public void experimental() {
+        this.experimental = true;
+    }
+
+    public boolean isExperimental() {
+        return this.experimental;
     }
 
     public void setDescription(String[] description) {
