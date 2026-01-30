@@ -27,7 +27,7 @@ public class CondExprIsEmpty extends ConditionalExpression {
             .description("Checks if a given string or list is empty.")
             .examples("if {_list::*} is empty:",
                 "if {_string} is not empty:")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
     }
 

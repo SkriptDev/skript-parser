@@ -30,7 +30,7 @@ public class ExprBooleanOperators implements Expression<Boolean> {
             .examples("if {_boolean} and {_boolean2}:",
                 "if {_boolean} or {_boolean2}:",
                 "if not {_boolean}:")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
     }
 

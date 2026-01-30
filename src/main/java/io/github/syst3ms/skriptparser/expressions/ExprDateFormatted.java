@@ -29,7 +29,7 @@ public class ExprDateFormatted implements Expression<String> {
             .description("Formats a date as a string using the given format.",
                 "See [SimpleDateFormat](https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/text/SimpleDateFormat.html) for available patterns.")
             .examples("set {_time} to now formatted as \"hh:mm:ss\"")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
     }
 

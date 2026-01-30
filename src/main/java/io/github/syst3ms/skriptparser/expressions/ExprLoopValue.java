@@ -43,7 +43,7 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
 				"loop {_var::*}",
 				"\tif loop-index = \"bob\":",
 				"\t\tadd loop-value to inventory of player")
-			.since("INSERT VERSION")
+			.since("1.0.0")
 			.register();
 	}
 

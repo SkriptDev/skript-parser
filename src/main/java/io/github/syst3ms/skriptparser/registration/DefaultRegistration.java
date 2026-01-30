@@ -38,7 +38,7 @@ public class DefaultRegistration {
         registration.newType(Object.class, "object", "object@s")
             .name("Object")
             .description("Any possible object.")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
 
         registration.newType(Integer.class, "integer", "integer@s")
@@ -52,7 +52,7 @@ public class DefaultRegistration {
             })
             .name("Integer")
             .description("A whole number.")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .arithmetic(new Arithmetic<Integer, Integer>() {
                 @Override
                 public Integer difference(Integer first, Integer second) {
@@ -89,7 +89,7 @@ public class DefaultRegistration {
         registration.newType(Float.class, "float", "float@s")
             .name("Float")
             .description("A floating-point number.")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .literalParser(s -> {
                 if (s == null) return null;
                 try {
@@ -134,7 +134,7 @@ public class DefaultRegistration {
         registration.newType(Double.class, "double", "double@s")
             .name("Double")
             .description("A double floating-point number.")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .literalParser(s -> {
                 if (s == null) return null;
                 try {
@@ -179,7 +179,7 @@ public class DefaultRegistration {
         registration.newType(Number.class, "number", "number@s")
             .name("Number")
             .description("A number (can be an integer/float/double/etc).")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .literalParser(s -> {
                 if (s == null) return null;
                 try {
@@ -227,7 +227,7 @@ public class DefaultRegistration {
             .name("String")
             .description("A string of characters.")
             .examples("set {_string} to \"Hello World!\"")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .serializer(new TypeSerializer<>() {
                 @Override
                 public JsonElement serialize(Gson gson, String value) {
@@ -253,7 +253,7 @@ public class DefaultRegistration {
             })
             .name("Boolean")
             .description("A boolean value, represented as 'true' or 'false'.")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .toStringFunction(String::valueOf)
             .serializer(new TypeSerializer<>() {
                 @Override
@@ -272,7 +272,7 @@ public class DefaultRegistration {
         registration.newType(Type.class, "type", "type@s")
             .name("Type")
             .description("Represents a type/class.")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .literalParser(s -> TypeManager.getByExactName(s.toLowerCase()).orElse(null))
             .toStringFunction(Type::getBaseName)
             .register();
@@ -284,7 +284,7 @@ public class DefaultRegistration {
         registration.newType(Color.class, "color", "color@s")
             .name("Color")
             .description("Represents a color.")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .literalParser(s -> Color.ofLiteral(s).orElse(null))
             .toStringFunction(Color::toString)
             .register();
@@ -293,7 +293,7 @@ public class DefaultRegistration {
             .name("Duration")
             .description("Represents a time-based amount of time, such as '34.5 seconds'.")
             .usage(DurationUtils.getUsage())
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .literalParser(s -> DurationUtils.parseDuration(s).orElse(null))
             .toStringFunction(DurationUtils::toStringDuration)
             .arithmetic(new Arithmetic<Duration, Duration>() {
@@ -344,13 +344,13 @@ public class DefaultRegistration {
             })
             .name("Date")
             .description("A date, represented as a string in the format 'yyyy-MM-dd HH:mm:ss'.")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
 
         registration.newType(Time.class, "time", "time@s")
             .name("Time")
             .description("A time, represented as a string in the format 'HH:mm:ss'.")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .literalParser(s -> Time.parse(s).orElse(null))
             .toStringFunction(Time::toString)
             .arithmetic(new Arithmetic<Time, Duration>() {

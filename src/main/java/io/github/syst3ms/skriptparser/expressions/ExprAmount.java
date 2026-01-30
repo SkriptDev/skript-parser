@@ -31,7 +31,7 @@ public class ExprAmount extends PropertyExpression<Object, Number> {
 			.description("Returns the amount of elements in a given list.")
 			.examples("set {_size} to size of {_var::*}",
 				"if size of all players > 10:")
-			.since("INSERT VERSION")
+			.since("1.0.0")
 			.register();
 	}
 

@@ -23,7 +23,7 @@ public class CondExprIsSet extends PropertyConditional<Object> {
             .name("Is Set")
             .description("Checks if an expression/object is set or not.")
             .examples("if {_var} is set:")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
     }
 

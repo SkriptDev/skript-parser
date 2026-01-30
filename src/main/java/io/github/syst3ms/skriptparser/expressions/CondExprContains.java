@@ -35,7 +35,7 @@ public class CondExprContains extends ConditionalExpression {
             .description("Checks if a given list of objects contain a given element. You can also check if a string contains another string.")
             .examples("if {_string} contains \"hello\":",
                 "if {_list::*} contains player:")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
     }
 

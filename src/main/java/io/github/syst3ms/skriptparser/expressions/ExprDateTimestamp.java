@@ -27,7 +27,7 @@ public class ExprDateTimestamp extends PropertyExpression<SkriptDate, Number> {
             .name("Timestamp of Date")
             .description("The timestamp of a date in milliseconds.",
                 "The unix timestamp of a date in seconds.")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
     }
 

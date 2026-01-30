@@ -23,7 +23,7 @@ public class ExprColorValues extends PropertyExpression<Color, Object> {
                 "(0:hex[adecimal]|1:red|2:green|3:blue|4:alpha) value", "colors")
             .name("Color Value")
             .description("The value of a certain color component.")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
     }
 

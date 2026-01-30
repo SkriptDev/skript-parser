@@ -33,7 +33,7 @@ public class SecWhile extends CodeSection implements Continuable, SelfReferencin
             .examples("while {_var} > 10:",
                 "\tremove 1 from {_var}",
                 "\twait 1 minute")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
     }
 

@@ -26,7 +26,7 @@ public class ExprDateNow implements Expression<SkriptDate> {
                 "(0:yesterday|1:now|2:tomorrow)")
             .name("Current Date")
             .description("The current date, the one from yesterday or the one from tomorrow.")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
     }
 

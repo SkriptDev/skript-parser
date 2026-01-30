@@ -45,7 +45,7 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
                 "\tsend \"hello:%loop-number%\" to all players",
                 "loop all players:",
                 "\tadd {_item} to inventory of loop-player")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
     }
 

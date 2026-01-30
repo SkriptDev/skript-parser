@@ -21,7 +21,7 @@ public class StructFunction extends Structure {
             .setHandledContexts(FunctionContext.class)
             .name("Function")
             .description("Creates a function that can be called from other scripts.")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
     }
 

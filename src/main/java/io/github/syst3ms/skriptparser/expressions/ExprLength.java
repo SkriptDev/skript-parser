@@ -17,7 +17,7 @@ public class ExprLength extends PropertyExpression<String, Number> {
         Parser.getMainRegistration().newPropertyExpression(ExprLength.class, Number.class, "length", "string")
             .name("Length")
             .description("The length of a string.")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
     }
 

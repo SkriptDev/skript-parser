@@ -58,7 +58,7 @@ public class CondExprCompare extends ConditionalExpression {
                 "if {_list::*} is equal to {_list::*}:",
                 "if {_string} is not equal to {_string2}:",
                 "if 1 = 1:")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
     }
 

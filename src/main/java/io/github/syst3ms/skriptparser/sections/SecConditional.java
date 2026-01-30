@@ -34,7 +34,7 @@ public class SecConditional extends CodeSection {
             .setPriority(6)
             .name("Condition")
             .description("Executes code within its section if a condition is verified to be true.")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
     }
 

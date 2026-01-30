@@ -24,7 +24,7 @@ public class LitScriptName implements Literal<String> {
                 "name of [the] script")
             .name("Script Name")
             .description("The name of the current executed script, without the extension.")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
     }
 
