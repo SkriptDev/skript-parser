@@ -12,11 +12,8 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -34,24 +31,6 @@ import java.util.Set;
  * </ul>
  */
 public abstract class SkriptEvent implements SyntaxElement {
-
-    private final Map<String, List<Trigger>> TRIGGER_MAP = new HashMap<>();
-
-    public List<Trigger> getTriggers() {
-        return TRIGGER_MAP.values().stream().flatMap(List::stream).toList();
-    }
-
-    public void addTrigger(String scriptName, Trigger trigger) {
-        //TRIGGER_MAP.computeIfAbsent(scriptName, k -> Collections.synchronizedList(Collections.emptyList())).add(trigger);
-        if (!TRIGGER_MAP.containsKey(scriptName)) {
-            TRIGGER_MAP.put(scriptName, new ArrayList<>());
-        }
-        TRIGGER_MAP.get(scriptName).add(trigger);
-    }
-
-    public void clearTrigger(String scriptName) {
-        TRIGGER_MAP.put(scriptName, new ArrayList<>());
-    }
 
     /**
      * Whether this event should trigger, given the {@link TriggerContext}

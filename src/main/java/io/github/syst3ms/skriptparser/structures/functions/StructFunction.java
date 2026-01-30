@@ -100,15 +100,4 @@ public class StructFunction extends Structure {
         Functions.registerFunction(function, trigger);
     }
 
-    @Override
-    public void addTrigger(String scriptName, Trigger trigger) {
-        register(trigger);
-        super.addTrigger(scriptName, trigger);
-    }
-
-    @Override
-    public void clearTrigger(String scriptName) {
-        Functions.removeFunctions(scriptName);
-        super.clearTrigger(scriptName);
-    }
 }

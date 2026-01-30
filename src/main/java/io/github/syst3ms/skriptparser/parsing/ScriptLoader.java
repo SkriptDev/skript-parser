@@ -4,34 +4,33 @@ import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileParser;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.file.VoidElement;
-import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.Statement;
-import io.github.syst3ms.skriptparser.lang.Trigger;
+import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.TriggerMap;
 import io.github.syst3ms.skriptparser.lang.UnloadedTrigger;
+import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.util.FileUtils;
-import io.github.syst3ms.skriptparser.util.MultiMap;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Contains the logic for loading, parsing, and interpreting entire script files
  */
 public class ScriptLoader {
 
-    private static final MultiMap<String, Trigger> triggerMap = new MultiMap<>();
-
     /**
      * Parses and loads the provided script in memory.
-     * 
+     *
      * @param scriptPath the script file to load.
-     * @param debug whether debug is enabled.
+     * @param debug      whether debug is enabled.
      */
     public static List<LogEntry> loadScript(Path scriptPath, boolean debug) {
         return loadScript(scriptPath, new SkriptLogger(debug), debug);
@@ -40,34 +39,26 @@ public class ScriptLoader {
     /**
      * Parses and loads the provided script in memory.
      * The provided SkriptLogger can be used within syntaxes to input erroring into the logs during parse time.
-     * 
+     *
      * @param scriptPath the script file to load.
-     * @param logger The {@link SkriptLogger} to use for the logged entries. Useful for custom logging.
-     * @param debug whether debug is enabled.
+     * @param logger     The {@link SkriptLogger} to use for the logged entries. Useful for custom logging.
+     * @param debug      whether debug is enabled.
      */
     public static List<LogEntry> loadScript(Path scriptPath, SkriptLogger logger, boolean debug) {
         List<FileElement> elements;
         String scriptName = scriptPath.getFileName().toString().replaceAll("(.+)\\..+", "$1");
 
         // Clear triggers from unloaded events
-        triggerMap.forEach((key, value) -> {
-            if (key.equals(scriptName)) {
-                List<Trigger> triggers = triggerMap.get(key);
-                triggers.forEach(trigger -> trigger.getEvent().clearTrigger(scriptName));
-            }
-        });
-        // Clear triggers of a script from the map
-        triggerMap.remove(scriptName);
-
+        TriggerMap.clearTriggers(scriptName);
 
         try {
             var lines = FileUtils.readAllLines(scriptPath);
 
             elements = FileParser.parseFileLines(scriptName,
-                    lines,
-                    0,
-                    1,
-                    logger
+                lines,
+                0,
+                1,
+                logger
             );
             logger.finalizeLogs();
         } catch (IOException e) {
@@ -89,9 +80,9 @@ public class ScriptLoader {
                 });
             } else {
                 logger.error(
-                        "Can't have code outside of a trigger",
-                        ErrorType.STRUCTURE_ERROR,
-                        "Code always starts with a trigger (or event). Refer to the documentation to see which event you need, or indent this line so it is part of a trigger"
+                    "Can't have code outside of a trigger",
+                    ErrorType.STRUCTURE_ERROR,
+                    "Code always starts with a trigger (or event). Refer to the documentation to see which event you need, or indent this line so it is part of a trigger"
                 );
             }
         }
@@ -105,8 +96,16 @@ public class ScriptLoader {
             //unloaded.getEventInfo().getRegisterer().handleTrigger(scriptName,loaded);
 
             SkriptEvent event = unloaded.getTrigger().getEvent();
-            event.addTrigger(scriptName, loaded);
-            triggerMap.putOne(scriptName, loaded);
+
+            Set<Class<? extends TriggerContext>> contexts = unloaded.getEventInfo().getContexts();
+            if (contexts.isEmpty()) {
+                // A dummy context will be used for this
+                TriggerMap.addTrigger(scriptName, TriggerContext.class, loaded);
+            } else {
+                for (Class<? extends TriggerContext> context : contexts) {
+                    TriggerMap.addTrigger(scriptName, context, loaded);
+                }
+            }
         }
         logger.finalizeLogs();
         return logger.close();
@@ -114,8 +113,9 @@ public class ScriptLoader {
 
     /**
      * Parses all items inside of a given section.
+     *
      * @param section the section
-     * @param logger the logger
+     * @param logger  the logger
      * @return a list of {@linkplain Statement effects} inside of the section
      */
     public static List<Statement> loadItems(FileSection section, ParserState parserState, SkriptLogger logger) {
@@ -154,7 +154,4 @@ public class ScriptLoader {
         return items;
     }
 
-    public static MultiMap<String, Trigger> getTriggerMap() {
-        return triggerMap;
-    }
 }
