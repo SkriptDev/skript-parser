@@ -8,9 +8,9 @@ public class Documentation {
     private boolean noDoc = false;
     private boolean experimental = false;
     private String name;
-    private String[] description;
+    private String[] description = new String[0];
     private String usage;
-    private String[] examples;
+    private String[] examples = new String[0];
     private String since;
 
     public Documentation() {
