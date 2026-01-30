@@ -301,7 +301,7 @@ public class SyntaxParser {
                 matchContext = new MatchContext(info.getPattern(), parserState, logger);
 
                 // Checking all conditions, so no false results slip through.
-                if (info.getPattern().match(value, 0, matchContext) == -1 || !expectedType.getType().getTypeClass().isAssignableFrom(info.getReturnType().getType().getTypeClass())) {
+                if (info.getPattern().match(value, 0, matchContext) != value.length() || !expectedType.getType().getTypeClass().isAssignableFrom(info.getReturnType().getType().getTypeClass())) {
                     continue;
                 } else if (!info.getUsage().isCorrect(alone)) {
                     if (alone) {
