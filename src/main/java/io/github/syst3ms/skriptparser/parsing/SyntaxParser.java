@@ -297,7 +297,7 @@ public class SyntaxParser {
         var value = parseContext.getMatches().get(0).group();
 
         for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
-            for (var info : recentContextValues.mergeWith(ContextValues.getContextValues(ctx))) {
+            for (var info : ContextValues.getContextValues(ctx)) {
                 matchContext = new MatchContext(info.getPattern(), parserState, logger);
 
                 // Checking all conditions, so no false results slip through.
