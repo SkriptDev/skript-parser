@@ -17,6 +17,7 @@ public class Skript extends SkriptAddon {
     private final String[] mainArgs;
 
     public Skript(String[] mainArgs) {
+        super("Skript-Parser");
         this.mainArgs = mainArgs;
     }
 

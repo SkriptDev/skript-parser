@@ -70,7 +70,6 @@ public abstract class VariableStorage implements Closeable {
         this(logger, new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
                 .serializeNulls()
-                .setLenient()
                 .create(),
             name);
     }

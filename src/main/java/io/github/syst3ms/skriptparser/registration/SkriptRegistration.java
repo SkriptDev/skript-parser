@@ -226,6 +226,7 @@ public class SkriptRegistration {
      * @param <T> the Expression's return type
      * @return an {@link ExpressionRegistrar} to continue the registration process
      */
+    @SuppressWarnings("unchecked")
     public <C extends PropertyExpression<?,T>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, String property, String owner) {
         return (ExpressionRegistrar<C, T>) newExpression(c, returnType, false, PropertyExpression. composePatterns(property, owner))
                 .addData(PropertyExpression.PROPERTY_IDENTIFIER, property);
@@ -267,6 +268,7 @@ public class SkriptRegistration {
      * @param <C> the Expression
      * @return an {@link ExpressionRegistrar} to continue the registration process
      */
+    @SuppressWarnings("unchecked")
     public <C extends PropertyConditional<?>> ExpressionRegistrar<C, Boolean> newPropertyConditional(Class<C> c, String performer, ConditionalType conditionalType, String property) {
         return (ExpressionRegistrar<C, Boolean>) newExpression(c, Boolean.class, true, PropertyConditional.composePatterns(performer, conditionalType, property))
                 .addData(PropertyConditional.CONDITIONAL_TYPE_IDENTIFIER, conditionalType)

@@ -12,6 +12,10 @@ import java.util.Map;
 public class TestAddon extends SkriptAddon {
     private final Map<String,List<Trigger>> testTriggers = new HashMap<>();
 
+    public TestAddon(String name) {
+        super(name);
+    }
+
     @Override
     public void finishedLoading() {
         for (Trigger trigger : testTriggers.values().stream().flatMap(List::stream).toList()) {
