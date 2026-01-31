@@ -73,8 +73,9 @@ public class SimpleLiteral<T> implements Literal<T> {
 
     @Override
     public Iterator<T> iterator(TriggerContext context) {
-        if (isSingle())
-            throw new SkriptRuntimeException("Can't loop a single literal!");
+        // TODO not sure if this is safe to remove, but I'm gonna wing it
+//        if (isSingle())
+//            throw new SkriptRuntimeException("Can't loop a single literal!");
         return Arrays.asList(values).iterator();
     }
 
