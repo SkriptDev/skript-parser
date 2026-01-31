@@ -398,7 +398,37 @@ public class DefaultRegistration {
             new Comparator<>(true) {
                 @Override
                 public Relation apply(Number number, Number number2) {
-                    return Relation.get(number.equals(number2));
+                    return Relation.get(number.doubleValue() - number2.doubleValue());
+                }
+            }
+        );
+        Comparators.registerComparator(
+            Integer.class,
+            Integer.class,
+            new Comparator<>(true) {
+                @Override
+                public Relation apply(Integer number, Integer number2) {
+                    return Relation.get(number - number2);
+                }
+            }
+        );
+        Comparators.registerComparator(
+            Double.class,
+            Double.class,
+            new Comparator<>(true) {
+                @Override
+                public Relation apply(Double number, Double number2) {
+                    return Relation.get(number - number2);
+                }
+            }
+        );
+        Comparators.registerComparator(
+            Float.class,
+            Float.class,
+            new Comparator<>(true) {
+                @Override
+                public Relation apply(Float number, Float number2) {
+                    return Relation.get(number - number2);
                 }
             }
         );
