@@ -174,8 +174,10 @@ public abstract class VariableStorage implements Closeable {
      */
     public final boolean loadConfiguration(ConfigSection section) {
         String pattern = section.getString("pattern");
-        if (pattern == null)
+        if (pattern == null) {
+            this.logger.error("The database '" + this.name + "' is missing the pattern entry!", ErrorType.SEMANTIC_ERROR);
             return false;
+        }
 
         try {
             // Set variable name pattern, see field javadoc for explanation of null value
