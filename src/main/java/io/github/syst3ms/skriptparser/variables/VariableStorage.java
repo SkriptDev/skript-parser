@@ -301,11 +301,11 @@ public abstract class VariableStorage implements Closeable {
         if (value == null)
             return new SerializedVariable(name, null);
         Type<T> type = (Type<T>) TypeManager.getByClassExact(value.getClass()).orElse(null);
-        if (type == null)
-            throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be serialized. No type registered.");
+        if (type == null) return null;
+            //throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be serialized. No type registered.");
         TypeSerializer<T> serializer = type.getSerializer().orElse(null);
-        if (serializer == null)
-            throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be serialized. No type serializer.");
+        if (serializer == null) return null;
+            //throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be serialized. No type serializer.");
         JsonElement element = serializer.serialize(gson, value);
         return new SerializedVariable(name, new Value(type.getBaseName(), element));
     }

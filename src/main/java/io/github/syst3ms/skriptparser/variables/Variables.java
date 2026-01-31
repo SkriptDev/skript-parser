@@ -257,6 +257,7 @@ public class Variables {
                 .filter(storage -> storage.accept(change.name))
                 .forEach(storage -> {
                     SerializedVariable serialized = storage.serialize(change.name, change.value);
+                    if (serialized == null) return;
                     storage.save(serialized);
                 });
         }
