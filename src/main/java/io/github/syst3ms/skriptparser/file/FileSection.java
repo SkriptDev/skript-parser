@@ -45,7 +45,7 @@ public class FileSection extends FileElement {
         return elements.stream()
                 .filter(element -> {
                     String content = element.getLineContent();
-                    content = content.substring(0, content.lastIndexOf(OptionLoader.OPTION_SPLIT_PATTERN.trim()));
+                    content = content.substring(0, content.indexOf(OptionLoader.OPTION_SPLIT_PATTERN.trim()));
                     return content.equalsIgnoreCase(line);
                 })
                 .findFirst();
