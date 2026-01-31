@@ -42,7 +42,7 @@ public class TriggerMap {
      * @return Map of trigger contexts to triggers
      */
     public static Map<Class<? extends TriggerContext>, List<Trigger>> getTriggersByScript(String scriptName) {
-        return TRIGGERS.get(scriptName);
+        return TRIGGERS.getOrDefault(scriptName, Map.of());
     }
 
     /**
