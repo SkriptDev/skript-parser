@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerMap;
 import io.github.syst3ms.skriptparser.lang.event.StartOnLoadEvent;
 import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
+import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -34,6 +35,11 @@ public class Skript extends SkriptAddon {
                 event.onInitialLoad(trigger);
             }
         });
+    }
+
+    @Override
+    public SkriptRegistration getSkriptRegistration() {
+        return Parser.getMainRegistration();
     }
 
 }

@@ -66,6 +66,13 @@ public abstract class SkriptAddon {
     }
 
     /**
+     * Get the {@link SkriptRegistration} linked to this addon.
+     *
+     * @return SkriptRegistration linked to this addon
+     */
+    public abstract SkriptRegistration getSkriptRegistration();
+
+    /**
      * Checks to see whether the given event has been registered by this SkriptAddon ; a basic way to filter out
      * triggers you aren't able to deal with in {@link SkriptAddon#handleTrigger(String, Trigger)}.
      * A simple example of application can be found in {@link Skript#handleTrigger(Trigger)}.
