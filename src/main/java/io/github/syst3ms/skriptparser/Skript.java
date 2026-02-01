@@ -8,6 +8,7 @@ import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.structures.functions.StructFunction;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -30,7 +31,7 @@ public class Skript extends SkriptAddon {
         } else {
             triggers = TriggerMap.getTriggersByScript(scriptName).values().stream().flatMap(List::stream).toList();
         }
-        triggers.forEach(trigger -> {
+        triggers.stream().sorted(Comparator.comparing(trigger -> trigger.getEvent().getLoadingPriority())).forEach(trigger -> {
             if (trigger.getEvent() instanceof StartOnLoadEvent event) {
                 event.onInitialLoad(trigger);
             }  else if (trigger.getEvent() instanceof StructFunction func) {
