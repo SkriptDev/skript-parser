@@ -7,6 +7,8 @@ import io.github.syst3ms.skriptparser.parsing.SkriptParserException;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Array;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -58,7 +60,8 @@ public abstract class PropertyExpression<O,T> implements Expression<T> {
     @SuppressWarnings("unchecked")
     @Override
     public T[] getValues(TriggerContext ctx) {
-        return (T[]) owner.stream(ctx).map(this::getProperty).filter(Objects::nonNull).toArray(Object[]::new);
+        List<T> list = this.owner.stream(ctx).map( this::getProperty).filter(Objects::nonNull).toList();
+        return list.toArray((T[]) Array.newInstance(getReturnType(), list.size()));
     }
 
     /**
