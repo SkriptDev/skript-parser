@@ -16,7 +16,7 @@ public class Functions {
 
     private static final Map<String, List<Function<?>>> functionsMap = new HashMap<>();
 
-    private static final String GLOBAL_FUNCTIONS_NAME = "global_functions_dont_change";
+    private static final String JAVA_FUNCTION_NAME = "java_functions_dont_change";
     static final String FUNCTION_NAME_REGEX = "^[a-zA-Z0-9_]*";
     private static final Pattern FUNCTION_NAME_PATTERN = Pattern.compile(FUNCTION_NAME_REGEX);
     static final String FUNCTION_CALL_PATTERN = "<(" + Functions.FUNCTION_NAME_REGEX + ")\\((.*)\\)>";
@@ -28,8 +28,12 @@ public class Functions {
         return functionsMap.getOrDefault(scriptName, List.of());
     }
 
-    public static List<Function<?>> getGlobalFunctions() {
-        return functionsMap.getOrDefault(GLOBAL_FUNCTIONS_NAME, List.of());
+    public static List<Function<?>> getAllFunctions() {
+        return functionsMap.values().stream().flatMap(List::stream).toList();
+    }
+
+    public static List<Function<?>> getJavaFunctions() {
+        return functionsMap.getOrDefault(JAVA_FUNCTION_NAME, List.of());
     }
 
     static void preRegisterFunction(ScriptFunction<?> function) {
@@ -53,7 +57,7 @@ public class Functions {
     }
 
     public static void registerFunction(JavaFunction<?> function) {
-        functionsMap.computeIfAbsent(GLOBAL_FUNCTIONS_NAME, k -> new ArrayList<>()).add(function);
+        functionsMap.computeIfAbsent(JAVA_FUNCTION_NAME, k -> new ArrayList<>()).add(function);
     }
 
     public static boolean isValidFunction(ScriptFunction<?> function, SkriptLogger logger) {
@@ -90,16 +94,17 @@ public class Functions {
     }
 
     public static Optional<Function<?>> getFunctionByName(String name, String scriptName) {
-        // Find a global function
-        for (Function<?> function : functionsMap.computeIfAbsent(GLOBAL_FUNCTIONS_NAME, k -> new ArrayList<>())) {
+        // Find a JavaFunction
+        for (Function<?> function : functionsMap.computeIfAbsent(JAVA_FUNCTION_NAME, k -> new ArrayList<>())) {
             if (function.getName().equals(name)) {
                 return Optional.of(function);
             }
         }
+
         // Find a function in a script file
         if (scriptName.endsWith(".sk")) scriptName = scriptName.substring(0, scriptName.length() - 3);
 
-        for (Function<?> registeredFunction : functionsMap.computeIfAbsent(scriptName, k -> new ArrayList<>())) {
+        for (Function<?> registeredFunction : getAllFunctions()) {
             if (!registeredFunction.getName().equals(name))
                 continue; // we don't care then!!!! goodbye continue to the next one
             if (registeredFunction instanceof ScriptFunction<?> registeredScriptFunction
