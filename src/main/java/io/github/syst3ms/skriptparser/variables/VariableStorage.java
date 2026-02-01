@@ -70,7 +70,6 @@ public abstract class VariableStorage implements Closeable {
         this(logger, new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
                 .serializeNulls()
-                .setLenient()
                 .create(),
             name);
     }
@@ -175,8 +174,10 @@ public abstract class VariableStorage implements Closeable {
      */
     public final boolean loadConfiguration(ConfigSection section) {
         String pattern = section.getString("pattern");
-        if (pattern == null)
+        if (pattern == null) {
+            this.logger.error("The database '" + this.name + "' is missing the pattern entry!", ErrorType.SEMANTIC_ERROR);
             return false;
+        }
 
         try {
             // Set variable name pattern, see field javadoc for explanation of null value
@@ -302,11 +303,11 @@ public abstract class VariableStorage implements Closeable {
         if (value == null)
             return new SerializedVariable(name, null);
         Type<T> type = (Type<T>) TypeManager.getByClassExact(value.getClass()).orElse(null);
-        if (type == null)
-            throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be serialized. No type registered.");
+        if (type == null) return null;
+            //throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be serialized. No type registered.");
         TypeSerializer<T> serializer = type.getSerializer().orElse(null);
-        if (serializer == null)
-            throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be serialized. No type serializer.");
+        if (serializer == null) return null;
+            //throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be serialized. No type serializer.");
         JsonElement element = serializer.serialize(gson, value);
         return new SerializedVariable(name, new Value(type.getBaseName(), element));
     }

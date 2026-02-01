@@ -83,6 +83,7 @@ public class TypeManager {
     }
 
     public static String toString(Object[] objects) {
+        if (objects == null || objects.length == 0) return EMPTY_REPRESENTATION;
         var sb = new StringBuilder();
         for (var i = 0; i < objects.length; i++) {
             if (i > 0) {

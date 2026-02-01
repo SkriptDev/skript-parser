@@ -98,9 +98,9 @@ public class ExprArithmeticOperators implements Expression<Number> {
             @Override
             public Number calculate(Number left, Number right) {
                 return switch (left) {
-                    case Long ignored -> (long) left + (long) right;
-                    case Integer ignored -> (int) left + (int) right;
-                    case Double ignored -> (double) left + (double) right;
+                    case Long ignored -> left.longValue() + right.longValue();
+                    case Integer ignored -> left.intValue() + right.intValue();
+                    case Double ignored -> left.doubleValue() + right.doubleValue();
                     default -> left.floatValue() + right.floatValue();
                 };
             }
@@ -109,9 +109,9 @@ public class ExprArithmeticOperators implements Expression<Number> {
             @Override
             public Number calculate(Number left, Number right) {
                 return switch (left) {
-                    case Long ignored -> (long) left - (long) right;
-                    case Integer ignored -> (int) left - (int) right;
-                    case Double ignored -> (double) left - (double) right;
+                    case Long ignored -> left.longValue() - right.longValue();
+                    case Integer ignored -> left.intValue() - right.intValue();
+                    case Double ignored -> left.doubleValue() - right.doubleValue();
                     default -> left.floatValue() - right.floatValue();
                 };
             }
@@ -120,9 +120,9 @@ public class ExprArithmeticOperators implements Expression<Number> {
             @Override
             public Number calculate(Number left, Number right) {
                 return switch (left) {
-                    case Long ignored -> (long) left * (long) right;
-                    case Integer ignored -> (int) left * (int) right;
-                    case Double ignored -> (double) left * (double) right;
+                    case Long ignored -> left.longValue() * right.longValue();
+                    case Integer ignored -> left.intValue() * right.intValue();
+                    case Double ignored -> left.doubleValue() * right.doubleValue();
                     default -> left.floatValue() * right.floatValue();
                 };
             }
@@ -131,9 +131,9 @@ public class ExprArithmeticOperators implements Expression<Number> {
             @Override
             public Number calculate(Number left, Number right) {
                 return switch (left) {
-                    case Long ignored -> (long) left / (long) right;
-                    case Integer ignored -> (int) left / (int) right;
-                    case Double ignored -> (double) left / (double) right;
+                    case Long ignored -> left.longValue() / right.longValue();
+                    case Integer ignored -> left.intValue() / right.intValue();
+                    case Double ignored -> left.doubleValue() / right.doubleValue();
                     default -> left.floatValue() / right.floatValue();
                 };
             }
@@ -142,8 +142,8 @@ public class ExprArithmeticOperators implements Expression<Number> {
             @Override
             public Number calculate(Number left, Number right) {
                 return switch (left) {
-                    case Long ignored -> (long) left ^ (long) right;
-                    default -> (int) left ^ (int) right;
+                    case Long ignored -> left.longValue() ^ right.longValue();
+                    default -> left.intValue() ^ right.intValue();
                 };
             }
         };

@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.lang.entries.OptionLoader;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * A class describing a section of a script inside a file (e.g a line ending with a colon and containing all the lines that
@@ -42,13 +43,15 @@ public class FileSection extends FileElement {
     }
 
     public Optional<FileElement> get(String line) {
-        return elements.stream()
-                .filter(element -> {
-                    String content = element.getLineContent();
-                    content = content.substring(0, content.lastIndexOf(OptionLoader.OPTION_SPLIT_PATTERN.trim()));
-                    return content.equalsIgnoreCase(line);
-                })
-                .findFirst();
+        Stream<FileElement> fileElementStream = elements.stream()
+            .filter(element -> {
+                String content = element.getLineContent();
+                if (content.isEmpty()) return false;
+                content = content.substring(0, content.indexOf(OptionLoader.OPTION_SPLIT_PATTERN.trim()));
+                if (content.isEmpty()) return false;
+                return content.equalsIgnoreCase(line);
+            });
+        return fileElementStream.findFirst();
     }
 
     @Override

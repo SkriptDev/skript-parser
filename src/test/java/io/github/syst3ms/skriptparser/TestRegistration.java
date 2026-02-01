@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
 import java.time.ZoneOffset;
+import java.util.Random;
 import java.util.TimeZone;
 
 public class TestRegistration {
@@ -17,7 +18,8 @@ public class TestRegistration {
 		try {
 			Field regField = Parser.class.getDeclaredField("registration");
 			regField.setAccessible(true);
-			regField.set(null, new SkriptRegistration(new TestAddon()));
+			String s = new Random().nextInt(10000) + "-addon";
+			regField.set(null, new SkriptRegistration(new TestAddon(s)));
 		} catch (NoSuchFieldException | IllegalAccessException e) {
 			e.printStackTrace();
 		}

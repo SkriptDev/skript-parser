@@ -3,8 +3,9 @@ package io.github.syst3ms.skriptparser;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.lang.TriggerMap;
 import io.github.syst3ms.skriptparser.lang.event.StartOnLoadEvent;
-import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
+import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
+import io.github.syst3ms.skriptparser.structures.functions.StructFunction;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -17,6 +18,7 @@ public class Skript extends SkriptAddon {
     private final String[] mainArgs;
 
     public Skript(String[] mainArgs) {
+        super("Skript-Parser");
         this.mainArgs = mainArgs;
     }
 
@@ -31,8 +33,15 @@ public class Skript extends SkriptAddon {
         triggers.forEach(trigger -> {
             if (trigger.getEvent() instanceof StartOnLoadEvent event) {
                 event.onInitialLoad(trigger);
+            }  else if (trigger.getEvent() instanceof StructFunction func) {
+                func.register(trigger);
             }
         });
+    }
+
+    @Override
+    public SkriptRegistration getSkriptRegistration() {
+        return Parser.getMainRegistration();
     }
 
 }
