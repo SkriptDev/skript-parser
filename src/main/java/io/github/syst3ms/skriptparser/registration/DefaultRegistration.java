@@ -129,6 +129,7 @@ public class DefaultRegistration {
                     return gson.fromJson(element, Float.class);
                 }
             })
+            .toStringFunction(f -> String.format("%.2f", f))
             .register();
 
         registration.newType(Double.class, "double", "double@s")
@@ -174,6 +175,7 @@ public class DefaultRegistration {
                     return gson.fromJson(element, Double.class);
                 }
             })
+            .toStringFunction(d -> String.format("%.2f", d))
             .register();
 
         registration.newType(Number.class, "number", "number@s")
@@ -219,6 +221,13 @@ public class DefaultRegistration {
                 @Override
                 public Number deserialize(Gson gson, JsonElement element) {
                     return gson.fromJson(element, Double.class);
+                }
+            })
+            .toStringFunction(n -> {
+                if (n instanceof Integer || n instanceof Long) {
+                    return n.toString();
+                } else {
+                    return String.format("%.2f", n.doubleValue());
                 }
             })
             .register();
