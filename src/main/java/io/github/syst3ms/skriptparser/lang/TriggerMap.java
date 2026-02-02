@@ -6,13 +6,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * A map that holds triggers based on a script and {@link TriggerContext}.
  */
 public class TriggerMap {
 
-    private static final Map<String, Map<Class<? extends TriggerContext>, List<Trigger>>> TRIGGERS = new HashMap<>();
+    private static final Map<String, Map<Class<? extends TriggerContext>, List<Trigger>>> TRIGGERS = new TreeMap<>();
 
     /**
      * Add a trigger to the map.

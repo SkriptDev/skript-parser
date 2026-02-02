@@ -302,7 +302,7 @@ public abstract class Converters {
 	 * @return the converted values
 	 */
     public static <F, T> T[] convert(F[] from, Class<T> to, Function<? super F, Optional<? extends T>> converter) {
-        @SuppressWarnings("unchecked")
+        if (from == null) return (T[])Array.newInstance(to, 0);
         var ts = (T[]) Array.newInstance(to, from.length);
         var j = 0;
         for (var f : from) {
