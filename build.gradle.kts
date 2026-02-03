@@ -3,7 +3,7 @@ plugins {
     id("maven-publish")
 }
 group = "com.github.SkriptDev"
-version = "1.0.2"
+version = "1.0.3"
 
 repositories {
     mavenCentral()

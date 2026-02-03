@@ -18,7 +18,7 @@ public class CondExprChance extends ConditionalExpression {
                 "You can either use a percent `10%` or a decimal `0.1`.")
             .examples("if chance of 10%:",
                 "\tkill all players")
-            .since("INSERT VERSION")
+            .since("1.0.0")
             .register();
     }
 
