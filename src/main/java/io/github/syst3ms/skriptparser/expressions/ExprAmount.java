@@ -66,6 +66,11 @@ public class ExprAmount extends PropertyExpression<Object, Number> {
 		return toString(ctx, debug, (recursive ? "recursive " : "") + "size");
 	}
 
+	@Override
+	public boolean isSingle() {
+		return true;
+	}
+
 	@SuppressWarnings("unchecked")
 	private static long getRecursiveSize(Map<String, ?> map) {
 		long count = 0;

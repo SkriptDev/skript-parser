@@ -6,9 +6,9 @@ package io.github.syst3ms.skriptparser.docs;
 public class Documentation {
 
     private boolean noDoc = false;
-    private boolean experimental = false;
     private String name;
     private String[] description = new String[0];
+    private String experimental = null;
     private String usage;
     private String[] examples = new String[0];
     private String since;
@@ -49,10 +49,18 @@ public class Documentation {
     }
 
     public void experimental() {
-        this.experimental = true;
+        this.experimental = "This syntax element is experimental and may change in the future, use with caution.";
+    }
+
+    public void experimental(String message) {
+        this.experimental = message;
     }
 
     public boolean isExperimental() {
+        return this.experimental != null;
+    }
+
+    public String getExperimentalMessage() {
         return this.experimental;
     }
 

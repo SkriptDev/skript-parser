@@ -151,6 +151,11 @@ public class Functions {
             return this;
         }
 
+        public FunctionDefinition experimental(String message) {
+            this.documentation.experimental(message);
+            return this;
+        }
+
         public FunctionDefinition description(String... description) {
             this.documentation.setDescription(description);
             return this;

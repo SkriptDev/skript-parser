@@ -56,10 +56,20 @@ import java.util.Set;
 @SuppressWarnings("unchecked")
 public class SecSwitch extends CodeSection implements Finishing {
     static {
-        Parser.getMainRegistration().addSection(
-                SecSwitch.class,
-                "(switch|given|match) %object%"
-        );
+        Parser.getMainRegistration().newSection(SecSwitch.class,
+                "(switch|given|match) %object%")
+            .name("Switch")
+            .description("This section will run the code of the first matching case.")
+            .examples("on entity damage:",
+                "\tswitch npc type of context-victim:",
+                "\t\tcase sheep:",
+                "\t\t\tsend \"Sheep was damage\" to all players",
+                "\t\tcase cow:",
+                "\t\t\tsend \"Cow was damaged\" to all players",
+                "\t\tdefault:",
+                "\t\t\tsend \"Something else was damaged\" to all players")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<Object> matched;

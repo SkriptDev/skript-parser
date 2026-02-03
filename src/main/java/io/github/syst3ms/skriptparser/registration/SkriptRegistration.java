@@ -4,11 +4,11 @@ import io.github.syst3ms.skriptparser.docs.Documentation;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.ContextExpression;
 import io.github.syst3ms.skriptparser.lang.base.ExecutableExpression;
+import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.properties.ConditionalType;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyConditional;
 import io.github.syst3ms.skriptparser.lang.properties.PropertyExpression;
@@ -53,6 +53,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -80,7 +82,7 @@ public class SkriptRegistration {
 
     /**
      * Construct a SkriptRegistration around a SkriptAddon.
-     * 
+     *
      * @param registerer The SkriptAddon that this SkriptRegistration will be referencing.
      */
     public SkriptRegistration(SkriptAddon registerer) {
@@ -89,9 +91,9 @@ public class SkriptRegistration {
 
     /**
      * Construct a SkriptRegistration around a SkriptAddon and the defined SkriptLogger to use.
-     * 
+     *
      * @param registerer The SkriptAddon that this SkriptRegistration will be referencing.
-     * @param logger the SkriptLogger used in the registration process.
+     * @param logger     the SkriptLogger used in the registration process.
      */
     public SkriptRegistration(SkriptAddon registerer, SkriptLogger logger) {
         this.registerer = registerer;
@@ -163,12 +165,13 @@ public class SkriptRegistration {
 
     /**
      * Starts a registration process for an {@link Expression}
-     * @param c the Expression's class
+     *
+     * @param c          the Expression's class
      * @param returnType the Expression's return type
-     * @param isSingle whether the Expression is a single value
-     * @param patterns the Expression's patterns
-     * @param <C> the Expression
-     * @param <T> the Expression's return type
+     * @param isSingle   whether the Expression is a single value
+     * @param patterns   the Expression's patterns
+     * @param <C>        the Expression
+     * @param <T>        the Expression's return type
      * @return an {@link ExpressionRegistrar} to continue the registration process
      */
     public <C extends Expression<T>, T> ExpressionRegistrar<C, T> newExpression(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
@@ -178,12 +181,12 @@ public class SkriptRegistration {
     /**
      * Registers an {@link Expression} with the isSingle set to true by default.
      * Mainly so you can override with {@link Expression#isSingle()}
-     * 
-     * @param c the Expression's class
+     *
+     * @param c          the Expression's class
      * @param returnType the Expression's return type
-     * @param patterns the Expression's patterns
-     * @param <C> the Expression
-     * @param <T> the Expression's return type
+     * @param patterns   the Expression's patterns
+     * @param <C>        the Expression
+     * @param <T>        the Expression's return type
      */
     public <C extends Expression<T>, T> void addExpression(Class<C> c, Class<T> returnType, String... patterns) {
         newExpression(c, returnType, true, patterns).register();
@@ -191,12 +194,13 @@ public class SkriptRegistration {
 
     /**
      * Registers an {@link Expression}
-     * @param c the Expression's class
+     *
+     * @param c          the Expression's class
      * @param returnType the Expression's return type
-     * @param isSingle whether the Expression is a single value
-     * @param patterns the Expression's patterns
-     * @param <C> the Expression
-     * @param <T> the Expression's return type
+     * @param isSingle   whether the Expression is a single value
+     * @param patterns   the Expression's patterns
+     * @param <C>        the Expression
+     * @param <T>        the Expression's return type
      */
     public <C extends Expression<T>, T> void addExpression(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
         newExpression(c, returnType, isSingle, patterns).register();
@@ -204,13 +208,14 @@ public class SkriptRegistration {
 
     /**
      * Registers an {@link Expression}
-     * @param c the Expression's class
+     *
+     * @param c          the Expression's class
      * @param returnType the Expression's return type
-     * @param isSingle whether the Expression is a single value
-     * @param priority the parsing priority this Expression has. 5 by default, a lower number means lower priority
-     * @param patterns the Expression's patterns
-     * @param <C> the Expression
-     * @param <T> the Expression's return type
+     * @param isSingle   whether the Expression is a single value
+     * @param priority   the parsing priority this Expression has. 5 by default, a lower number means lower priority
+     * @param patterns   the Expression's patterns
+     * @param <C>        the Expression
+     * @param <T>        the Expression's return type
      */
     public <C extends Expression<T>, T> void addExpression(Class<C> c, Class<T> returnType, boolean isSingle, int priority, String... patterns) {
         newExpression(c, returnType, isSingle, patterns).setPriority(priority).register();
@@ -218,70 +223,75 @@ public class SkriptRegistration {
 
     /**
      * Starts a registration process for a {@link PropertyExpression}
-     * @param c the Expression's class
+     *
+     * @param c          the Expression's class
      * @param returnType the Expression's return type
-     * @param owner the owner in the pattern
-     * @param property the property
-     * @param <C> the Expression
-     * @param <T> the Expression's return type
+     * @param owner      the owner in the pattern
+     * @param property   the property
+     * @param <C>        the Expression
+     * @param <T>        the Expression's return type
      * @return an {@link ExpressionRegistrar} to continue the registration process
      */
     @SuppressWarnings("unchecked")
-    public <C extends PropertyExpression<?,T>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, String property, String owner) {
-        return (ExpressionRegistrar<C, T>) newExpression(c, returnType, false, PropertyExpression. composePatterns(property, owner))
-                .addData(PropertyExpression.PROPERTY_IDENTIFIER, property);
+    public <C extends PropertyExpression<?, T>, T> ExpressionRegistrar<C, T> newPropertyExpression(Class<C> c, Class<T> returnType, String property, String owner) {
+        return (ExpressionRegistrar<C, T>) newExpression(c, returnType, false, PropertyExpression.composePatterns(property, owner))
+            .addData(PropertyExpression.PROPERTY_IDENTIFIER, property);
     }
 
     /**
      * Registers a {@link PropertyExpression}
-     * @param c the Expression's class
+     *
+     * @param c          the Expression's class
      * @param returnType the Expression's return type
-     * @param owner the owner in the pattern
-     * @param property the property
-     * @param <C> the Expression
-     * @param <T> the Expression's return type
+     * @param owner      the owner in the pattern
+     * @param property   the property
+     * @param <C>        the Expression
+     * @param <T>        the Expression's return type
      */
-    public <C extends PropertyExpression<?,T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, String property, String owner) {
+    public <C extends PropertyExpression<?, T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, String property, String owner) {
         newPropertyExpression(c, returnType, property, owner).register();
     }
 
     /**
      * Registers a {@link PropertyExpression}
-     * @param c the Expression's class
+     *
+     * @param c          the Expression's class
      * @param returnType the Expression's return type
-     * @param priority the priority
-     * @param owner the owner in the pattern
-     * @param property the property
-     * @param <C> the Expression
-     * @param <T> the Expression's return type
+     * @param priority   the priority
+     * @param owner      the owner in the pattern
+     * @param property   the property
+     * @param <C>        the Expression
+     * @param <T>        the Expression's return type
      */
-    public <C extends PropertyExpression<?,T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, int priority, String property, String owner) {
+    public <C extends PropertyExpression<?, T>, T> void addPropertyExpression(Class<C> c, Class<T> returnType, int priority, String property, String owner) {
         newPropertyExpression(c, returnType, property, owner).setPriority(priority).register();
     }
 
     /**
      * Starts a registration process for a {@link PropertyConditional}
-     * @param c the Expression's class
-     * @param performer the type of the performer
+     *
+     * @param c               the Expression's class
+     * @param performer       the type of the performer
      * @param conditionalType the verb used in this conditional property
-     * @param property the property
-     * @param <C> the Expression
+     * @param property        the property
+     * @param <C>             the Expression
      * @return an {@link ExpressionRegistrar} to continue the registration process
      */
     @SuppressWarnings("unchecked")
     public <C extends PropertyConditional<?>> ExpressionRegistrar<C, Boolean> newPropertyConditional(Class<C> c, String performer, ConditionalType conditionalType, String property) {
         return (ExpressionRegistrar<C, Boolean>) newExpression(c, Boolean.class, true, PropertyConditional.composePatterns(performer, conditionalType, property))
-                .addData(PropertyConditional.CONDITIONAL_TYPE_IDENTIFIER, conditionalType)
-                .addData(PropertyConditional.PROPERTY_IDENTIFIER, property);
+            .addData(PropertyConditional.CONDITIONAL_TYPE_IDENTIFIER, conditionalType)
+            .addData(PropertyConditional.PROPERTY_IDENTIFIER, property);
     }
 
     /**
      * Registers a {@link PropertyConditional}
-     * @param c the Expression's class
-     * @param performer the type of the performer
+     *
+     * @param c               the Expression's class
+     * @param performer       the type of the performer
      * @param conditionalType the verb used in this conditional property
-     * @param property the property
-     * @param <C> the Expression
+     * @param property        the property
+     * @param <C>             the Expression
      */
     public <C extends PropertyConditional<?>> void addPropertyConditional(Class<C> c, String performer, ConditionalType conditionalType, String property) {
         newPropertyConditional(c, performer, conditionalType, property).register();
@@ -289,12 +299,13 @@ public class SkriptRegistration {
 
     /**
      * Registers a {@link PropertyConditional}
-     * @param c the Expression's class
-     * @param priority the parsing priority this Expression has. 5 by default, a lower number means lower priority
-     * @param performer the type of the performer
+     *
+     * @param c               the Expression's class
+     * @param priority        the parsing priority this Expression has. 5 by default, a lower number means lower priority
+     * @param performer       the type of the performer
      * @param conditionalType the verb used in this conditional property
-     * @param property the property
-     * @param <C> the Expression
+     * @param property        the property
+     * @param <C>             the Expression
      */
     public <C extends PropertyConditional<?>> void addPropertyConditional(Class<C> c, int priority, String performer, ConditionalType conditionalType, String property) {
         newPropertyConditional(c, performer, conditionalType, property).setPriority(priority).register();
@@ -302,12 +313,13 @@ public class SkriptRegistration {
 
     /**
      * Registers an {@link ExecutableExpression}
-     * @param c the Expression's class
+     *
+     * @param c          the Expression's class
      * @param returnType the Expression's return type
-     * @param isSingle whether the Expression is a single value
-     * @param patterns the Expression's patterns
-     * @param <C> the Expression
-     * @param <T> the Expression's return type
+     * @param isSingle   whether the Expression is a single value
+     * @param patterns   the Expression's patterns
+     * @param <C>        the Expression
+     * @param <T>        the Expression's return type
      */
     public <C extends ExecutableExpression<T>, T> void addExecutableExpression(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
         addExpression(c, returnType, isSingle, patterns);
@@ -316,12 +328,13 @@ public class SkriptRegistration {
 
     /**
      * Registers an {@link ExecutableExpression}
-     * @param c the Expression's class
+     *
+     * @param c          the Expression's class
      * @param returnType the Expression's return type
-     * @param isSingle whether the Expression is a single value
-     * @param patterns the Expression's patterns
-     * @param <C> the Expression
-     * @param <T> the Expression's return type
+     * @param isSingle   whether the Expression is a single value
+     * @param patterns   the Expression's patterns
+     * @param <C>        the Expression
+     * @param <T>        the Expression's return type
      */
     public <C extends ExecutableExpression<T>, T> void addExecutableExpression(Class<C> c, Class<T> returnType, boolean isSingle, int priority, String... patterns) {
         addExpression(c, returnType, isSingle, priority, patterns);
@@ -330,9 +343,10 @@ public class SkriptRegistration {
 
     /**
      * Starts a registration process for an {@link Effect}
-     * @param c the Effect's class
+     *
+     * @param c        the Effect's class
      * @param patterns the Effect's patterns
-     * @param <C> the Effect
+     * @param <C>      the Effect
      * @return an {@link EffectRegistrar} to continue the registration process
      */
     public <C extends Effect> EffectRegistrar<C> newEffect(Class<C> c, String... patterns) {
@@ -341,9 +355,10 @@ public class SkriptRegistration {
 
     /**
      * Registers an {@link Effect}
-     * @param c the Effect's class
+     *
+     * @param c        the Effect's class
      * @param patterns the Effect's patterns
-     * @param <C> the Effect
+     * @param <C>      the Effect
      */
     public <C extends Effect> void addEffect(Class<C> c, String... patterns) {
         newEffect(c, patterns).register();
@@ -351,20 +366,22 @@ public class SkriptRegistration {
 
     /**
      * Registers an {@link Effect}
-     * @param c the Effect's class
+     *
+     * @param c        the Effect's class
      * @param priority the parsing priority this Effect has. 5 by default, a lower number means lower priority
      * @param patterns the Effect's patterns
-     * @param <C> the Effect
+     * @param <C>      the Effect
      */
     public <C extends Effect> void addEffect(Class<C> c, int priority, String... patterns) {
-        newEffect(c,patterns).setPriority(priority).register();
+        newEffect(c, patterns).setPriority(priority).register();
     }
 
     /**
      * Starts a registration process for a {@link CodeSection}
-     * @param c the CodeSection's class
+     *
+     * @param c        the CodeSection's class
      * @param patterns the CodeSection's patterns
-     * @param <C> the CodeSection
+     * @param <C>      the CodeSection
      * @return a {@link SectionRegistrar} to continue the registration process
      */
     public <C extends CodeSection> SectionRegistrar<C> newSection(Class<C> c, String... patterns) {
@@ -374,7 +391,8 @@ public class SkriptRegistration {
 
     /**
      * Registers a {@link CodeSection}
-     * @param c the CodeSection's class
+     *
+     * @param c        the CodeSection's class
      * @param patterns the CodeSection's patterns
      */
     public void addSection(Class<? extends CodeSection> c, String... patterns) {
@@ -383,7 +401,8 @@ public class SkriptRegistration {
 
     /**
      * Registers a {@link CodeSection}
-     * @param c the CodeSection's class
+     *
+     * @param c        the CodeSection's class
      * @param priority the parsing priority this CodeSection has. 5 by default, a lower number means lower priority
      * @param patterns the CodeSection's patterns
      */
@@ -393,9 +412,10 @@ public class SkriptRegistration {
 
     /**
      * Starts a registration process for a {@link SkriptEvent}
-     * @param c the SkriptEvent's class
+     *
+     * @param c        the SkriptEvent's class
      * @param patterns the SkriptEvent's patterns
-     * @param <E> the SkriptEvent
+     * @param <E>      the SkriptEvent
      * @return an {@link EventRegistrar} to continue the registration process
      */
     public <E extends SkriptEvent> EventRegistrar<E> newEvent(Class<E> c, String... patterns) {
@@ -404,9 +424,10 @@ public class SkriptRegistration {
 
     /**
      * Registers a {@link SkriptEvent}
-     * @param c the SkriptEvent's class
+     *
+     * @param c               the SkriptEvent's class
      * @param handledContexts the {@link TriggerContext}s this SkriptEvent can handle
-     * @param patterns the SkriptEvent's patterns
+     * @param patterns        the SkriptEvent's patterns
      */
     public void addEvent(Class<? extends SkriptEvent> c, Class<? extends TriggerContext>[] handledContexts, String... patterns) {
         newEvent(c, patterns).setHandledContexts(handledContexts).register();
@@ -414,10 +435,11 @@ public class SkriptRegistration {
 
     /**
      * Registers a {@link SkriptEvent}
-     * @param c the SkriptEvent's class
+     *
+     * @param c               the SkriptEvent's class
      * @param handledContexts the {@link TriggerContext}s this SkriptEvent can handle
-     * @param priority the parsing priority this SkriptEvent has. 5 by default, a lower number means lower priority
-     * @param patterns the SkriptEvent's patterns
+     * @param priority        the parsing priority this SkriptEvent has. 5 by default, a lower number means lower priority
+     * @param patterns        the SkriptEvent's patterns
      */
     public void addEvent(Class<? extends SkriptEvent> c, Class<? extends TriggerContext>[] handledContexts, int priority, String... patterns) {
         newEvent(c, patterns).setHandledContexts(handledContexts).setPriority(priority).register();
@@ -425,42 +447,111 @@ public class SkriptRegistration {
 
     /**
      * Starts a registration process for a {@link ContextExpression}
-     * @param context the TriggerContext class
+     *
+     * @param context    the TriggerContext class
      * @param returnType the returned type of this context value
-     * @param isSingle whether or not the return value is single
-     * @param pattern the pattern
-     * @param function the function that needs to be applied in order to get the context value
-     * @param <C> the TriggerContext class
-     * @param <T> the ContextValue's return type
+     * @param isSingle   whether or not the return value is single
+     * @param pattern    the pattern
+     * @param function   the function that needs to be applied in order to get the context value
+     * @param <C>        the TriggerContext class
+     * @param <T>        the ContextValue's return type
+     * @return a {@link ContextValueRegistrar} to continue the registration process
+     * @deprecated Use {@link #newSingleContextValue(Class, Class, String, Function)} or {@link #newListContextValue(Class, Class, String, Function)}
+     */
+    @Deprecated(forRemoval = true)
+    public <C extends TriggerContext, T> ContextValueRegistrar<C, T> newContextValue(Class<C> context, Class<T> returnType, boolean isSingle, String pattern, Function<C, T[]> function) {
+        if (isSingle) {
+            return new ContextValueRegistrar<>(context, returnType, isSingle, pattern, c -> function.apply(c)[0], null);
+        } else {
+            return new ContextValueRegistrar<>(context, returnType, isSingle, pattern, null, function);
+        }
+    }
+
+    /**
+     * Starts a registration process for a {@link ContextExpression} with a single return value.
+     *
+     * @param context    the TriggerContext class
+     * @param returnType the returned type of this context value
+     * @param pattern    the pattern
+     * @param function   the function that needs to be applied in order to get the context value
+     * @param <C>        the TriggerContext class
+     * @param <T>        the ContextValue's return type
      * @return a {@link ContextValueRegistrar} to continue the registration process
      */
-    public <C extends TriggerContext, T> ContextValueRegistrar<C, T> newContextValue(Class<C> context, Class<T> returnType, boolean isSingle, String pattern, Function<C, T[]> function) {
-        return new ContextValueRegistrar<>(context, returnType, isSingle, pattern, function);
+    public <C extends TriggerContext, T> ContextValueRegistrar<C, T> newSingleContextValue(Class<C> context, Class<T> returnType, String pattern, Function<C, T> function) {
+        return new ContextValueRegistrar<>(context, returnType, true, pattern, function, null);
+    }
+
+    /**
+     * Starts a registration process for a {@link ContextExpression} with a list return value.
+     *
+     * @param context    the TriggerContext class
+     * @param returnType the returned type of this context value
+     * @param pattern    the pattern
+     * @param function   the function that needs to be applied in order to get the context values
+     * @param <C>        the TriggerContext class
+     * @param <T>        the ContextValue's return type
+     * @return a {@link ContextValueRegistrar} to continue the registration process
+     */
+    public <C extends TriggerContext, T> ContextValueRegistrar<C, T> newListContextValue(Class<C> context, Class<T> returnType, String pattern, Function<C, T[]> function) {
+        return new ContextValueRegistrar<>(context, returnType, false, pattern, null, function);
     }
 
     /**
      * Registers a {@link ContextValue}
-     * @param context the TriggerContext class
+     *
+     * @param context    the TriggerContext class
      * @param returnType the returned type of this context value
-     * @param isSingle whether or not the return value is single
-     * @param pattern the pattern
-     * @param function the function that needs to be applied in order to get the context value
-     * @param <C> the TriggerContext class
-     * @param <T> the ContextValue's return type
+     * @param isSingle   whether or not the return value is single
+     * @param pattern    the pattern
+     * @param function   the function that needs to be applied in order to get the context value
+     * @param <C>        the TriggerContext class
+     * @param <T>        the ContextValue's return type
+     * @deprecated Use {@link #addSingleContextValue(Class, Class, String, Function)} or {@link #addListContextValue(Class, Class, String, Function)}
      */
+    @Deprecated(forRemoval = true)
     public <C extends TriggerContext, T> void addContextValue(Class<C> context, Class<T> returnType, boolean isSingle, String pattern, Function<C, T[]> function) {
         newContextValue(context, returnType, isSingle, pattern, function).register();
+    }
+
+    /**
+     * Registers a {@link ContextValue} with a single return value.
+     *
+     * @param context    the TriggerContext class
+     * @param returnType the returned type of this context value
+     * @param pattern    the pattern
+     * @param function   the function that needs to be applied in order to get the context value
+     * @param <C>        the TriggerContext class
+     * @param <T>        the ContextValue's return type
+     */
+    public <C extends TriggerContext, T> void addSingleContextValue(Class<C> context, Class<T> returnType, String pattern, Function<C, T> function) {
+        newSingleContextValue(context, returnType, pattern, function).register();
+    }
+
+    /**
+     * Registers a {@link ContextValue} with a list return value.
+     *
+     * @param context    the TriggerContext class
+     * @param returnType the returned type of this context value
+     * @param pattern    the pattern
+     * @param function   the function that needs to be applied in order to get the context value
+     * @param <C>        the TriggerContext class
+     * @param <T>        the ContextValue's return type
+     */
+    public <C extends TriggerContext, T> void addListContextValue(Class<C> context, Class<T> returnType, String pattern, Function<C, T[]> function) {
+        newListContextValue(context, returnType, pattern, function).register();
     }
 
     /**
      * Registers a {@link ContextValue} that returns a single value.
      * The {@linkplain Type#getBaseName() base name} of the return type will be used as pattern.
      * There will be a leading '{@code [the] }' in the pattern if the context value can be used alone.
-     * @param context the TriggerContext class
+     *
+     * @param context    the TriggerContext class
      * @param returnType the returned type of this context value
-     * @param function the function that needs to be applied in order to get the context value
-     * @param <C> the TriggerContext class
-     * @param <T> the ContextValue's return type
+     * @param function   the function that needs to be applied in order to get the context value
+     * @param <C>        the TriggerContext class
+     * @param <T>        the ContextValue's return type
      */
     public <C extends TriggerContext, T> void addContextType(Class<C> context, Class<T> returnType, Function<C, T> function) {
         addContextType(context, returnType, function, State.PRESENT, Usage.EXPRESSION_ONLY);
@@ -470,12 +561,13 @@ public class SkriptRegistration {
      * Registers a {@link ContextValue} that returns a single value.
      * The {@linkplain Type#getBaseName() base name} of the return type will be used as pattern.
      * There will be a leading '{@code [the] }' in the pattern if the context value can be used alone.
-     * @param context the TriggerContext class
+     *
+     * @param context    the TriggerContext class
      * @param returnType the returned type of this context value
-     * @param function the function that needs to be applied in order to get the context value
-     * @param state the time state
-     * @param <C> the TriggerContext class
-     * @param <T> the ContextValue's return type
+     * @param function   the function that needs to be applied in order to get the context value
+     * @param state      the time state
+     * @param <C>        the TriggerContext class
+     * @param <T>        the ContextValue's return type
      * @see State#PRESENT
      * @see Usage#EXPRESSION_ONLY
      */
@@ -487,13 +579,14 @@ public class SkriptRegistration {
      * Registers a {@link ContextValue} that returns a single value.
      * The {@linkplain Type#getBaseName() base name} of the return type will be used as pattern.
      * There will be a leading '{@code [the] }' in the pattern if the context value can be used alone.
-     * @param context the TriggerContext class
+     *
+     * @param context    the TriggerContext class
      * @param returnType the returned type of this context value
-     * @param function the function that needs to be applied in order to get the context value
-     * @param state the time state
-     * @param usage the usage
-     * @param <C> the TriggerContext class
-     * @param <T> the ContextValue's return type
+     * @param function   the function that needs to be applied in order to get the context value
+     * @param state      the time state
+     * @param usage      the usage
+     * @param <C>        the TriggerContext class
+     * @param <T>        the ContextValue's return type
      * @return this {@link EventRegistrar}
      * @see Usage#EXPRESSION_ONLY
      */
@@ -504,16 +597,17 @@ public class SkriptRegistration {
             return;
         }
         newContextValue(context, returnType, true, typeName.get(), value -> CollectionUtils.arrayOf(function.apply(value)))
-                .setState(state)
-                .setUsage(usage)
-                .register();
+            .setState(state)
+            .setUsage(usage)
+            .register();
     }
 
     /**
      * Starts a registration process for a {@link Type}
-     * @param c the class the Type represents
+     *
+     * @param c       the class the Type represents
      * @param pattern the Type's pattern
-     * @param <T> the represented class
+     * @param <T>     the represented class
      * @return an {@link TypeRegistrar}
      */
     public <T> TypeRegistrar<T> newType(Class<T> c, String name, String pattern) {
@@ -522,9 +616,10 @@ public class SkriptRegistration {
 
     /**
      * Registers a {@link Type}
-     * @param c the class the Type represents
+     *
+     * @param c       the class the Type represents
      * @param pattern the Type's pattern
-     * @param <T> the represented class
+     * @param <T>     the represented class
      */
     public <T> void addType(Class<T> c, String name, String pattern) {
         newType(c, name, pattern).register();
@@ -532,11 +627,12 @@ public class SkriptRegistration {
 
     /**
      * Registers a converter
-     * @param from the class it converts from
-     * @param to the class it converts to
+     *
+     * @param from      the class it converts from
+     * @param to        the class it converts to
      * @param converter the converter
-     * @param <F> from
-     * @param <T> to
+     * @param <F>       from
+     * @param <T>       to
      */
     public <F, T> void addConverter(Class<F> from, Class<T> to, Function<? super F, Optional<? extends T>> converter) {
         converters.add(new ConverterInfo<>(from, to, converter));
@@ -544,12 +640,13 @@ public class SkriptRegistration {
 
     /**
      * Registers a converter
-     * @param from the class it converts from
-     * @param to the class it converts to
+     *
+     * @param from      the class it converts from
+     * @param to        the class it converts to
      * @param converter the converter
-     * @param options see {@link Converters}
-     * @param <F> from
-     * @param <T> to
+     * @param options   see {@link Converters}
+     * @param <F>       from
+     * @param <T>       to
      */
     public <F, T> void addConverter(Class<F> from, Class<T> to, Function<? super F, Optional<? extends T>> converter, int options) {
         converters.add(new ConverterInfo<>(from, to, converter, options));
@@ -557,6 +654,7 @@ public class SkriptRegistration {
 
     /**
      * Registers a {@link Tag}.
+     *
      * @param c the Tag's class
      */
     public void addTag(Class<? extends Tag> c) {
@@ -565,7 +663,8 @@ public class SkriptRegistration {
 
     /**
      * Registers a {@link Tag}.
-     * @param c the Tag's class
+     *
+     * @param c        the Tag's class
      * @param priority the parsing priority this Tag has. 5 by default, a lower number means lower priority
      */
     public void addTag(Class<? extends Tag> c, int priority) {
@@ -574,6 +673,7 @@ public class SkriptRegistration {
 
     /**
      * Adds all currently registered syntaxes to Skript's usable database.
+     *
      * @return all possible errors, warnings and other logs that occurred while parsing the patterns
      */
     public List<LogEntry> register() {
@@ -582,6 +682,7 @@ public class SkriptRegistration {
 
     /**
      * Adds all currently registered syntaxes to Skript's usable database.
+     *
      * @param ignoreLogs whether to return the logs and close the logger,
      *                   or just ignore and clear them while keeping the logger open
      * @return all possible errors, warnings and other logs that occurred while parsing the patterns
@@ -608,6 +709,7 @@ public class SkriptRegistration {
 
     /**
      * A class for registering types.
+     *
      * @param <C> the represented class
      */
     public class TypeRegistrar<C> implements Registrar {
@@ -687,6 +789,10 @@ public class SkriptRegistration {
             return this;
         }
 
+        public <R> TypeRegistrar<C> experimental(String message) {
+            this.documentation.experimental(message);
+            return this;
+        }
 
         public <R> TypeRegistrar<C> name(String name) {
             this.documentation.setName(name);
@@ -719,7 +825,7 @@ public class SkriptRegistration {
         @Override
         public void register() {
             newTypes = true;
-            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic,  documentation, serializer));
+            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic, documentation, serializer));
         }
     }
 
@@ -739,6 +845,7 @@ public class SkriptRegistration {
 
         /**
          * Adds patterns to the current syntax
+         *
          * @param patterns the patterns to add
          * @return the registrar
          */
@@ -754,6 +861,11 @@ public class SkriptRegistration {
 
         public SyntaxRegistrar<C> experimental() {
             this.documentation.experimental();
+            return this;
+        }
+
+        public SyntaxRegistrar<C> experimental(String message) {
+            this.documentation.experimental(message);
             return this;
         }
 
@@ -779,6 +891,7 @@ public class SkriptRegistration {
 
         /**
          * Sets the priority of the current syntax. Default is 5.
+         *
          * @param priority the priority
          * @return the registrar
          */
@@ -798,17 +911,17 @@ public class SkriptRegistration {
             boolean computePriority = priority == -1;
             priority = computePriority ? 5 : priority;
             return patterns.stream()
-                    .map(s -> {
-                        var result = PatternParser.parsePattern(s, logger).orElse(null);
-                        logger.finalizeLogs();
-                        return result;
-                    })
-                    .filter(Objects::nonNull)
-                    .peek(e -> {
-                        if (computePriority)
-                            setPriority(Math.min(priority, findAppropriatePriority(e)));
-                    })
-                    .collect(Collectors.toList());
+                .map(s -> {
+                    var result = PatternParser.parsePattern(s, logger).orElse(null);
+                    logger.finalizeLogs();
+                    return result;
+                })
+                .filter(Objects::nonNull)
+                .peek(e -> {
+                    if (computePriority)
+                        setPriority(Math.min(priority, findAppropriatePriority(e)));
+                })
+                .collect(Collectors.toList());
         }
     }
 
@@ -878,6 +991,7 @@ public class SkriptRegistration {
 
         /**
          * Set the context this event can handle
+         *
          * @param contexts the contexts
          * @return the registrar
          */
@@ -894,6 +1008,11 @@ public class SkriptRegistration {
 
         public final EventRegistrar<T> experimental() {
             this.documentation.experimental();
+            return this;
+        }
+
+        public final EventRegistrar<T> experimental(String message) {
+            this.documentation.experimental(message);
             return this;
         }
 
@@ -941,19 +1060,23 @@ public class SkriptRegistration {
         private final boolean isSingle;
         private final String pattern;
 
-        private final Function<C, T[]> function;
+        private final Function<C, T> singleFunction;
+        private final Function<C, T[]> listFunction;
+        private BiConsumer<C, T> singleSetterFunction;
+        private BiConsumer<C, T[]> listSetterFunction;
         private State state = State.PRESENT;
         private Usage usage = Usage.EXPRESSION_ONLY;
 
         @SuppressWarnings("unchecked")
         private Class<? extends C>[] excluded = new Class[0];
 
-        public ContextValueRegistrar(Class<C> context, Class<T> returnType, boolean isSingle, String pattern, Function<C, T[]> function) {
+        public ContextValueRegistrar(Class<C> context, Class<T> returnType, boolean isSingle, String pattern, @Nullable Function<C, T> singleFunction, @Nullable Function<C, T[]> listFunction) {
             this.context = context;
             this.returnType = returnType;
             this.isSingle = isSingle;
             this.pattern = pattern;
-            this.function = function;
+            this.singleFunction = singleFunction;
+            this.listFunction = listFunction;
         }
 
         public ContextValueRegistrar<C, T> setState(State state) {
@@ -972,6 +1095,16 @@ public class SkriptRegistration {
             return this;
         }
 
+        public final ContextValueRegistrar<C, T> addSetter(BiConsumer<C, T> setter) {
+            this.singleSetterFunction = setter;
+            return this;
+        }
+
+        public final ContextValueRegistrar<C, T> addListSetter(BiConsumer<C, T[]> setter) {
+            this.listSetterFunction = setter;
+            return this;
+        }
+
         @Override
         public void register() {
             var pattern = PatternParser.parsePattern(this.pattern, logger);
@@ -985,7 +1118,13 @@ public class SkriptRegistration {
             }
 
             // Register the context value
-            contextValues.add(new ContextValue<>(context, type.get(), isSingle, pattern.get(), function, state, usage, excluded));
+            if (this.isSingle) {
+                assert singleFunction != null;
+                contextValues.add(ContextValue.createSingle(context, type.get(), pattern.get(), singleFunction, singleSetterFunction, state, usage, excluded));
+            } else {
+                assert listFunction != null;
+                contextValues.add(ContextValue.createList(context, type.get(), pattern.get(), listFunction, listSetterFunction, state, usage, excluded));
+            }
         }
     }
 
@@ -995,7 +1134,7 @@ public class SkriptRegistration {
 
     /**
      * Add a consumer to be called when this SkriptRegistration finishes registration.
-     * 
+     *
      * @param consumer the consumer with the SkriptAddon reference.
      */
     public void onFinishRegistration(Consumer<SkriptAddon> consumer) {

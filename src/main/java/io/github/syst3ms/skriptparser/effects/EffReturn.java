@@ -5,6 +5,8 @@ import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.control.Continuable;
+import io.github.syst3ms.skriptparser.lang.control.Finishing;
 import io.github.syst3ms.skriptparser.lang.lambda.ReturnSection;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
@@ -15,7 +17,9 @@ import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Returns one or more values to a corresponding section. Used with {@link ReturnSection}.
@@ -37,10 +41,15 @@ public class EffReturn extends Effect {
 
     private ReturnSection<?> section;
     private Expression<?> returned;
+    private List<? extends Continuable> sections;
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         returned = expressions[0];
+        this.sections = parseContext.getParserState().getCurrentSections().stream()
+            .filter(sec -> sec instanceof Continuable)
+            .map(sec -> (Continuable) sec)
+            .collect(Collectors.toList());
         var logger = parseContext.getLogger();
         Optional<Class<? extends TriggerContext>> optionalContext = parseContext.getParserState().getCurrentContexts().stream().findFirst();
         if (optionalContext.isPresent()) {
@@ -95,6 +104,9 @@ public class EffReturn extends Effect {
 
     @Override
     public Optional<? extends Statement> walk(TriggerContext ctx) {
+        this.sections.forEach(sec -> {
+            if (sec instanceof Finishing fin) fin.finish();
+        });
         if (isInFunction) {
             FunctionContext functionContext = (FunctionContext) ctx;
             Function<?> function = functionContext.getOwningFunction();

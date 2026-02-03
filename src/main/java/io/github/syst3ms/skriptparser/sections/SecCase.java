@@ -31,11 +31,21 @@ import java.util.Optional;
 @SuppressWarnings("unchecked")
 public class SecCase extends CodeSection {
     static {
-        Parser.getMainRegistration().addSection(
-                SecCase.class,
+        Parser.getMainRegistration().newSection(SecCase.class,
                 "(case|when) %*objects%",
-                "([by] default|otherwise)"
-        );
+                "([by] default|otherwise)")
+            .name("Case")
+            .description("This section will only be executed if the expression matches the given expression.")
+            .examples("on entity damage:",
+                "\tswitch npc type of context-victim:",
+                "\t\tcase sheep:",
+                "\t\t\tsend \"Sheep was damage\" to all players",
+                "\t\tcase cow:",
+                "\t\t\tsend \"Cow was damaged\" to all players",
+                "\t\tdefault:",
+                "\t\t\tsend \"Something else was damaged\" to all players")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<Object> matchWith;

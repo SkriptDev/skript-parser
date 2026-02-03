@@ -99,9 +99,9 @@ public class EffFunctionCall extends Effect {
                 } else {
                     paramsExprs = new Expression<?>[]{parsedExpr}; // single parameter setting it to multiple values
                 }
-            }/* else {
+            } else {
                 paramsExprs = new Expression<?>[]{parsedExpr}; //
-            }*/
+            }
         }
         else if (functionParameters.length > 0) {
             logger.error("The function has more than 1 parameter, but none were provided.", ErrorType.SEMANTIC_ERROR);

@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.lang.entries;
 import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.file.VoidElement;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
+import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
@@ -148,6 +149,14 @@ public class SectionConfiguration {
         return Optional.of((T) result);
     }
 
+    public <T> Optional<Expression<T>> getExpression(String key, Class<T> cls) {
+        Object o = this.data.get(key);
+        if (o instanceof Expression<?> expression && expression.getReturnType() == cls)  {
+            return (Optional<Expression<T>>) Optional.of((T) expression);
+        }
+        return Optional.empty();
+    }
+
     /**
      * @param key the key
      * @return the option value, or an empty Optional if the key was not specified
@@ -201,13 +210,38 @@ public class SectionConfiguration {
             return this;
         }
 
+        public Builder addOptionalLiteral(String key, Class<?> typeClass) {
+            entries.add(new LiteralLoader<>(key, typeClass, false, true));
+            return this;
+        }
+
         public Builder addLiteralList(String key, Class<?> typeClass) {
             entries.add(new LiteralLoader<>(key, typeClass, true, false));
             return this;
         }
 
+        public Builder addOptionalLiteralList(String key, Class<?> typeClass) {
+            entries.add(new LiteralLoader<>(key, typeClass, true, true));
+            return this;
+        }
+
+        public Builder addExpression(String key, Class<?> typeClass, boolean multiple) {
+            entries.add(new ExpressionLoader<>(key, typeClass, multiple, false));
+            return this;
+        }
+
+        public Builder addOptionalExpression(String key, Class<?> typeClass, boolean multiple) {
+            entries.add(new ExpressionLoader<>(key, typeClass, multiple, true));
+            return this;
+        }
+
         public Builder addSection(String key) {
             entries.add(new SectionLoader(key, false));
+            return this;
+        }
+
+        public Builder addOptionalSection(String key) {
+            entries.add(new SectionLoader(key, true));
             return this;
         }
 
