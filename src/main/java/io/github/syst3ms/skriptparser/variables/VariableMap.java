@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.TreeMap;
 import java.util.regex.Pattern;
 
-class VariableMap {
+public class VariableMap {
     /**
      * If all indexes are numerical, they should be ordered likewise. If not, natural order should take place.
      */

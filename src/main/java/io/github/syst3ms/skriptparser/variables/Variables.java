@@ -63,6 +63,10 @@ public class Variables {
         variableMap.clearVariables();
     }
 
+    public static VariableMap getVariableMap() {
+        return variableMap;
+    }
+
     /**
      * Register a VariableStorage class.
      *
