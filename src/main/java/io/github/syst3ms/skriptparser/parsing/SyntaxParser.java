@@ -185,6 +185,11 @@ public class SyntaxParser {
         var contextValue = parseContextValue(s, expectedType, parserState, logger);
         if (contextValue.isPresent()) {
             logger.clearErrors();
+            ContextExpression<?, ? extends T> contextExpression = contextValue.get();
+            if (!expectedType.getType().getTypeClass().isAssignableFrom(contextExpression.getReturnType())) {
+                Optional<? extends ConvertedExpression<? extends T, T>> convertedExpression = ConvertedExpression.newInstance(contextExpression, expectedType.getType().getTypeClass());
+                return convertedExpression;
+            }
             return contextValue;
         }
 
