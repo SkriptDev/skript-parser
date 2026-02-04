@@ -3,9 +3,11 @@ package io.github.syst3ms.skriptparser.lang;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * The base class for any runnable line of code inside of a script.
+ *
  * @see CodeSection
  * @see Effect
  */
@@ -17,6 +19,7 @@ public abstract class Statement implements SyntaxElement {
 
     /**
      * Executes this Statement
+     *
      * @param ctx the event
      */
     public abstract boolean run(TriggerContext ctx);
@@ -30,6 +33,7 @@ public abstract class Statement implements SyntaxElement {
 
     /**
      * Sets the parent {@link CodeSection} of this Statement
+     *
      * @param section the parent
      * @return this Statement
      */
@@ -40,7 +44,7 @@ public abstract class Statement implements SyntaxElement {
 
     /**
      * @return the Statement after this one in the file. If this Statement is the last item of the section, returns the item after
-     *         said section. If this Statement is the very last item of a trigger, returns {@code null}
+     * said section. If this Statement is the very last item of a trigger, returns {@code null}
      */
     public final Optional<? extends Statement> getNext() {
         if (next != null) {
@@ -56,6 +60,7 @@ public abstract class Statement implements SyntaxElement {
      * Sets the Statement that is placed after this Statement in the file.
      * You can assume that the {@linkplain #next} statement of the {@code next} parameter
      * is known if it has such a statement.
+     *
      * @param next the Statement that is following this one
      * @return this statement
      */
@@ -67,6 +72,7 @@ public abstract class Statement implements SyntaxElement {
     /**
      * By default, runs {@link #run(TriggerContext)} ; returns {@link #getNext()} if it returns true, or {@code null} otherwise.
      * Note that if this method is overridden, then the implementation of {@linkplain #run(TriggerContext)} doesn't matter.
+     *
      * @param ctx the event
      * @return the next item to be ran, or {@code null} if this is the last item to be executed
      */
@@ -81,9 +87,16 @@ public abstract class Statement implements SyntaxElement {
         }
     }
 
+    public static Consumer<IllegalStateException> illegalStateRunnable;
+
+    public static void setIllegalStateHandler(Consumer<IllegalStateException> consumer) {
+        Statement.illegalStateRunnable = consumer;
+    }
+
     /**
      * Runs all code starting at a given point sequentially
-     * @param start the Statement the method should first run
+     *
+     * @param start   the Statement the method should first run
      * @param context the context
      * @return {@code true} if the code ran normally, and {@code false} if any exception occurred
      */
@@ -95,6 +108,14 @@ public abstract class Statement implements SyntaxElement {
             return true;
         } catch (StackOverflowError so) {
             System.err.println("The script repeated itself infinitely!");
+            return false;
+        } catch (IllegalStateException e) {
+            if (illegalStateRunnable != null) {
+                illegalStateRunnable.accept(e);
+            } else {
+                System.err.println("An exception occurred. Stack trace:");
+                e.printStackTrace();
+            }
             return false;
         } catch (Exception e) {
             System.err.println("An exception occurred. Stack trace:");
