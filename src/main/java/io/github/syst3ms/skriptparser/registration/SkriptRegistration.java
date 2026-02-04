@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -57,6 +58,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -725,6 +727,8 @@ public class SkriptRegistration {
         private Arithmetic<C, ?> arithmetic;
         @Nullable
         private TypeSerializer<C> serializer;
+        @Nullable
+        private Supplier<Iterator<C>> supplier;
         private final Documentation documentation = new Documentation();
 
         public TypeRegistrar(Class<C> c, String baseName, String pattern) {
@@ -779,6 +783,11 @@ public class SkriptRegistration {
             return this;
         }
 
+        public TypeRegistrar<C> supplier(Supplier<Iterator<C>> supplier) {
+            this.supplier = supplier;
+            return this;
+        }
+
         public <R> TypeRegistrar<C> noDoc() {
             this.documentation.noDoc();
             return this;
@@ -825,7 +834,7 @@ public class SkriptRegistration {
         @Override
         public void register() {
             newTypes = true;
-            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic, documentation, serializer));
+            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic, documentation, serializer, this.supplier));
         }
     }
 
