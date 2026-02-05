@@ -21,12 +21,12 @@ import io.github.syst3ms.skriptparser.util.color.Color;
  */
 public class ExprColorFromRGB implements Expression<Color> {
 	static {
-		Parser.getMainRegistration().addExpression(
-				ExprColorFromRGB.class,
-				Color.class,
-				true,
-				"[the] color (from|of) [the] rgb[a] [value] %integers%"
-		);
+		Parser.getMainRegistration().newExpression(ExprColorFromRGB.class, Color.class, true,
+				"[the] color (from|of) [the] rgb[a] [value] %integers%")
+			.name("Color from RGB")
+			.description("Creates a color from its RGB values.")
+			.since("1.0.0")
+			.register();
 	}
 
 	private Expression<Integer> rgb;

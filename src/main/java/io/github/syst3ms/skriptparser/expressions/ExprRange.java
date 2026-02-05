@@ -26,12 +26,12 @@ import java.util.function.BiFunction;
  */
 public class ExprRange implements Expression<Object> {
     static {
-        Parser.getMainRegistration().addExpression(
-                ExprRange.class,
-                Object.class,
-                false,
-                "[the] range from %object% to %object%"
-        );
+        Parser.getMainRegistration().newExpression(ExprRange.class, Object.class, false,
+                "[the] range from %object% to %object%")
+            .name("Range")
+            .description("Returns a range of values between two endpoints.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<?> from, to;

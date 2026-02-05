@@ -23,13 +23,16 @@ import java.util.Optional;
  */
 public class ExprDateAgoLater implements Expression<SkriptDate> {
 	static {
-		Parser.getMainRegistration().addExpression(
+		Parser.getMainRegistration().newExpression(
 				ExprDateAgoLater.class,
 				SkriptDate.class,
 				true,
 				"%duration% (ago|in the past|before [the] [date] %date%)",
-				"%duration% (later|in the future|(from|after) [the] [date] %date%)"
-		);
+				"%duration% (later|in the future|(from|after) [the] [date] %date%)")
+			.name("Date Ago/Later")
+			.description("Returns the date that is a certain duration ago or in the future.")
+			.since("1.0.0")
+			.register();
 	}
 
 	private Expression<Duration> duration;

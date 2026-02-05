@@ -12,8 +12,9 @@ import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import org.jetbrains.annotations.Nullable;
 
 /**
- *  A very general effect that can change many expressions. Many expressions can only be set and/or deleted, while some can have things added to or removed from them.
+ * A very general effect that can change many expressions. Many expressions can only be set and/or deleted, while some can have things added to or removed from them.
  *
+ * @author Syst3ms
  * @name Change: Set/Add/Remove/Delete/Reset
  * @pattern set %~objects% to %objects%
  * @pattern %~objects% = %objects%
@@ -22,26 +23,35 @@ import org.jetbrains.annotations.Nullable;
  * @pattern remove %objects% from %~objects%
  * @pattern %~objects% -= %~objects%
  * @pattern remove (all|every) %objects% from %~objects%
- * @pattern (delete|clear) %~objects%
+ * @pattern (delete | clear) %~objects%
  * @pattern reset %~objects%
  * @since ALPHA
- * @author Syst3ms
  */
 public class EffChange extends Effect {
     public static final PatternInfos<ChangeMode> PATTERNS = new PatternInfos<>(new Object[][]{
-            {"set %~objects% to %objects%", ChangeMode.SET},
-            {"%~objects% = %objects%", ChangeMode.SET},
-            {"add %objects% to %~objects%", ChangeMode.ADD},
-            {"%~objects% += %objects%", ChangeMode.ADD},
-            {"remove %objects% from %~objects%", ChangeMode.REMOVE},
-            {"%~objects% -= %objects%", ChangeMode.REMOVE},
-            {"remove (all|every) %objects% from %~objects%", ChangeMode.REMOVE_ALL},
-            {"(delete|clear) %~objects%", ChangeMode.DELETE},
-            {"reset %~objects%", ChangeMode.RESET}
+        {"set %~objects% to %objects%", ChangeMode.SET},
+        {"%~objects% = %objects%", ChangeMode.SET},
+        {"add %objects% to %~objects%", ChangeMode.ADD},
+        {"give %objects% to %~objects%", ChangeMode.ADD},
+        {"%~objects% += %objects%", ChangeMode.ADD},
+        {"remove %objects% from %~objects%", ChangeMode.REMOVE},
+        {"%~objects% -= %objects%", ChangeMode.REMOVE},
+        {"remove (all|every) %objects% from %~objects%", ChangeMode.REMOVE_ALL},
+        {"(delete|clear) %~objects%", ChangeMode.DELETE},
+        {"reset %~objects%", ChangeMode.RESET}
     });
 
     static {
-        Parser.getMainRegistration().addEffect(EffChange.class, PATTERNS.getPatterns());
+        Parser.getMainRegistration().newEffect(EffChange.class, PATTERNS.getPatterns())
+            .name("Change")
+            .description("Changes the value of an expression.")
+            .examples("set {_a} to 10",
+                "add 5 to {_a}",
+                "remove 3 from {_a}",
+                "delete {_a}",
+                "reset {_a}")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<?> changed;
@@ -84,7 +94,7 @@ public class EffChange extends Effect {
                         logger.error("Nothing can be removed from " + changedString, ErrorType.SEMANTIC_ERROR);
                         break;
                     default:
-                    	throw new IllegalStateException();
+                        throw new IllegalStateException();
                 }
                 return false;
             } else if (!changed.acceptsChange(mode, changeWith)) {
@@ -104,7 +114,7 @@ public class EffChange extends Effect {
                         break;
                     case DELETE:
                     case RESET:
-                    	throw new IllegalStateException();
+                        throw new IllegalStateException();
                 }
                 return false;
             }
@@ -128,20 +138,13 @@ public class EffChange extends Effect {
     public String toString(TriggerContext ctx, boolean debug) {
         String changedString = changed.toString(ctx, debug);
         String changedWithString = changeWith != null ? changeWith.toString(ctx, debug) : "";
-        switch (mode) {
-            case SET:
-                return String.format("set %s to %s", changedString, changedWithString);
-            case ADD:
-                return String.format("add %s to %s", changedWithString, changedString);
-            case REMOVE:
-                return String.format("remove %s from %s", changedWithString, changedString);
-            case DELETE:
-            case RESET:
-                return String.format("%s %s", mode.name().toLowerCase(), changedString);
-            case REMOVE_ALL:
-                return String.format("remove all %s from %s", changedWithString, changedString);
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (this.mode) {
+            case SET -> String.format("set %s to %s", changedString, changedWithString);
+            case ADD -> String.format("add %s to %s", changedWithString, changedString);
+            case REMOVE -> String.format("remove %s from %s", changedWithString, changedString);
+            case DELETE, RESET -> String.format("%s %s", mode.name().toLowerCase(), changedString);
+            case REMOVE_ALL -> String.format("remove all %s from %s", changedWithString, changedString);
+            default -> throw new IllegalStateException();
+        };
     }
 }

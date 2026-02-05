@@ -18,12 +18,12 @@ import io.github.syst3ms.skriptparser.util.DoubleOptional;
  */
 public class ExprStringOccurrence implements Expression<Number> {
     static {
-        Parser.getMainRegistration().addExpression(
-            ExprStringOccurrence.class,
-            Number.class,
-            true,
-            "[the] (0:first|1:last) occurrence of %string% in %string%"
-        );
+        Parser.getMainRegistration().newExpression(ExprStringOccurrence.class, Number.class, true,
+                "[the] (0:first|1:last) occurrence of %string% in %string%")
+            .name("Occurrence")
+            .description("Returns the index of the first or last occurrence of a given string in a string.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<String> haystack, needle;

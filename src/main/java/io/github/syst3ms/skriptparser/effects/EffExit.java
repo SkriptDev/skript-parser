@@ -34,13 +34,14 @@ import java.util.Optional;
  */
 public class EffExit extends Effect {
     static {
-        Parser.getMainRegistration().addEffect(
-            EffExit.class,
-            "(exit|stop) [[the] trigger]",
-            "(exit|stop) [a|the [current]|this] (0:section|1:loop|2:condition[al])",
-            "(exit|stop) %*integer% (0:section|1:loop|2:condition[al])[s]",
-            "(exit|stop) (every|all [[of] the]) (0:section|1:loop|2:condition[al])[s]"
-        );
+        Parser.getMainRegistration().newEffect(EffExit.class, "(exit|stop) [[the] trigger]",
+                "(exit|stop) [a|the [current]|this] (0:section|1:loop|2:condition[al])",
+                "(exit|stop) %*integer% (0:section|1:loop|2:condition[al])[s]",
+                "(exit|stop) (every|all [[of] the]) (0:section|1:loop|2:condition[al])[s]")
+            .name("Exit")
+            .description("Exits the entire trigger, preventing all upcoming statements to not get triggered. There's also a possibility to only exit certain sections. If more sections are exited than the total amount of nested sections, the trigger will stop. Note that stopping loops also stops while-loops.")
+            .since("1.0.0")
+            .register();
     }
 
     private final static String[] names = {"section", "loop", "conditional"};

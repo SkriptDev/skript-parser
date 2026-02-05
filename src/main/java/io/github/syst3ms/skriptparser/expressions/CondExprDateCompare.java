@@ -12,22 +12,22 @@ import java.time.Duration;
 /**
  * Check if a given date is a certain duration before or after the current date.
  *
+ * @author Mwexim
  * @name Compare Date
  * @type CONDITION
  * @pattern %date% (was|were)( more|(n't| not) less) than %duration% [ago]
  * @pattern %date% (was|were)((n't| not) more| less) than %duration% [ago]
  * @since ALPHA
- * @author Mwexim
  */
 public class CondExprDateCompare extends ConditionalExpression {
     static {
-        Parser.getMainRegistration().addExpression(
-                CondExprDateCompare.class,
-                Boolean.class,
-                true,
+        Parser.getMainRegistration().newExpression(CondExprDateCompare.class, Boolean.class, true,
                 "%dates% (was|were)( more|(n't| not) less) than %duration% [ago]",
-                "%dates% (was|were)((n't| not) more| less) than %duration% [ago]"
-        );
+                "%dates% (was|were)((n't| not) more| less) than %duration% [ago]")
+            .name("Compare Date")
+            .description("Checks if a date is a certain duration before or after the current date.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<SkriptDate> date;
@@ -45,11 +45,11 @@ public class CondExprDateCompare extends ConditionalExpression {
     @Override
     public boolean check(TriggerContext ctx) {
         return date.check(
-                ctx,
-                toCheck -> duration.getSingle(ctx)
-                        .filter(toCompare -> toCheck.compareTo(SkriptDate.now().minus(toCompare)) < 0)
-                        .isPresent(),
-                isNegated()
+            ctx,
+            toCheck -> duration.getSingle(ctx)
+                .filter(toCompare -> toCheck.compareTo(SkriptDate.now().minus(toCompare)) < 0)
+                .isPresent(),
+            isNegated()
         );
     }
 

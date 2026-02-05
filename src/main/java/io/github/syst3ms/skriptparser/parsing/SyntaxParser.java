@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.file.FileSection;
 import io.github.syst3ms.skriptparser.lang.*;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.lang.base.ContextExpression;
+import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.log.ErrorContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
@@ -185,6 +186,11 @@ public class SyntaxParser {
         var contextValue = parseContextValue(s, expectedType, parserState, logger);
         if (contextValue.isPresent()) {
             logger.clearErrors();
+            ContextExpression<?, ? extends T> contextExpression = contextValue.get();
+            if (!expectedType.getType().getTypeClass().isAssignableFrom(contextExpression.getReturnType())) {
+                Optional<? extends ConvertedExpression<? extends T, T>> convertedExpression = ConvertedExpression.newInstance(contextExpression, expectedType.getType().getTypeClass());
+                return convertedExpression;
+            }
             return contextValue;
         }
 
@@ -301,7 +307,7 @@ public class SyntaxParser {
                 matchContext = new MatchContext(info.getPattern(), parserState, logger);
 
                 // Checking all conditions, so no false results slip through.
-                if (info.getPattern().match(value, 0, matchContext) != value.length() || !expectedType.getType().getTypeClass().isAssignableFrom(info.getReturnType().getType().getTypeClass())) {
+                if (info.getPattern().match(value, 0, matchContext) != value.length()) {
                     continue;
                 } else if (!info.getUsage().isCorrect(alone)) {
                     if (alone) {

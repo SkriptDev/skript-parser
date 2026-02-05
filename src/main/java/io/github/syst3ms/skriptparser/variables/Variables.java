@@ -63,6 +63,10 @@ public class Variables {
         variableMap.clearVariables();
     }
 
+    public static VariableMap getVariableMap() {
+        return variableMap;
+    }
+
     /**
      * Register a VariableStorage class.
      *
@@ -234,7 +238,7 @@ public class Variables {
      */
     private static final Queue<VariableChange> VARIABLE_CHANGE_QUEUE = new ConcurrentLinkedQueue<>();
 
-    static void queueVariableChange(String name, @Nullable Object value) {
+    public static void queueVariableChange(String name, @Nullable Object value) {
         if (!hasStorages())
             return;
         VARIABLE_CHANGE_QUEUE.add(new VariableChange(name, value));

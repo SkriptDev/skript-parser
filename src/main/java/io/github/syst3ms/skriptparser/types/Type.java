@@ -8,9 +8,11 @@ import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * A basic definition of a type. This doesn't handle number (single/plural), unlike {@link PatternType}
@@ -29,6 +31,9 @@ public class Type<T> {
 
     @Nullable
     private final Arithmetic<T, ?> arithmetic;
+
+    @Nullable
+    private final Supplier<Iterator<T>> supplier;
 
     private final Function<Object, String> toStringFunction;
     private final String[] pluralForms;
@@ -49,7 +54,7 @@ public class Type<T> {
      *                </ul>
      */
     public Type(Class<T> typeClass, String baseName, String pattern, Documentation documentation) {
-        this(typeClass, baseName, pattern, null, documentation);
+        this(typeClass, baseName, pattern, null, documentation, null);
     }
 
     /**
@@ -70,8 +75,9 @@ public class Type<T> {
                 String baseName,
                 String pattern,
                 @Nullable Function<String, ? extends T> literalParser,
-                Documentation documentation) {
-        this(typeClass, baseName, pattern, literalParser, Objects::toString, documentation);
+                Documentation documentation,
+                @Nullable Supplier<Iterator<T>> supplier) {
+        this(typeClass, baseName, pattern, literalParser, Objects::toString, documentation, supplier);
     }
 
     /**
@@ -94,8 +100,9 @@ public class Type<T> {
                 String baseName,
                 String pattern,
                 @Nullable Function<String, ? extends T> literalParser,
-                Function<? super T, String> toStringFunction, Documentation documentation) {
-        this(typeClass, baseName, pattern, literalParser, toStringFunction,  null, documentation);
+                Function<? super T, String> toStringFunction, Documentation documentation,
+                @Nullable Supplier<Iterator<T>> supplier) {
+        this(typeClass, baseName, pattern, literalParser, toStringFunction,  null, documentation, supplier);
     }
 
     public Type(Class<T> typeClass,
@@ -103,8 +110,9 @@ public class Type<T> {
                 String pattern,
                 @Nullable Function<String, ? extends T> literalParser,
                 Function<? super T, String> toStringFunction,
-                @Nullable Changer<? super T> defaultChanger, Documentation documentation) {
-        this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger,  null, documentation);
+                @Nullable Changer<? super T> defaultChanger, Documentation documentation,
+                @Nullable Supplier<Iterator<T>> supplier) {
+        this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger,  null, documentation, supplier);
     }
 
     public Type(Class<T> typeClass,
@@ -114,8 +122,9 @@ public class Type<T> {
             Function<? super T, String> toStringFunction,
             @Nullable Changer<? super T> defaultChanger,
             @Nullable Arithmetic<T, ?> arithmetic,
-                Documentation documentation) {
-        this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic, documentation, null);
+                Documentation documentation,
+                @Nullable Supplier<Iterator<T>> supplier) {
+        this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic, documentation, null, supplier);
     }
 
     @SuppressWarnings("unchecked")
@@ -125,7 +134,9 @@ public class Type<T> {
                 @Nullable Function<String, ? extends T> literalParser,
                 Function<? super T, String> toStringFunction,
                 @Nullable Changer<? super T> defaultChanger,
-                @Nullable Arithmetic<T, ?> arithmetic, Documentation documentation, @Nullable TypeSerializer<T> serializer) {
+                @Nullable Arithmetic<T, ?> arithmetic, Documentation documentation,
+                @Nullable TypeSerializer<T> serializer,
+                @Nullable Supplier<Iterator<T>> supplier) {
         this.typeClass = typeClass;
         this.baseName = baseName;
         this.literalParser = literalParser;
@@ -135,6 +146,7 @@ public class Type<T> {
         this.arithmetic = arithmetic;
         this.documentation = documentation;
         this.serializer = serializer;
+        this.supplier = supplier;
     }
 
     public boolean isPlural(String input) {
@@ -178,6 +190,10 @@ public class Type<T> {
 
     public Optional<? extends Arithmetic<T, ?>> getArithmetic() {
         return Optional.ofNullable(arithmetic);
+    }
+
+    public @Nullable Supplier<Iterator<T>> getSupplier() {
+        return supplier;
     }
 
     public Documentation getDocumentation() {

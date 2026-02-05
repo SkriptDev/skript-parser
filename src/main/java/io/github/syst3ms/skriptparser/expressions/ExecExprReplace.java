@@ -30,10 +30,8 @@ import java.util.regex.PatternSyntaxException;
  */
 public class ExecExprReplace extends ExecutableExpression<String> {
 	static {
-		Parser.getMainRegistration().addExecutableExpression(
-				ExecExprReplace.class,
-				String.class,
-				false,
+		// TODO add "new" so we can add docs
+		Parser.getMainRegistration().addExecutableExpression(ExecExprReplace.class, String.class, false,
 				"replace [(0:all|0:every|1:[the] first|2:[the] last)] [:regex [pattern[s]]] %strings% in %strings% with %string%",
 				"replace [(0:all|0:every|1:[the] first|2:[the] last)] [:regex [pattern[s]]] %strings% with %string% in %strings%"
 		);

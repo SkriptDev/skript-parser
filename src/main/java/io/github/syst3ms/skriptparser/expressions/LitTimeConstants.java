@@ -20,13 +20,12 @@ import io.github.syst3ms.skriptparser.util.Time;
  */
 public class LitTimeConstants implements Literal<Time> {
     static {
-        Parser.getMainRegistration().addExpression(
-            LitTimeConstants.class,
-            Time.class,
-            true,
-            "(0:noon|0:midday|1:midnight)",
-            "%*integer% o'[ ]clock"
-        );
+        Parser.getMainRegistration().newExpression(LitTimeConstants.class, Time.class, true,
+            "(0:noon|0:midday|1:midnight)", "%*integer% o'[ ]clock")
+            .name("Time Constants")
+            .description("Midnight, noon, and midday time constants, as well as the ability to use expressions like '12 o' clock' for literal usage.")
+            .since("ALPHA")
+            .register();
     }
 
     private Literal<Integer> hours;

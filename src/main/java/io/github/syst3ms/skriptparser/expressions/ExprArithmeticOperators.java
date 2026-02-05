@@ -45,16 +45,15 @@ public class ExprArithmeticOperators implements Expression<Number> {
         {"%number%[ ]*[ ]%number%", Operator.MULT},
         {"%number%[ ]/[ ]%number%", Operator.DIV},
         {"%number%[ ]^[ ]%number%", Operator.EXP},
-    }
-    );
+    });
 
     static {
-        Parser.getMainRegistration().addExpression(
-            ExprArithmeticOperators.class,
-            Number.class,
-            true,
-            PATTERNS.getPatterns()
-        );
+        Parser.getMainRegistration().newExpression(ExprArithmeticOperators.class, Number.class, true,
+                PATTERNS.getPatterns())
+            .name("Arithmetic Operators")
+            .description("Performs arithmetic operations on two numbers.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<? extends Number> first, second;

@@ -28,12 +28,12 @@ import java.util.Optional;
  */
 public class ExprDifference implements Expression<Object> {
     static {
-        Parser.getMainRegistration().addExpression(
-                ExprDifference.class,
-                Object.class,
-                true,
-                "[the] difference (between|of) %object% and %object%"
-        );
+        Parser.getMainRegistration().newExpression(ExprDifference.class, Object.class, true,
+                "[the] difference (between|of) %object% and %object%")
+            .name("Difference")
+            .description("Returns the difference between two values.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<?> first, second;

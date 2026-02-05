@@ -32,10 +32,11 @@ import java.util.stream.Collectors;
  */
 public class EffReturn extends Effect {
     static {
-        Parser.getMainRegistration().addEffect(
-                EffReturn.class,
-                "return %objects%"
-        );
+        Parser.getMainRegistration().newEffect(EffReturn.class, "return %objects%")
+            .name("Return")
+            .description("Returns one or more values to a corresponding section, such as in a function.")
+            .since("1.0.0")
+            .register();
     }
     private boolean isInFunction;
 

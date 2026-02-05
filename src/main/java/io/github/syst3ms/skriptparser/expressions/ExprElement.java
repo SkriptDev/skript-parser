@@ -25,14 +25,15 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class ExprElement implements Expression<Object> {
     static {
-        Parser.getMainRegistration().addExpression(
-            ExprElement.class,
-            Object.class,
-            true,
-            "(0:[the] first|1:[the] last|2:[a] random|3:[the] %integer%(st|nd|rd|th)) element [out] of %objects%",
-            "[the] (0:first|1:last) %integer% elements [out] of %objects%",
-            "%integer% random elements [out] of %objects%",
-            "%objects%\\[%integer%\\]");
+        Parser.getMainRegistration().newExpression(ExprElement.class, Object.class, true,
+                "(0:[the] first|1:[the] last|2:[a] random|3:[the] %integer%(st|nd|rd|th)) element [out] of %objects%",
+                "[the] (0:first|1:last) %integer% elements [out] of %objects%",
+                "%integer% random elements [out] of %objects%",
+                "%objects%\\[%integer%\\]")
+            .name("Element")
+            .description("Gets a certain element or multiple elements out of a list of objects.")
+            .since("1.0.0")
+            .register();
     }
 
     private static final ThreadLocalRandom random = ThreadLocalRandom.current();

@@ -59,14 +59,15 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 		}
 	);
 
-	static {
-		Parser.getMainRegistration().addExpression(
-			ExprUnaryMathFunctions.class,
-			Number.class,
-			true,
-			PATTERNS.getPatterns()
-		);
-	}
+	// TODO disable until I can remove all the "BIG" stuff
+//	static {
+//		Parser.getMainRegistration().addExpression(
+//			ExprUnaryMathFunctions.class,
+//			Number.class,
+//			true,
+//			PATTERNS.getPatterns()
+//		);
+//	}
 
 	private int pattern;
 	private Expression<Number> number;

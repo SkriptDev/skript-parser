@@ -5,9 +5,9 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.context.ContextValue;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
-import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import org.jetbrains.annotations.Contract;
 
+import java.lang.reflect.Array;
 import java.util.Optional;
 
 /**
@@ -42,7 +42,9 @@ public class ContextExpression<C extends TriggerContext, T> implements Expressio
         assert info.getContext().isInstance(ctx);
         if (info.isSingle()) {
             T apply = this.info.getSingleFunction().apply((C) ctx);
-            return CollectionUtils.arrayOf(apply);
+            T[] array = (T[]) Array.newInstance(getReturnType(), 1);
+            array[0] = apply;
+            return array;
         } else {
             return info.getListFunction().apply((C) ctx);
         }

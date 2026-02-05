@@ -8,21 +8,21 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 /**
  * Returns a value depending of a boolean.
  *
+ * @author Olyno
  * @name Ternary
  * @pattern %objects% if %=boolean%[,] (otherwise|else) %objects%
  * @pattern %=boolean% ? %objects% : %objects%
  * @since ALPHA
- * @author Olyno
  */
 public class ExprTernary implements Expression<Object> {
     static {
-        Parser.getMainRegistration().addExpression(
-            ExprTernary.class,
-            Object.class,
-            false,
-            "%objects% if %=boolean%[,] (otherwise|else) %objects%",
-            "%=boolean% ? %objects% \\: %objects%"
-        );
+        Parser.getMainRegistration().newExpression(ExprTernary.class, Object.class, false,
+                "%objects% if %=boolean%[,] (otherwise|else) %objects%",
+                "%=boolean% ? %objects% \\: %objects%")
+            .name("Ternary")
+            .description("Returns the first object if the boolean is true, otherwise the second object.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<Boolean> valueToCheck;
@@ -40,8 +40,8 @@ public class ExprTernary implements Expression<Object> {
     @Override
     public Object[] getValues(TriggerContext ctx) {
         return valueToCheck.getSingle(ctx)
-                .map(check -> check ? firstValue.getValues(ctx) : secondValue.getValues(ctx))
-                .orElse(new Object[0]);
+            .map(check -> check ? firstValue.getValues(ctx) : secondValue.getValues(ctx))
+            .orElse(new Object[0]);
     }
 
     @Override

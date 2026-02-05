@@ -14,20 +14,20 @@ import java.time.Duration;
  * Today at a given time. When no time is set,
  * it will take today's date as it would be midnight.
  *
- * @name Today At
- * @type EXPRESSION
- * @pattern today [at %time%]
- * @since ALPHA
- * @author Mwexim
- */
++ * @author Mwexim
+  * @name Today At
+  * @type EXPRESSION
+  * @pattern today [at %time%]
+  * @since ALPHA
+  */
 public class ExprDateTodayAt implements Expression<SkriptDate> {
 	static {
-		Parser.getMainRegistration().addExpression(
-				ExprDateTodayAt.class,
-				SkriptDate.class,
-				true,
-				"today [at %time%]"
-		);
+		Parser.getMainRegistration().newExpression(ExprDateTodayAt.class, SkriptDate.class, true,
+				"today [at %time%]")
+			.name("Today At")
+			.description("Returns the date of today at a given time. If no time is specified, it will return the date of today at midnight.")
+			.since("1.0.0")
+			.register();
 	}
 
 	@Nullable

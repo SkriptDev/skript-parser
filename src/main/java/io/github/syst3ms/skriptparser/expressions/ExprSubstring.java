@@ -17,14 +17,14 @@ import io.github.syst3ms.skriptparser.util.DoubleOptional;
  */
 public class ExprSubstring implements Expression<String> {
     static {
-        Parser.getMainRegistration().addExpression(
-            ExprSubstring.class,
-            String.class,
-            true,
-            "[the] (part|sub[ ](text|string)) of %string% (between|from) [(ind(ex[es]|ices)|char[acter][s])] %integer% (and|to) [(index|char[acter])] %integer%",
-            "[the] (0:first|1:last) [%integer%] char[acter][s] (of|in) %string%",
-            "[the] %integer% (0:first|1:last) char[acter]s (of|in) %string%"
-        );
+        Parser.getMainRegistration().newExpression(ExprSubstring.class, String.class, true,
+                "[the] (part|sub[ ](text|string)) of %string% (between|from) [(ind(ex[es]|ices)|char[acter][s])] %integer% (and|to) [(index|char[acter])] %integer%",
+                "[the] (0:first|1:last) [%integer%] char[acter][s] (of|in) %string%",
+                "[the] %integer% (0:first|1:last) char[acter]s (of|in) %string%")
+            .name("Substring")
+            .description("Extracts a part of a string.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<String> value;

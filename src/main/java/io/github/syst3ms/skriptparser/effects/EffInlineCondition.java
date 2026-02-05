@@ -18,11 +18,11 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  */
 public class EffInlineCondition extends Effect {
     static {
-        Parser.getMainRegistration().addEffect(
-            EffInlineCondition.class,
-            5,
-            "continue [only] if %=boolean%"
-        );
+        Parser.getMainRegistration().newEffect(EffInlineCondition.class, "continue [only] if %=boolean%")
+            .name("Inline Condition")
+            .description("Runs the next line of this section if a condition is met.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<Boolean> condition;

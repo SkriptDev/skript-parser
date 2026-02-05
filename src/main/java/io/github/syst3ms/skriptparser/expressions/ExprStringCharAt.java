@@ -15,12 +15,12 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  */
 public class ExprStringCharAt implements Expression<String> {
 	static {
-		Parser.getMainRegistration().addExpression(
-			ExprStringCharAt.class,
-			String.class,
-			false,
-			"[the] char[acter][s] at [(ind(ex[es]|ices)|pos[ition][s])] %integers% (of|in) %string%"
-		);
+		Parser.getMainRegistration().newExpression(ExprStringCharAt.class, String.class, false,
+				"[the] char[acter][s] at [(ind(ex[es]|ices)|pos[ition][s])] %integers% (of|in) %string%")
+			.name("Character At")
+			.description("Returns the character(s) at a given position(s) in a string.")
+			.since("1.0.0")
+			.register();
 	}
 
 	private Expression<Integer> position;
