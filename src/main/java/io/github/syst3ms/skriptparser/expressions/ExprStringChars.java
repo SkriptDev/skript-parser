@@ -11,6 +11,7 @@ import java.util.function.Predicate;
 /**
  * All uppercase, lowercase, or digit characters in a string.
  *
+ * @author Olyno
  * @name Characters
  * @pattern [all [[of] the]] upper[ ]case char[acter]s in %strings%
  * @pattern [all [[of] the]] lower[ ]case char[acter]s in %strings%
@@ -18,7 +19,6 @@ import java.util.function.Predicate;
  * @pattern [all [[of] the]] special char[acter]s in %strings%
  * @pattern [all [[of] the]] [white[ ]]space char[acter]s in %strings%
  * @since ALPHA
- * @author Olyno
  */
 public class ExprStringChars implements Expression<String> {
     private final static PatternInfos<Predicate<Character>> PATTERNS = new PatternInfos<>(
@@ -32,15 +32,16 @@ public class ExprStringChars implements Expression<String> {
     );
 
     static {
-        Parser.getMainRegistration().addExpression(ExprStringChars.class,
-            String.class,
-            false,
-            PATTERNS.getPatterns()
-        );
+        Parser.getMainRegistration().newExpression(ExprStringChars.class, String.class, false,
+                PATTERNS.getPatterns())
+            .name("Characters")
+            .description("Gets all uppercase, lowercase, digit, special or whitespace characters in a string.")
+            .since("1.0.0")
+            .register();
     }
 
     private final String[] CHAR_TYPES = {
-            "upper case", "lower case", "digit", "special", "white space"
+        "upper case", "lower case", "digit", "special", "white space"
     };
 
     private Expression<String> values;

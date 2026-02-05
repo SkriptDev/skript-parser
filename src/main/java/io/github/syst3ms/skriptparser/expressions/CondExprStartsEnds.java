@@ -9,22 +9,22 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 /**
  * Check if a given string starts or ends with a certain string.
  *
+ * @author Mwexim
  * @name Starts/Ends With
  * @type CONDITION
  * @pattern %strings% (start|end)[s] with %string%
  * @pattern %strings% do[es](n't| not) (start|end) with %string%
  * @since ALPHA
- * @author Mwexim
  */
 public class CondExprStartsEnds extends ConditionalExpression {
     static {
-        Parser.getMainRegistration().addExpression(
-                CondExprStartsEnds.class,
-                Boolean.class,
-                true,
+        Parser.getMainRegistration().newExpression(CondExprStartsEnds.class, Boolean.class, true,
                 "%strings% (0:start|1:end)[s] with %strings%",
-                "%strings% do[es](n't| not) (0:start|1:end) with %strings%"
-        );
+                "%strings% do[es](n't| not) (0:start|1:end) with %strings%")
+            .name("Starts/Ends With")
+            .description("Checks if a given string starts or ends with a certain string.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<String> expression;
@@ -44,9 +44,9 @@ public class CondExprStartsEnds extends ConditionalExpression {
     @Override
     public boolean check(TriggerContext ctx) {
         return expression.check(
-                ctx,
-                toCheck -> value.check(ctx, toMatch -> start ? toCheck.startsWith(toMatch) : toCheck.endsWith(toMatch)),
-                isNegated()
+            ctx,
+            toCheck -> value.check(ctx, toMatch -> start ? toCheck.startsWith(toMatch) : toCheck.endsWith(toMatch)),
+            isNegated()
         );
     }
 

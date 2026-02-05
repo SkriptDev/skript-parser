@@ -15,11 +15,8 @@ import io.github.syst3ms.skriptparser.lang.properties.PropertyConditional;
  */
 public class CondExprIsSet extends PropertyConditional<Object> {
     static {
-        Parser.getMainRegistration().newPropertyConditional(
-                CondExprIsSet.class,
-                "~objects",
-                ConditionalType.BE,
-                "set")
+        Parser.getMainRegistration().newPropertyConditional(CondExprIsSet.class,
+                "~objects", ConditionalType.BE, "set")
             .name("Is Set")
             .description("Checks if an expression/object is set or not.")
             .examples("if {_var} is set:")
@@ -31,4 +28,5 @@ public class CondExprIsSet extends PropertyConditional<Object> {
     public boolean check(Object performer) {
         return true;
     }
+
 }

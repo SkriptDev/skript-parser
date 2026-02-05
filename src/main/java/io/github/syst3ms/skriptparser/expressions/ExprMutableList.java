@@ -20,14 +20,14 @@ import java.util.Collections;
  */
 public class ExprMutableList implements Expression<Object> {
     static {
-        Parser.getMainRegistration().addExpression(
-            ExprMutableList.class,
-            Object.class,
-            false,
+        Parser.getMainRegistration().newExpression(ExprMutableList.class, Object.class, false,
             "reverse[d] %objects%",
             "shuffle[d] %objects%",
-            "sort[ed] %objects%"
-        );
+            "sort[ed] %objects%")
+            .name("Mutable List")
+            .description("Reverses, shuffles or sorts a list.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<Object> list;

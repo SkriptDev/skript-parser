@@ -5,8 +5,8 @@ import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
-import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.event.StartOnLoadEvent;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.ThreadUtils;
@@ -19,18 +19,21 @@ import java.time.Duration;
  * Note that when the duration is very precise, like milliseconds, it may be executed a bit later.
  * Large duration that go up to days are not recommended.
  *
+ * @author Mwexim
  * @name Periodical
  * @type EVENT
  * @pattern every %*duration%
  * @since ALPHA
- * @author Mwexim
  */
 public class EvtPeriodical extends SkriptEvent implements StartOnLoadEvent {
     static {
         Parser.getMainRegistration()
-                .newEvent(EvtPeriodical.class, "*every %*duration%")
-                .setHandledContexts(PeriodicalContext.class)
-                .register();
+            .newEvent(EvtPeriodical.class, "*every %*duration%")
+            .setHandledContexts(PeriodicalContext.class)
+            .name("Periodical")
+            .description("Triggered every interval of a certain duration.")
+            .since("1.0.0")
+            .register();
     }
 
     private Literal<Duration> duration;

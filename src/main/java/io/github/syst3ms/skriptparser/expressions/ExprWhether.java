@@ -15,12 +15,12 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  */
 public class ExprWhether implements Expression<Boolean> {
     static {
-        Parser.getMainRegistration().addExpression(
-                ExprWhether.class,
-                Boolean.class,
-                true,
-                "whether %~=boolean%"
-        );
+        Parser.getMainRegistration().newExpression(ExprWhether.class, Boolean.class, true,
+                "whether %~=boolean%")
+            .name("Whether")
+            .description("A wrapper that turns a condition into a boolean expression than can be used anywhere.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<Boolean> condition;

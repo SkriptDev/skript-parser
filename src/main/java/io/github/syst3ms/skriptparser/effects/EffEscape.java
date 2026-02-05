@@ -23,10 +23,13 @@ import java.util.Optional;
  */
 public class EffEscape extends Effect {
     static {
-        Parser.getMainRegistration().addEffect(
-            EffEscape.class,
-            "escape %integer% [(level|line)[s]]"
-        );
+        Parser.getMainRegistration().newEffect(EffEscape.class,
+                "escape %integer% [(level|line)[s]]")
+            .name("Escape")
+            .description("Skips the next given amount of lines and runs the code after.",
+                "Note that lines that have more indentation than this one are not considered in the amount.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<Integer> amount;

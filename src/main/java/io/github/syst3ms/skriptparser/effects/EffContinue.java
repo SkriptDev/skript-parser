@@ -25,11 +25,11 @@ import java.util.stream.Collectors;
  */
 public class EffContinue extends Effect {
     static {
-        Parser.getMainRegistration().addEffect(
-            EffContinue.class,
-            4,
-            "continue [%*integer% loop[s]]"
-        );
+        Parser.getMainRegistration().newEffect(EffContinue.class, "continue [%*integer% loop[s]]")
+            .name("Continue Loop")
+            .description("Skips the current looped value and continues to the next one in the list, if it exists.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<Integer> position;

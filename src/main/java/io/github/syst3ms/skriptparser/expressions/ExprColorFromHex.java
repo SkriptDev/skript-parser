@@ -23,12 +23,12 @@ import io.github.syst3ms.skriptparser.util.color.Color;
  */
 public class ExprColorFromHex implements Expression<Color> {
 	static {
-		Parser.getMainRegistration().addExpression(
-				ExprColorFromHex.class,
-				Color.class,
-				true,
-				"[the] color (from|of) [the] hex[adecimal] [value] %string%"
-		);
+		Parser.getMainRegistration().newExpression(ExprColorFromHex.class, Color.class, true,
+				"[the] color (from|of) [the] hex[adecimal] [value] %string%")
+			.name("Color from Hex")
+			.description("Creates a color from its hexadecimal value.")
+			.since("1.0.0")
+			.register();
 	}
 
 	private Expression<String> hex;

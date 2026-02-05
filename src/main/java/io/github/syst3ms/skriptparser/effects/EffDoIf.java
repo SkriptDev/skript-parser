@@ -19,11 +19,12 @@ import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
  */
 public class EffDoIf extends Effect {
     static {
-        Parser.getMainRegistration().addEffect(
-            EffDoIf.class,
-            1,
-            "[do|execute] <.+?>[,] [only] if %=boolean%"
-        );
+        Parser.getMainRegistration().newEffect(EffDoIf.class,
+            "[do|execute] <.+?>[,] [only] if %=boolean%")
+            .name("Do If")
+            .description("Runs this effect if a given condition succeeds.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<Boolean> condition;

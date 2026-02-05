@@ -43,13 +43,13 @@ public class ExprDateInformation implements Expression<Object> {
     });
 
     static {
-        Parser.getMainRegistration().addExpression(
-            ExprDateInformation.class,
-            Object.class,
-            true,
-            "[the] " + NUMBER_VALUES.toChoiceGroup() + " (of|in) %date/time%",
-            "[the] " + STRING_VALUES.toChoiceGroup() + " [name] (of|in) [date] %date%"
-        );
+        Parser.getMainRegistration().newExpression(ExprDateInformation.class, Object.class, true,
+                "[the] " + NUMBER_VALUES.toChoiceGroup() + " (of|in) %date/time%",
+                "[the] " + STRING_VALUES.toChoiceGroup() + " [name] (of|in) [date] %date%")
+            .name("Date Information")
+            .description("Gets information about a certain date.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<?> value;

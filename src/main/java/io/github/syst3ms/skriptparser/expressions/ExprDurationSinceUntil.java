@@ -14,45 +14,45 @@ import java.time.Duration;
  * and the second one to compare with the future.
  * Note that the accuracy can be off some milliseconds.
  *
+ * @author Mwexim
  * @name Duration Since/Until
  * @type EXPRESSION
  * @pattern [the] (duration|time) [passed] since [date] %date%
  * @pattern [the] (duration|time) (until|till) [date] %date%
  * @since ALPHA
- * @author Mwexim
  */
 public class ExprDurationSinceUntil implements Expression<Duration> {
-	static {
-		Parser.getMainRegistration().addExpression(
-				ExprDurationSinceUntil.class,
-				Duration.class,
-				true,
-				"[the] (duration|time) [passed] since [date] %date%",
-				"[the] (duration|time) (until|till) [date] %date%"
-		);
-	}
+    static {
+        Parser.getMainRegistration().newExpression(ExprDurationSinceUntil.class, Duration.class, true,
+                "[the] (duration|time) [passed] since [date] %date%",
+                "[the] (duration|time) (until|till) [date] %date%")
+            .name("Duration Since/Until")
+            .description("Gets the duration between the given date and the current date.")
+            .since("1.0.0")
+            .register();
+    }
 
-	private Expression<SkriptDate> date;
-	private boolean past;
+    private Expression<SkriptDate> date;
+    private boolean past;
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		date = (Expression<SkriptDate>) expressions[0];
-		past = matchedPattern == 0;
-		return true;
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        date = (Expression<SkriptDate>) expressions[0];
+        past = matchedPattern == 0;
+        return true;
+    }
 
-	@Override
-	public Duration[] getValues(TriggerContext ctx) {
-		return date.getSingle(ctx)
-				.filter(da -> da.compareTo(SkriptDate.now()) < 0 || !past)
-				.map(da -> new Duration[] {da.difference(SkriptDate.now())})
-				.orElse(new Duration[0]);
-	}
+    @Override
+    public Duration[] getValues(TriggerContext ctx) {
+        return date.getSingle(ctx)
+            .filter(da -> da.compareTo(SkriptDate.now()) < 0 || !past)
+            .map(da -> new Duration[]{da.difference(SkriptDate.now())})
+            .orElse(new Duration[0]);
+    }
 
-	@Override
-	public String toString(TriggerContext ctx, boolean debug) {
-		return "duration " + (past ? "since " : "until ") + date.toString(ctx, debug);
-	}
+    @Override
+    public String toString(TriggerContext ctx, boolean debug) {
+        return "duration " + (past ? "since " : "until ") + date.toString(ctx, debug);
+    }
 }

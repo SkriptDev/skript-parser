@@ -20,12 +20,12 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  */
 public class CondExprIsDivisible extends PropertyConditional<Number> {
     static {
-        Parser.getMainRegistration().addPropertyConditional(
-            CondExprIsDivisible.class,
-            "numbers",
-            ConditionalType.BE,
-            "divisible by %integer%"
-        );
+        Parser.getMainRegistration().newPropertyConditional(CondExprIsDivisible.class,
+                "numbers", ConditionalType.BE, "divisible by %integer%")
+            .name("Is Divisible")
+            .description("Checks if a number is divisible by another number.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<Integer> divider;

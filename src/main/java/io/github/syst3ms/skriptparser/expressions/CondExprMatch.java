@@ -19,12 +19,12 @@ import java.util.regex.Pattern;
  */
 public class CondExprMatch extends ConditionalExpression {
     static {
-        Parser.getMainRegistration().addExpression(
-                CondExprMatch.class,
-                Boolean.class,
-                true,
-                "%strings% [1:do[es](n't| not)] [2:part[ial]ly] match[es] %strings%"
-        );
+        Parser.getMainRegistration().newExpression(CondExprMatch.class, Boolean.class, true,
+                "%strings% [1:do[es](n't| not)] [2:part[ial]ly] match[es] %strings%")
+            .name("Match")
+            .description("Checks if the given strings match a certain regex expression.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<String> matched;
