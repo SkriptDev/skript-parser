@@ -77,10 +77,10 @@ public class SkriptRegistration {
     private final List<ConverterInfo<?, ?>> converters = new ArrayList<>();
     private final List<TagInfo<? extends Tag>> tags = new ArrayList<>();
     private final List<SkriptEventInfo<?>> events = new ArrayList<>();
-    private final List<Type<?>> types = new ArrayList<>();
+    protected final List<Type<?>> types = new ArrayList<>();
     private final SkriptAddon registerer;
     private final SkriptLogger logger;
-    private boolean newTypes;
+    protected boolean newTypes;
 
     /**
      * Construct a SkriptRegistration around a SkriptAddon.
