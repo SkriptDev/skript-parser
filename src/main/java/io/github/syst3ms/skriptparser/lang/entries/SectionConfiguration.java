@@ -151,7 +151,7 @@ public class SectionConfiguration {
 
     public <T> Optional<Expression<T>> getExpression(String key, Class<T> cls) {
         Object o = this.data.get(key);
-        if (o instanceof Expression<?> expression && expression.getReturnType() == cls)  {
+        if (o instanceof Expression<?> expression && cls.isAssignableFrom(expression.getReturnType()))  {
             return (Optional<Expression<T>>) Optional.of((T) expression);
         }
         return Optional.empty();
