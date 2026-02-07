@@ -79,7 +79,11 @@ public class EffChange extends Effect {
 
         if (changeWith == null) {
             assert mode == ChangeMode.DELETE || mode == ChangeMode.RESET;
-            return changed.acceptsChange(mode).isPresent();
+            boolean present = changed.acceptsChange(mode).isPresent();
+            if (!present) {
+                logger.error("Cannot " + mode.name().toLowerCase() + " " + changedString, ErrorType.SEMANTIC_ERROR);
+            }
+            return present;
         } else {
             if (changed.acceptsChange(mode).isEmpty()) {
                 switch (mode) {
