@@ -98,7 +98,9 @@ public class ExprElement implements Expression<Object> {
                     case 1:
                         return new Object[]{values[values.length - 1]};
                     case 2:
-                        return new Object[]{values[random.nextInt(0, values.length - 1)]};
+                        int length = values.length - 1;
+                        if (length == 0) return new Object[]{values[0]};
+                        return new Object[]{values[random.nextInt(0, length)]};
                     case 3:
                         return new Object[]{values[r - 1]};
                     default:
