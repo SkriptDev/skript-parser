@@ -39,6 +39,9 @@ public class ContextExpression<C extends TriggerContext, T> implements Expressio
     @SuppressWarnings("unchecked")
     @Override
     public T[] getValues(TriggerContext ctx) {
+        if (!this.info.getContext().isAssignableFrom(ctx.getClass())) {
+            return (T[]) Array.newInstance(getReturnType(), 0);
+        }
         assert info.getContext().isInstance(ctx);
         if (info.isSingle()) {
             T apply = this.info.getSingleFunction().apply((C) ctx);
