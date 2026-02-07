@@ -284,6 +284,29 @@ public class Variables {
     }
 
     /**
+     * Get a copy of local variables from a trigger.
+     *
+     * @param from TriggerContext to get variables from
+     * @return A copy of local variables
+     */
+    public static VariableMap copyLocalVariables(TriggerContext from) {
+        if (localVariables.containsKey(from)) {
+            return localVariables.get(from);
+        }
+        return new VariableMap();
+    }
+
+    /**
+     * Set the local variables for a specific TriggerContext.
+     *
+     * @param context The TriggerContext to set variables for
+     * @param map     The VariableMap to set
+     */
+    public static void setLocalVariables(TriggerContext context, VariableMap map) {
+        localVariables.put(context, map);
+    }
+
+    /**
      * Clear local variables for a specific TriggerContext.
      *
      * @param ctx The TriggerContext to clear variables for
