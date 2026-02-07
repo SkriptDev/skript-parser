@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.structures.functions.Functions;
+import io.github.syst3ms.skriptparser.variables.Variables;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,14 +68,14 @@ public class TriggerMap {
 
     /**
      * Call a trigger with a specific {@link TriggerContext}.
+     * Do note this will clear all local variables when it's done running.
      *
      * @param context Trigger context to call triggers for
      * @param <T>     Trigger context type
      */
     public static <T extends TriggerContext> void callTriggersByContext(T context) {
-        TRIGGERS.values().stream()
-            .flatMap(m -> m.getOrDefault(context.getClass(), List.of()).stream())
-            .forEach(trigger -> Statement.runAll(trigger, context));
+        getTriggersByContext(context.getClass()).forEach(t -> Statement.runAll(t, context));
+        Variables.clearLocalVariables(context);
     }
 
 }

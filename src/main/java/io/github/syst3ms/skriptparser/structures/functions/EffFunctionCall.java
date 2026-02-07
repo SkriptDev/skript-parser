@@ -1,7 +1,6 @@
 package io.github.syst3ms.skriptparser.structures.functions;
 
 import io.github.syst3ms.skriptparser.Parser;
-import io.github.syst3ms.skriptparser.docs.Documentation;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.ExpressionList;

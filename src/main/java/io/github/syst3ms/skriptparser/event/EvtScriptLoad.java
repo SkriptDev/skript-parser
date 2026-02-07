@@ -1,14 +1,12 @@
 package io.github.syst3ms.skriptparser.event;
 
-import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
-import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
-import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.TriggerMap;
+import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.event.StartOnLoadEvent;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.registration.context.ContextValue;
 
 /**
  * The script loading event.
@@ -49,6 +47,6 @@ public class EvtScriptLoad extends SkriptEvent implements StartOnLoadEvent {
 
     @Override
     public void onInitialLoad(Trigger trigger) {
-        Statement.runAll(trigger, new ScriptLoadContext(null));
+        TriggerMap.callTriggersByContext(new ScriptLoadContext(null));
     }
 }

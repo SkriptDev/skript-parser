@@ -94,7 +94,8 @@ public abstract class Statement implements SyntaxElement {
     }
 
     /**
-     * Runs all code starting at a given point sequentially
+     * Runs all code starting at a given point sequentially.
+     * Do note this will not clear local variables after running.
      *
      * @param start   the Statement the method should first run
      * @param context the context

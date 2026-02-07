@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.types.ranges;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
