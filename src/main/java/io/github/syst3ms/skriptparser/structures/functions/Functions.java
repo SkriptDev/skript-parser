@@ -4,6 +4,8 @@ import io.github.syst3ms.skriptparser.docs.Documentation;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
+import io.github.syst3ms.skriptparser.registration.SkriptAddon;
+import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,6 +17,7 @@ import java.util.regex.Pattern;
 public class Functions {
 
     private static final Map<String, List<Function<?>>> functionsMap = new HashMap<>();
+    private static final Map<SkriptAddon, List<Function<?>>> FUNCTIONS_BY_ADDON = new HashMap<>();
 
     private static final String JAVA_FUNCTION_NAME = "java_functions_dont_change";
     static final String FUNCTION_NAME_REGEX = "^[a-zA-Z0-9_]*";
@@ -32,8 +35,8 @@ public class Functions {
         return functionsMap.values().stream().flatMap(List::stream).toList();
     }
 
-    public static List<Function<?>> getJavaFunctions() {
-        return functionsMap.getOrDefault(JAVA_FUNCTION_NAME, List.of());
+    public static List<Function<?>> getJavaFunctions(SkriptRegistration registration) {
+        return FUNCTIONS_BY_ADDON.getOrDefault(registration.getRegisterer(), List.of());
     }
 
     static void preRegisterFunction(ScriptFunction<?> function) {
@@ -56,8 +59,9 @@ public class Functions {
         functionsMap.put(scriptName, new ArrayList<>());
     }
 
-    public static void registerFunction(JavaFunction<?> function) {
+    public static void registerFunction(SkriptRegistration registration, JavaFunction<?> function) {
         functionsMap.computeIfAbsent(JAVA_FUNCTION_NAME, k -> new ArrayList<>()).add(function);
+        FUNCTIONS_BY_ADDON.computeIfAbsent(registration.getRegisterer(), k -> new ArrayList<>()).add(function);
     }
 
     public static boolean isValidFunction(ScriptFunction<?> function, SkriptLogger logger) {
@@ -124,15 +128,17 @@ public class Functions {
     }
 
 
-    public static FunctionDefinition newJavaFunction(JavaFunction<?> function) {
-        return new FunctionDefinition(function);
+    public static FunctionDefinition newJavaFunction(SkriptRegistration registration, JavaFunction<?> function) {
+        return new FunctionDefinition(registration, function);
     }
 
     public static class FunctionDefinition {
+        private final SkriptRegistration registration;
         private final Documentation documentation = new Documentation();
         private final JavaFunction<?> function;
 
-        public FunctionDefinition(JavaFunction<?> function) {
+        public FunctionDefinition(SkriptRegistration registration, JavaFunction<?> function) {
+            this.registration = registration;
             this.function = function;
         }
 
@@ -178,7 +184,7 @@ public class Functions {
 
         public void register() {
             this.function.setDocumentation(this.documentation);
-            Functions.registerFunction(this.function);
+            Functions.registerFunction(this.registration, this.function);
         }
     }
 }

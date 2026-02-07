@@ -10,6 +10,7 @@ import io.github.syst3ms.skriptparser.sections.SecLoop;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.types.conversions.Converters;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -41,8 +42,11 @@ public interface Expression<T> extends SyntaxElement {
      * @param ctx the event
      * @return an array of the raw values
      */
+    @SuppressWarnings("unchecked")
     default T[] getArray(TriggerContext ctx) {
-        return getValues(ctx);
+        T[] values = getValues(ctx);
+        if (values == null) return (T[]) Array.newInstance(getReturnType(), 0);
+        return values;
     }
 
     /**

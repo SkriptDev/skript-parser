@@ -1,9 +1,13 @@
 package io.github.syst3ms.skriptparser.structures.functions;
 
+import io.github.syst3ms.skriptparser.Parser;
+import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
+
 public class DefaultFunctions {
 
     static {
-        Functions.newJavaFunction(new JavaFunction<>(
+        SkriptRegistration reg = Parser.getMainRegistration();
+        Functions.newJavaFunction(reg,new JavaFunction<>(
                 "mod",
                 new FunctionParameter[]{new FunctionParameter<>("i", Number.class, true), new FunctionParameter<>("m", Number.class, true)},
                 Number.class,

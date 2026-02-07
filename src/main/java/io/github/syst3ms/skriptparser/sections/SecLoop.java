@@ -18,7 +18,6 @@ import io.github.syst3ms.skriptparser.parsing.ParserState;
 import io.github.syst3ms.skriptparser.types.ranges.Ranges;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Optional;
 

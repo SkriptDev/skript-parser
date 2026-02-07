@@ -4,7 +4,6 @@ import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.util.math.NumberMath;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -99,7 +98,9 @@ public class ExprElement implements Expression<Object> {
                     case 1:
                         return new Object[]{values[values.length - 1]};
                     case 2:
-                        return new Object[]{values[NumberMath.random(0, values.length - 1, true, random).intValue()]};
+                        int length = values.length - 1;
+                        if (length == 0) return new Object[]{values[0]};
+                        return new Object[]{values[random.nextInt(0, length)]};
                     case 3:
                         return new Object[]{values[r - 1]};
                     default:

@@ -7,7 +7,6 @@ import io.github.syst3ms.skriptparser.types.Type;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**

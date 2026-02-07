@@ -1,6 +1,5 @@
 package io.github.syst3ms.skriptparser.effects;
 
-import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
