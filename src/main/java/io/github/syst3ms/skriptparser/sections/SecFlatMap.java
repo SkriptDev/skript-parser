@@ -38,10 +38,12 @@ import java.util.Optional;
  */
 public class SecFlatMap extends ReturnSection<Object> implements SelfReferencing {
     static {
-        Parser.getMainRegistration().addSection(
+        Parser.getMainRegistration().newSection(
                 SecFlatMap.class,
-                "flat map %~objects%|map %~objects% flat"
-        );
+                "flat map %~objects%|map %~objects% flat")
+			.name("Flat Map")
+			.description("Maps the returned value(s) to the values of a given expression, one by one.") // TODO BETTER DOCS
+			.since("1.0.0");
     }
 
     private Expression<?> flatMapped;

@@ -23,6 +23,7 @@ public class CondExprIsPrime extends PropertyConditional<Number> {
             .name("Is Prime")
             .description("Checks if a number is a prime number.")
             .examples("if 99 is prime:")
+            .since("1.0.0")
             .register();
     }
 

@@ -34,10 +34,14 @@ import java.util.Optional;
  */
 public class SecFilter extends ReturnSection<Boolean> implements SelfReferencing {
     static {
-        Parser.getMainRegistration().addSection(
+        Parser.getMainRegistration().newSection(
                 SecFilter.class,
-                "filter %~objects%"
-        );
+                "filter %~objects%")
+            .name("Filter")
+            .description("Filters the given input values one by one, deciding whether to keep each argument or not.",
+                "Note that the filtered expression will be changed, hence why it can't be a literal list.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<?> filtered;

@@ -9,12 +9,15 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 
 public class ExprSingleParameter extends SectionValue<ArgumentSection, Object> {
     static {
-        Parser.getMainRegistration().addExpression(
+        Parser.getMainRegistration().newExpression(
                 ExprSingleParameter.class,
                 Object.class,
                 true,
-                "[the] (input|parameter)"
-        );
+                "[the] (input|parameter)")
+            .name("Single Parameter")
+            .description("Returns the input of a section expression.")
+            .since("1.0.0")
+            .register();
     }
 
     @Override

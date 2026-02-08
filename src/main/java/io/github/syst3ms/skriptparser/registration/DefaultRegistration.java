@@ -288,6 +288,7 @@ public class DefaultRegistration {
 
         registration.newType(FunctionParameter.class, "functionparameter", "functionparameter@s")
             .toStringFunction(parameter -> parameter.getName() + ": " + parameter.getType().getName())
+            .noDoc()
             .register();
 
         registration.newType(Color.class, "color", "color@s")

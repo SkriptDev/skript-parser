@@ -14,12 +14,13 @@ import io.github.syst3ms.skriptparser.types.TypeManager;
 public class LitFunctionParameter implements Literal<FunctionParameter> {
 
     static {
-        Parser.getMainRegistration().addExpression(
+        Parser.getMainRegistration().newExpression(
                 LitFunctionParameter.class,
                 FunctionParameter.class,
                 true,
-                "<" + Functions.FUNCTION_NAME_REGEX + ">\\: <.+>"
-        );
+                "<" + Functions.FUNCTION_NAME_REGEX + ">\\: <.+>")
+            .noDoc()
+            .register();
     }
 
     private String name;
@@ -30,7 +31,7 @@ public class LitFunctionParameter implements Literal<FunctionParameter> {
 
     @Override
     public FunctionParameter<?>[] getValues() {
-        return new FunctionParameter[] {new FunctionParameter<>(name, typeClass, single)};
+        return new FunctionParameter[]{new FunctionParameter<>(name, typeClass, single)};
     }
 
     @Override
