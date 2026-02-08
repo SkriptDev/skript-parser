@@ -297,6 +297,19 @@ public class DefaultRegistration {
             .since("1.0.0")
             .literalParser(s -> Color.ofLiteral(s).orElse(null))
             .toStringFunction(Color::toString)
+            .serializer(new TypeSerializer<>() {
+                @Override
+                public JsonElement serialize(Gson gson, Color value) {
+                    return gson.toJsonTree(value.toJavaColor().getRGB(), Integer.class);
+                }
+
+                @Override
+                public Color deserialize(Gson gson, JsonElement json) {
+                    int asInt = json.getAsInt();
+                    java.awt.Color color = new java.awt.Color(asInt);
+                    return Color.of(color.getRed(), color.getGreen(), color.getBlue()).orElseThrow();
+                }
+            })
             .register();
 
         registration.newType(Duration.class, "duration", "duration@s")
@@ -306,6 +319,17 @@ public class DefaultRegistration {
             .since("1.0.0")
             .literalParser(s -> DurationUtils.parseDuration(s).orElse(null))
             .toStringFunction(DurationUtils::toStringDuration)
+            .serializer(new TypeSerializer<>() {
+                @Override
+                public JsonElement serialize(Gson gson, Duration value) {
+                    return gson.toJsonTree(value.toMillis(), Long.class);
+                }
+
+                @Override
+                public Duration deserialize(Gson gson, JsonElement element) {
+                    return Duration.ofMillis(element.getAsLong());
+                }
+            })
             .arithmetic(new Arithmetic<Duration, Duration>() {
                 @Override
                 public Duration difference(Duration first, Duration second) {
@@ -352,6 +376,17 @@ public class DefaultRegistration {
                     return Duration.class;
                 }
             })
+            .serializer(new TypeSerializer<>() {
+                @Override
+                public JsonElement serialize(Gson gson, SkriptDate value) {
+                    return gson.toJsonTree(value.getTimestamp(), String.class);
+                }
+
+                @Override
+                public SkriptDate deserialize(Gson gson, JsonElement element) {
+                    return SkriptDate.of(element.getAsLong());
+                }
+            })
             .name("Date")
             .description("A date, represented as a string in the format 'yyyy-MM-dd HH:mm:ss'.")
             .since("1.0.0")
@@ -387,12 +422,12 @@ public class DefaultRegistration {
             .serializer(new TypeSerializer<>() {
                 @Override
                 public JsonElement serialize(Gson gson, Time value) {
-                    int nano = value.getTime().getNano();
-                    return gson.toJsonTree(nano, Integer.class);
+                    long nano = value.getTime().toNanoOfDay();
+                    return gson.toJsonTree(nano, Long.class);
                 }
                 @Override
                 public Time deserialize(Gson gson, JsonElement element) {
-                    int asInt = element.getAsInt();
+                    long asInt = element.getAsLong();
                     LocalTime localTime = LocalTime.ofNanoOfDay(asInt);
                     return Time.of(localTime);
                 }
