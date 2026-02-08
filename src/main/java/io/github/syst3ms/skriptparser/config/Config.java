@@ -83,7 +83,7 @@ public class Config {
         for (FileElement fileElement : this.fileElements) {
             if (fileElement instanceof FileSection sec) {
                 String s = sec.getLineContent().split(OptionLoader.OPTION_SPLIT_PATTERN)[0];
-                ConfigSection configSection = new ConfigSection(s,sec);
+                ConfigSection configSection = new ConfigSection(s, sec);
                 T value = configSection.getConfigValue(key, classType);
                 if (value != null)
                     return value;
@@ -99,6 +99,16 @@ public class Config {
                 String content = split[1];
                 if (classType.equals(String.class)) {
                     return (T) content;
+                } else if (classType.equals(Boolean.class)) {
+                    boolean b = Boolean.parseBoolean(content);
+                    return (T) Boolean.valueOf(b);
+                } else if (classType.equals(Integer.class)) {
+                    try {
+                        int i = Integer.parseInt(content);
+                        return (T) Integer.valueOf(i);
+                    } catch (NumberFormatException e) {
+                        return (T) Integer.valueOf(-1);
+                    }
                 }
 
                 Optional<? extends Type<T>> type = TypeManager.getByClassExact(classType);
@@ -183,8 +193,19 @@ public class Config {
             }
 
             String content = split[1];
-            if (classType.equals(String.class))
+            if (classType.equals(String.class)) {
                 return (T) content;
+            } else if (classType.equals(Boolean.class)) {
+                boolean b = Boolean.parseBoolean(content);
+                return (T) Boolean.valueOf(b);
+            } else if (classType.equals(Integer.class)) {
+                try {
+                    int i = Integer.parseInt(content);
+                    return (T) Integer.valueOf(i);
+                } catch (NumberFormatException e) {
+                    return (T) Integer.valueOf(-1);
+                }
+            }
 
             Optional<? extends Type<T>> type = TypeManager.getByClassExact(classType);
             if (type.isEmpty()) {
