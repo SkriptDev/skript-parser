@@ -98,7 +98,6 @@ public class Variables {
     public static void load(SkriptLogger logger, ConfigSection section) throws IllegalArgumentException {
         for (ConfigSection databaseSection : section.getSections()) {
             String databaseName = databaseSection.getName();
-            logger.info("Loading database '" + databaseName + "'");
 
             boolean enabled = databaseSection.getBoolean("enabled");
             if (!enabled) {
