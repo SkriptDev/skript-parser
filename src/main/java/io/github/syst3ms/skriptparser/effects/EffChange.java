@@ -32,7 +32,6 @@ public class EffChange extends Effect {
         {"set %~objects% to %objects%", ChangeMode.SET},
         {"%~objects% = %objects%", ChangeMode.SET},
         {"add %objects% to %~objects%", ChangeMode.ADD},
-        {"give %objects% to %~objects%", ChangeMode.ADD},
         {"%~objects% += %objects%", ChangeMode.ADD},
         {"remove %objects% from %~objects%", ChangeMode.REMOVE},
         {"%~objects% -= %objects%", ChangeMode.REMOVE},
