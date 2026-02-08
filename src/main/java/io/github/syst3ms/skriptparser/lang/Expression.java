@@ -152,7 +152,11 @@ public interface Expression<T> extends SyntaxElement {
      * @return a stream of the values of this expression
      */
     default Stream<? extends T> stream(TriggerContext ctx) {
-        return Arrays.stream(getValues(ctx));
+        T[] values = getValues(ctx);
+        if (values != null && values.length > 0) {
+            return Arrays.stream(values);
+        }
+        return Stream.empty();
     }
 
     /**
