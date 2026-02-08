@@ -90,12 +90,16 @@ public class Config {
             } else {
                 String[] split = fileElement.getLineContent().split(OptionLoader.OPTION_SPLIT_PATTERN);
                 if (split.length < 2) {
-                    return null;
+                    continue;
+                }
+                if (!split[0].equals(key)) {
+                    continue;
                 }
 
                 String content = split[1];
-                if (classType.equals(String.class))
+                if (classType.equals(String.class)) {
                     return (T) content;
+                }
 
                 Optional<? extends Type<T>> type = TypeManager.getByClassExact(classType);
                 if (type.isEmpty()) {
@@ -171,6 +175,10 @@ public class Config {
             }
             String[] split = value.get().getLineContent().split(OptionLoader.OPTION_SPLIT_PATTERN);
             if (split.length < 2) {
+                return null;
+            }
+
+            if (!split[0].equals(key)) {
                 return null;
             }
 
