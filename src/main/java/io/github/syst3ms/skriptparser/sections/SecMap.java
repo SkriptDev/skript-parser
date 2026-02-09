@@ -27,114 +27,120 @@ import java.util.Optional;
  * returned value from the function.
  * Note that the mapped expression will be changed, hence why it can't be a literal list.
  *
+ * @author Mwexim
  * @name Map
  * @type SECTION
  * @pattern map %~objects%
  * @since ALPHA
- * @author Mwexim
  */
 public class SecMap extends ReturnSection<Object> implements SelfReferencing {
     static {
-        Parser.getMainRegistration().addSection(
+        Parser.getMainRegistration().newSection(
                 SecMap.class,
-                "map %~objects%"
-        );
+                "map %~objects%")
+            .name("Map")
+            .description("Maps the returned value to the values of a given expression, one by one.",
+                "This means that this sections loops over each value of the expression and replaces it with the " +
+                    "returned value from the function",
+                "Note that the mapped expression will be changed, hence why it can't be a literal list.")
+            .since("1.0.0")
+            .register();
     }
 
-	private Expression<?> mapped;
+    private Expression<?> mapped;
 
-	@Nullable
-	private Statement actualNext;
-	@Nullable
-	private Iterator<?> iterator;
-	private final List<Object> result = new ArrayList<>();
+    @Nullable
+    private Statement actualNext;
+    @Nullable
+    private Iterator<?> iterator;
+    private final List<Object> result = new ArrayList<>();
 
-	@Override
-	public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
-		var currentLine = logger.getLine();
-		super.setNext(this);
-		return super.loadSection(section, parserState, logger) && checkReturns(logger, currentLine, true);
-	}
+    @Override
+    public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+        var currentLine = logger.getLine();
+        super.setNext(this);
+        return super.loadSection(section, parserState, logger) && checkReturns(logger, currentLine, true);
+    }
 
-	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		mapped = expressions[0];
-		var logger = parseContext.getLogger();
-		if (!mapped.acceptsChange(ChangeMode.SET, mapped)
-				|| mapped.acceptsChange(ChangeMode.DELETE).isEmpty()) {
-			logger.error(
-					"The expression '" +
-							mapped.toString(TriggerContext.DUMMY, logger.isDebug()) +
-							"' cannot be changed",
-					ErrorType.SEMANTIC_ERROR
-			);
-			return false;
-		}
-		return true;
-	}
+    @Override
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        mapped = expressions[0];
+        var logger = parseContext.getLogger();
+        if (!mapped.acceptsChange(ChangeMode.SET, mapped)
+            || mapped.acceptsChange(ChangeMode.DELETE).isEmpty()) {
+            logger.error(
+                "The expression '" +
+                    mapped.toString(TriggerContext.DUMMY, logger.isDebug()) +
+                    "' cannot be changed",
+                ErrorType.SEMANTIC_ERROR
+            );
+            return false;
+        }
+        return true;
+    }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public Optional<? extends Statement> walk(TriggerContext ctx) {
-		boolean isVariable = mapped instanceof Variable<?>;
-		if (iterator == null)
-			iterator = isVariable
-					? ((Variable<?>) mapped).variablesIterator(ctx)
-					: mapped.iterator(ctx);
+    @SuppressWarnings("unchecked")
+    @Override
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
+        boolean isVariable = mapped instanceof Variable<?>;
+        if (iterator == null)
+            iterator = isVariable
+                ? ((Variable<?>) mapped).variablesIterator(ctx)
+                : mapped.iterator(ctx);
 
-		if (iterator.hasNext()) {
-			setArguments(isVariable
-					? ((Pair<String, Object>) iterator.next()).getSecond()
-					: iterator.next()
-			);
-			return start();
-		} else {
-			if (result.size() == 0) {
-				mapped.change(ctx, ChangeMode.DELETE, new Object[0]);
-			} else {
-				mapped.change(ctx, ChangeMode.SET, result.toArray());
-			}
-			finish();
-			return Optional.ofNullable(actualNext);
-		}
-	}
+        if (iterator.hasNext()) {
+            setArguments(isVariable
+                ? ((Pair<String, Object>) iterator.next()).getSecond()
+                : iterator.next()
+            );
+            return start();
+        } else {
+            if (result.size() == 0) {
+                mapped.change(ctx, ChangeMode.DELETE, new Object[0]);
+            } else {
+                mapped.change(ctx, ChangeMode.SET, result.toArray());
+            }
+            finish();
+            return Optional.ofNullable(actualNext);
+        }
+    }
 
-	@Override
-	public void step(Statement item) {
-		assert getArguments().length == 1;
-		if (getReturned().isPresent()) {
-			assert getReturned().get().length == 1;
-			result.add(getReturned().get()[0]); // We add the filtered argument to the result
-		}
-	}
+    @Override
+    public void step(Statement item) {
+        assert getArguments().length == 1;
+        if (getReturned().isPresent()) {
+            assert getReturned().get().length == 1;
+            result.add(getReturned().get()[0]); // We add the filtered argument to the result
+        }
+    }
 
-	@Override
-	public void finish() {
-		// Cache clearing
-		iterator = null;
-		result.clear();
-	}
+    @Override
+    public void finish() {
+        // Cache clearing
+        iterator = null;
+        result.clear();
+    }
 
-	@Override
-	public Class<?> getReturnType() {
-		return mapped.getReturnType();
-	}
+    @Override
+    public Class<?> getReturnType() {
+        return mapped.getReturnType();
+    }
 
-	@Override
-	public boolean isSingle() {
-		return true;
-	}
+    @Override
+    public boolean isSingle() {
+        return true;
+    }
 
-	@Override
-	public Statement setNext(@Nullable Statement next) {
-		actualNext = next;
-		return this;
-	}
+    @Override
+    public Statement setNext(@Nullable Statement next) {
+        actualNext = next;
+        return this;
+    }
 
-	@Override
-	public Optional<Statement> getActualNext() {
-		return Optional.ofNullable(actualNext);
-	}
+    @Override
+    public Optional<Statement> getActualNext() {
+        return Optional.ofNullable(actualNext);
+    }
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {

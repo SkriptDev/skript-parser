@@ -14,7 +14,7 @@ dependencies {
     implementation("com.google.code.findbugs:jsr305:3.0.2")
     testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.4.1")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.4.1")
-    implementation ("com.google.code.gson:gson:2.13.2")
+    implementation("com.google.code.gson:gson:2.13.2")
     testImplementation("junit:junit:4.12")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.4.1")
 }
@@ -28,6 +28,12 @@ tasks {
     register("sourcesJar", Jar::class) {
         archiveClassifier.set("sources")
         from(sourceSets.main.get().allSource)
+    }
+    // Publish this project to maven local, then run the server task on the other repo
+    register<Exec>("server") {
+        dependsOn("publishToMavenLocal")
+        workingDir = file("../HySkript")
+        commandLine("./gradlew", "server")
     }
     javadoc {
         title = "Skript-Parser API - " + project.version

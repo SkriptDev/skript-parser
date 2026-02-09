@@ -18,18 +18,21 @@ import java.time.Duration;
  * This event will trigger each day at a given time.
  * Note that this may have some delay. The event certainly isn't accurate to the millisecond.
  *
+ * @author Mwexim
  * @name At Time
  * @type EVENT
  * @pattern at %*time%
  * @since ALPHA
- * @author Mwexim
  */
 public class EvtAtTime extends SkriptEvent implements StartOnLoadEvent {
     static {
         Parser.getMainRegistration()
-                .newEvent(EvtAtTime.class, "*at %*time%")
-                .setHandledContexts(AtTimeContext.class)
-                .register();
+            .newEvent(EvtAtTime.class, "*at %*time%")
+            .setHandledContexts(AtTimeContext.class)
+            .name("At Time")
+            .description("Triggered every day at a given time.")
+            .since("1.0.0")
+            .register();
     }
 
     private Literal<Time> time;

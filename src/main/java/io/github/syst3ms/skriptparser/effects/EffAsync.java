@@ -22,17 +22,22 @@ import io.github.syst3ms.skriptparser.util.ThreadUtils;
  */
 public class EffAsync extends Effect {
     static {
-        Parser.getMainRegistration().addEffect(
-            EffAsync.class,
-            3,
-            "async[hronous[ly]] [do|execute] <.+>"
-        );
+        Parser.getMainRegistration().newEffect(EffAsync.class,
+            "async[hronous[ly]] [do|execute] <.+>")
+            .setPriority(3)
+            .name("Async")
+            .description("Runs this effect asynchronously.")
+            .experimental("This should be used with caution as it can lead to unexpected behavior " +
+                "if not used properly.")
+            .since("1.0.0")
+            .register();
     }
 
     private Effect effect;
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        parseContext.getParserState().setDelayed(true);
         String expr = parseContext.getMatches().get(0).group();
         parseContext.getLogger().recurse();
         effect = SyntaxParser.parseEffect(expr, parseContext.getParserState(), parseContext.getLogger()).orElse(null);

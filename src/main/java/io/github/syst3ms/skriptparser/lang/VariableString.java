@@ -198,7 +198,7 @@ public class VariableString extends TaggedExpression {
         for (int i = 0; i < actualData.length; i++) {
             var o = actualData[i];
             if (o instanceof Expression) {
-                sb.append(TypeManager.toString(((Expression<?>) o).getValues(ctx)));
+                sb.append(TypeManager.toString(((Expression<?>) o).getValues(ctx), TypeManager.StringMode.VARIABLE));
             } else if (o instanceof Tag) {
                 ongoingTags.add((Tag) o);
                 int indexOfNext = CollectionUtils.ordinalConditionalIndexOf(actualData, ++currentTags, t -> t instanceof Tag);

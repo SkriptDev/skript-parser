@@ -28,6 +28,7 @@ public class Config {
     private final SkriptLogger logger;
     private final List<FileElement> fileElements;
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public Config(Path path, String resourceToCopy, SkriptLogger logger) {
         this.logger = logger;
         File file = path.toFile();
@@ -65,17 +66,31 @@ public class Config {
     }
 
     public @Nullable String getString(String key) {
-        return getConfigValue(key, String.class);
+        return getString(key, null);
+    }
+
+    public @Nullable String getString(String key, String defaultValue) {
+        String configValue = getConfigValue(key, String.class);
+        if (configValue == null) return defaultValue;
+        return configValue;
     }
 
     public int getInt(String key) {
+        return getInt(key, -1);
+    }
+
+    public int getInt(String key, int defaultValue) {
         Integer configValue = getConfigValue(key, Integer.class);
-        return configValue != null ? configValue : -1;
+        return configValue != null ? configValue : defaultValue;
     }
 
     public boolean getBoolean(String key) {
+        return getBoolean(key, false);
+    }
+
+    public boolean getBoolean(String key, boolean defaultValue) {
         Boolean configValue = getConfigValue(key, Boolean.class);
-        return configValue != null ? configValue : false;
+        return configValue != null ? configValue : defaultValue;
     }
 
     @SuppressWarnings("unchecked")
@@ -83,19 +98,35 @@ public class Config {
         for (FileElement fileElement : this.fileElements) {
             if (fileElement instanceof FileSection sec) {
                 String s = sec.getLineContent().split(OptionLoader.OPTION_SPLIT_PATTERN)[0];
-                ConfigSection configSection = new ConfigSection(s,sec);
+                if (!s.equalsIgnoreCase(key)) continue;
+
+                ConfigSection configSection = new ConfigSection(s, sec);
                 T value = configSection.getConfigValue(key, classType);
                 if (value != null)
                     return value;
             } else {
                 String[] split = fileElement.getLineContent().split(OptionLoader.OPTION_SPLIT_PATTERN);
                 if (split.length < 2) {
-                    return null;
+                    continue;
+                }
+                if (!split[0].equals(key)) {
+                    continue;
                 }
 
                 String content = split[1];
-                if (classType.equals(String.class))
+                if (classType.equals(String.class)) {
                     return (T) content;
+                } else if (classType.equals(Boolean.class)) {
+                    boolean b = Boolean.parseBoolean(content);
+                    return (T) Boolean.valueOf(b);
+                } else if (classType.equals(Integer.class)) {
+                    try {
+                        int i = Integer.parseInt(content);
+                        return (T) Integer.valueOf(i);
+                    } catch (NumberFormatException e) {
+                        return (T) Integer.valueOf(-1);
+                    }
+                }
 
                 Optional<? extends Type<T>> type = TypeManager.getByClassExact(classType);
                 if (type.isEmpty()) {
@@ -149,19 +180,32 @@ public class Config {
         }
 
         public @Nullable String getString(String key) {
-            return getConfigValue(key, String.class);
+            return getString(key, null);
+        }
+
+        public @Nullable String getString(String key, String defaultValue) {
+            String configValue = getConfigValue(key, String.class);
+            if (configValue == null) return defaultValue;
+            return configValue;
         }
 
         public int getInt(String key) {
+            return getInt(key, -1);
+        }
+
+        public int getInt(String key, int defaultValue) {
             Integer configValue = getConfigValue(key, Integer.class);
-            return configValue != null ? configValue : -1;
+            return configValue != null ? configValue : defaultValue;
         }
 
         public boolean getBoolean(String key) {
-            Boolean configValue = getConfigValue(key, Boolean.class);
-            return configValue != null ? configValue : false;
+            return getBoolean(key, false);
         }
 
+        public boolean getBoolean(String key, boolean defaultValue) {
+            Boolean configValue = getConfigValue(key, Boolean.class);
+            return configValue != null ? configValue : defaultValue;
+        }
 
         @SuppressWarnings("unchecked")
         public <T> @Nullable T getConfigValue(String key, Class<T> classType) {
@@ -174,9 +218,24 @@ public class Config {
                 return null;
             }
 
+            if (!split[0].equals(key)) {
+                return null;
+            }
+
             String content = split[1];
-            if (classType.equals(String.class))
+            if (classType.equals(String.class)) {
                 return (T) content;
+            } else if (classType.equals(Boolean.class)) {
+                boolean b = Boolean.parseBoolean(content);
+                return (T) Boolean.valueOf(b);
+            } else if (classType.equals(Integer.class)) {
+                try {
+                    int i = Integer.parseInt(content);
+                    return (T) Integer.valueOf(i);
+                } catch (NumberFormatException e) {
+                    return (T) Integer.valueOf(-1);
+                }
+            }
 
             Optional<? extends Type<T>> type = TypeManager.getByClassExact(classType);
             if (type.isEmpty()) {

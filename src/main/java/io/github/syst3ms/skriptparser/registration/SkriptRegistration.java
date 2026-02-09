@@ -42,6 +42,7 @@ import io.github.syst3ms.skriptparser.types.conversions.Converters;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 import io.github.syst3ms.skriptparser.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -718,6 +719,7 @@ public class SkriptRegistration {
         private final String baseName;
         private final String pattern;
         private Function<? super C, String> toStringFunction = o -> Objects.toString(o, TypeManager.NULL_REPRESENTATION);
+        @Nullable private Function<? super C, String> toVariableNameFunction;
         @Nullable
         private Function<String, ? extends C> literalParser;
         @Nullable
@@ -752,6 +754,11 @@ public class SkriptRegistration {
          */
         public TypeRegistrar<C> toStringFunction(Function<? super C, String> toStringFunction) {
             this.toStringFunction = c -> c == null ? TypeManager.NULL_REPRESENTATION : toStringFunction.apply(c);
+            return this;
+        }
+
+        public TypeRegistrar<C> toVariableNameFunction(@NotNull Function<? super C, String> toVariableNameFunction) {
+            this.toVariableNameFunction = toVariableNameFunction;
             return this;
         }
 
@@ -833,7 +840,7 @@ public class SkriptRegistration {
         @Override
         public void register() {
             newTypes = true;
-            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic, documentation, serializer, this.supplier));
+            types.add(new Type<>(c, baseName, pattern, literalParser, toStringFunction, toVariableNameFunction, defaultChanger, arithmetic, documentation, serializer, this.supplier));
         }
     }
 

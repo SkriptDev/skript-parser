@@ -27,10 +27,12 @@ import java.util.Optional;
  */
 public class SecAsync extends CodeSection {
     static {
-        Parser.getMainRegistration().addSection(
-                SecAsync.class,
-                "async[hronous[ly]]"
-        );
+        Parser.getMainRegistration().newSection(SecAsync.class, "async[hronous[ly]]")
+            .name("Async")
+            .description("Runs the code in this section asynchronously.",
+                "Do note that world effects (such as blocks/players/entities) should not be run off the world thread.")
+            .since("1.0.0")
+            .register();
     }
 
     @Override
@@ -40,6 +42,7 @@ public class SecAsync extends CodeSection {
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        parseContext.getParserState().setDelayed(true);
         return true;
     }
 

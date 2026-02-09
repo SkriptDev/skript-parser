@@ -17,18 +17,21 @@ import java.time.Duration;
  * This event will check against a certain condition and will trigger when the condition is met.
  * Note that this condition is checked each tick, which is defined as 50ms.
  *
+ * @author Mwexim
  * @name When
  * @type EVENT
  * @pattern when %=boolean%
  * @since ALPHA
- * @author Mwexim
  */
 public class EvtWhen extends SkriptEvent implements StartOnLoadEvent {
     static {
         Parser.getMainRegistration()
-                .newEvent(EvtWhen.class, "*when %=boolean%")
-                .setHandledContexts(WhenContext.class)
-                .register();
+            .newEvent(EvtWhen.class, "*when %=boolean%")
+            .setHandledContexts(WhenContext.class)
+            .name("When")
+            .description("Triggered when a certain condition is met.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<Boolean> condition;
