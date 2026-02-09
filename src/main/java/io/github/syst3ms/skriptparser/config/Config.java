@@ -28,13 +28,12 @@ public class Config {
     private final SkriptLogger logger;
     private final List<FileElement> fileElements;
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     public Config(Path path, String resourceToCopy, SkriptLogger logger) {
         this.logger = logger;
         File file = path.toFile();
         if (!file.exists()) {
-            if (!file.getParentFile().mkdirs()) {
-                throw new RuntimeException("Failed to create directory for config file");
-            }
+            file.getParentFile().mkdirs();
             try {
                 InputStream resourceAsStream = Config.class.getResourceAsStream(resourceToCopy);
                 if (resourceAsStream == null) {
