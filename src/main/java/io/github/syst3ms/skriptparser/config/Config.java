@@ -32,7 +32,9 @@ public class Config {
         this.logger = logger;
         File file = path.toFile();
         if (!file.exists()) {
-            file.getParentFile().mkdirs();
+            if (!file.getParentFile().mkdirs()) {
+                throw new RuntimeException("Failed to create directory for config file");
+            }
             try {
                 InputStream resourceAsStream = Config.class.getResourceAsStream(resourceToCopy);
                 if (resourceAsStream == null) {
@@ -65,17 +67,31 @@ public class Config {
     }
 
     public @Nullable String getString(String key) {
-        return getConfigValue(key, String.class);
+        return getString(key, null);
+    }
+
+    public @Nullable String getString(String key, String defaultValue) {
+        String configValue = getConfigValue(key, String.class);
+        if (configValue == null) return defaultValue;
+        return configValue;
     }
 
     public int getInt(String key) {
+        return getInt(key, -1);
+    }
+
+    public int getInt(String key, int defaultValue) {
         Integer configValue = getConfigValue(key, Integer.class);
-        return configValue != null ? configValue : -1;
+        return configValue != null ? configValue : defaultValue;
     }
 
     public boolean getBoolean(String key) {
+        return getBoolean(key, false);
+    }
+
+    public boolean getBoolean(String key, boolean defaultValue) {
         Boolean configValue = getConfigValue(key, Boolean.class);
-        return configValue != null ? configValue : false;
+        return configValue != null ? configValue : defaultValue;
     }
 
     @SuppressWarnings("unchecked")
@@ -163,19 +179,32 @@ public class Config {
         }
 
         public @Nullable String getString(String key) {
-            return getConfigValue(key, String.class);
+            return getString(key, null);
+        }
+
+        public @Nullable String getString(String key, String defaultValue) {
+            String configValue = getConfigValue(key, String.class);
+            if (configValue == null) return defaultValue;
+            return configValue;
         }
 
         public int getInt(String key) {
+            return getInt(key, -1);
+        }
+
+        public int getInt(String key, int defaultValue) {
             Integer configValue = getConfigValue(key, Integer.class);
-            return configValue != null ? configValue : -1;
+            return configValue != null ? configValue : defaultValue;
         }
 
         public boolean getBoolean(String key) {
-            Boolean configValue = getConfigValue(key, Boolean.class);
-            return configValue != null ? configValue : false;
+            return getBoolean(key, false);
         }
 
+        public boolean getBoolean(String key, boolean defaultValue) {
+            Boolean configValue = getConfigValue(key, Boolean.class);
+            return configValue != null ? configValue : defaultValue;
+        }
 
         @SuppressWarnings("unchecked")
         public <T> @Nullable T getConfigValue(String key, Class<T> classType) {
