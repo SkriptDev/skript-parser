@@ -46,6 +46,10 @@ public class EffReturn extends Effect {
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        if (parseContext.getParserState().isDelayed()) {
+            parseContext.getLogger().error("Return statements cannot be used after a delay.", ErrorType.SEMANTIC_ERROR);
+            return false;
+        }
         returned = expressions[0];
         this.sections = parseContext.getParserState().getCurrentSections().stream()
             .filter(sec -> sec instanceof Continuable)
