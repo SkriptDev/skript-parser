@@ -99,6 +99,8 @@ public class Config {
         for (FileElement fileElement : this.fileElements) {
             if (fileElement instanceof FileSection sec) {
                 String s = sec.getLineContent().split(OptionLoader.OPTION_SPLIT_PATTERN)[0];
+                if (!s.equalsIgnoreCase(key)) continue;
+
                 ConfigSection configSection = new ConfigSection(s, sec);
                 T value = configSection.getConfigValue(key, classType);
                 if (value != null)
