@@ -42,6 +42,7 @@ public class SecAsync extends CodeSection {
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        parseContext.getParserState().setDelayed(true);
         return true;
     }
 
