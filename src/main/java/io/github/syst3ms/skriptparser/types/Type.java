@@ -16,6 +16,7 @@ import java.util.function.Supplier;
 
 /**
  * A basic definition of a type. This doesn't handle number (single/plural), unlike {@link PatternType}
+ *
  * @see PatternType
  */
 public class Type<T> {
@@ -36,6 +37,7 @@ public class Type<T> {
     private final Supplier<Iterator<T>> supplier;
 
     private final Function<Object, String> toStringFunction;
+    private final @Nullable Function<Object, String> toVariableNameFunction;
     private final String[] pluralForms;
     private final Class<T> typeClass;
     private final String baseName;
@@ -45,13 +47,13 @@ public class Type<T> {
      * Constructs a new Type.
      *
      * @param typeClass the class this type represents
-     * @param baseName the basic name to represent this type with. It should be more or less a lowercase version of the Java class.
-     * @param pattern the pattern for plural forms. It's written in Skript aliases plural format. Examples :
-     *                <ul>
-     *                  <li>{@code fish} -> {@literal fish} (invariant)</li>
-     *                  <li>{@code dog&brvbar;s} -> {@literal dog} and {@literal dogs}</li>
-     *                  <li>{@code part&brvbar;y&brvbar;ies} -> {@literal party} and {@literal parties} (irregular plural)</li>
-     *                </ul>
+     * @param baseName  the basic name to represent this type with. It should be more or less a lowercase version of the Java class.
+     * @param pattern   the pattern for plural forms. It's written in Skript aliases plural format. Examples :
+     *                  <ul>
+     *                    <li>{@code fish} -> {@literal fish} (invariant)</li>
+     *                    <li>{@code dog&brvbar;s} -> {@literal dog} and {@literal dogs}</li>
+     *                    <li>{@code part&brvbar;y&brvbar;ies} -> {@literal party} and {@literal parties} (irregular plural)</li>
+     *                  </ul>
      */
     public Type(Class<T> typeClass, String baseName, String pattern, Documentation documentation) {
         this(typeClass, baseName, pattern, null, documentation, null);
@@ -60,14 +62,14 @@ public class Type<T> {
     /**
      * Constructs a new Type.
      *
-     * @param typeClass the class this type represents
-     * @param baseName the basic name to represent this type with. It should be more or less a lowercase version of the Java class.
-     * @param pattern the pattern for plural forms. It's written in Skript aliases plural format. Examples :
-     *                <ul>
-     *                  <li>{@code fish} -> {@literal fish} (invariant)</li>
-     *                  <li>{@code dog&brvbar;s} -> {@literal dog} and {@literal dogs}</li>
-     *                  <li>{@code part&brvbar;y&brvbar;ies} -> {@literal party} and {@literal parties} (irregular plural)</li>
-     *                </ul>
+     * @param typeClass     the class this type represents
+     * @param baseName      the basic name to represent this type with. It should be more or less a lowercase version of the Java class.
+     * @param pattern       the pattern for plural forms. It's written in Skript aliases plural format. Examples :
+     *                      <ul>
+     *                        <li>{@code fish} -> {@literal fish} (invariant)</li>
+     *                        <li>{@code dog&brvbar;s} -> {@literal dog} and {@literal dogs}</li>
+     *                        <li>{@code part&brvbar;y&brvbar;ies} -> {@literal party} and {@literal parties} (irregular plural)</li>
+     *                      </ul>
      * @param literalParser the function that would parse literals for the given type. If the parser throws an exception on parsing, it will be
      *                      caught and the type will be ignored.
      */
@@ -77,22 +79,22 @@ public class Type<T> {
                 @Nullable Function<String, ? extends T> literalParser,
                 Documentation documentation,
                 @Nullable Supplier<Iterator<T>> supplier) {
-        this(typeClass, baseName, pattern, literalParser, Objects::toString, documentation, supplier);
+        this(typeClass, baseName, pattern, literalParser, Objects::toString, null, documentation, supplier);
     }
 
     /**
      * Constructs a new Type.
      *
-     * @param typeClass the class this type represents
-     * @param baseName the basic name to represent this type with. It should be more or less a lowercase version of the Java class.
-     * @param pattern the pattern for plural forms. It's written in Skript aliases plural format. Examples :
-     *                <ul>
-     *                  <li>{@code fish} -> {@literal fish} (invariant)</li>
-     *                  <li>{@code dog&brvbar;s} -> {@literal dog} and {@literal dogs}</li>
-     *                  <li>{@code part&brvbar;y&brvbar;ies} -> {@literal party} and {@literal parties} (irregular plural)</li>
-     *                </ul>
-     * @param literalParser the function that would parse literals for the given type. If the parser throws an exception on parsing, it will be
-     *                      caught and the type will be ignored.
+     * @param typeClass        the class this type represents
+     * @param baseName         the basic name to represent this type with. It should be more or less a lowercase version of the Java class.
+     * @param pattern          the pattern for plural forms. It's written in Skript aliases plural format. Examples :
+     *                         <ul>
+     *                           <li>{@code fish} -> {@literal fish} (invariant)</li>
+     *                           <li>{@code dog&brvbar;s} -> {@literal dog} and {@literal dogs}</li>
+     *                           <li>{@code part&brvbar;y&brvbar;ies} -> {@literal party} and {@literal parties} (irregular plural)</li>
+     *                         </ul>
+     * @param literalParser    the function that would parse literals for the given type. If the parser throws an exception on parsing, it will be
+     *                         caught and the type will be ignored.
      * @param toStringFunction the functions that converts an object of the type {@link T} to a {@link String}.Defaults to {@link Objects#toString} for
      *                         other constructors.
      */
@@ -100,9 +102,11 @@ public class Type<T> {
                 String baseName,
                 String pattern,
                 @Nullable Function<String, ? extends T> literalParser,
-                Function<? super T, String> toStringFunction, Documentation documentation,
+                Function<? super T, String> toStringFunction,
+                @Nullable Function<? super T, String> toVariableNameFunction,
+                Documentation documentation,
                 @Nullable Supplier<Iterator<T>> supplier) {
-        this(typeClass, baseName, pattern, literalParser, toStringFunction,  null, documentation, supplier);
+        this(typeClass, baseName, pattern, literalParser, toStringFunction, toVariableNameFunction, null, documentation, supplier);
     }
 
     public Type(Class<T> typeClass,
@@ -110,21 +114,23 @@ public class Type<T> {
                 String pattern,
                 @Nullable Function<String, ? extends T> literalParser,
                 Function<? super T, String> toStringFunction,
+                @Nullable Function<? super T, String> toVariableFunction,
                 @Nullable Changer<? super T> defaultChanger, Documentation documentation,
                 @Nullable Supplier<Iterator<T>> supplier) {
-        this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger,  null, documentation, supplier);
+        this(typeClass, baseName, pattern, literalParser, toStringFunction, toVariableFunction, defaultChanger, null, documentation, supplier);
     }
 
     public Type(Class<T> typeClass,
-            String baseName,
-            String pattern,
-            @Nullable Function<String, ? extends T> literalParser,
-            Function<? super T, String> toStringFunction,
-            @Nullable Changer<? super T> defaultChanger,
-            @Nullable Arithmetic<T, ?> arithmetic,
+                String baseName,
+                String pattern,
+                @Nullable Function<String, ? extends T> literalParser,
+                Function<? super T, String> toStringFunction,
+                @Nullable Function<? super T, String> toVariableNameFunction,
+                @Nullable Changer<? super T> defaultChanger,
+                @Nullable Arithmetic<T, ?> arithmetic,
                 Documentation documentation,
                 @Nullable Supplier<Iterator<T>> supplier) {
-        this(typeClass, baseName, pattern, literalParser, toStringFunction, defaultChanger, arithmetic, documentation, null, supplier);
+        this(typeClass, baseName, pattern, literalParser, toStringFunction, toVariableNameFunction, defaultChanger, arithmetic, documentation, null, supplier);
     }
 
     @SuppressWarnings("unchecked")
@@ -133,6 +139,7 @@ public class Type<T> {
                 String pattern,
                 @Nullable Function<String, ? extends T> literalParser,
                 Function<? super T, String> toStringFunction,
+                @Nullable Function<? super T, String> toVariableNameFunction,
                 @Nullable Changer<? super T> defaultChanger,
                 @Nullable Arithmetic<T, ?> arithmetic, Documentation documentation,
                 @Nullable TypeSerializer<T> serializer,
@@ -141,6 +148,7 @@ public class Type<T> {
         this.baseName = baseName;
         this.literalParser = literalParser;
         this.toStringFunction = (Function<Object, String>) toStringFunction;
+        this.toVariableNameFunction = (Function<Object, String>) toVariableNameFunction;
         this.pluralForms = StringUtils.getForms(pattern.strip());
         this.defaultChanger = defaultChanger;
         this.arithmetic = arithmetic;
@@ -176,6 +184,10 @@ public class Type<T> {
         return toStringFunction;
     }
 
+    public @Nullable Function<Object, String> getToVariableNameFunction() {
+        return this.toVariableNameFunction;
+    }
+
     public Optional<TypeSerializer<T>> getSerializer() {
         return Optional.ofNullable(serializer);
     }
@@ -202,6 +214,7 @@ public class Type<T> {
 
     /**
      * Adds a proper English indefinite article to this type and applies the correct form.
+     *
      * @param plural whether this Type is plural or not
      * @return the applied form of this Type
      */
@@ -223,7 +236,7 @@ public class Type<T> {
         } else {
             var o = (Type<?>) obj;
             return typeClass.equals(o.typeClass) && baseName.equals(o.baseName) &&
-                   Arrays.equals(pluralForms, o.pluralForms);
+                Arrays.equals(pluralForms, o.pluralForms);
         }
     }
 

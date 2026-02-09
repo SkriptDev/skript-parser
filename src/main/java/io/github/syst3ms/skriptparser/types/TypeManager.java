@@ -7,12 +7,17 @@ import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Manages the registration and usage of {@link Type}
  */
 @SuppressWarnings("unchecked")
 public class TypeManager {
+
+    public static enum StringMode {
+        STRING, VARIABLE
+    }
 
     /**
      * The string equivalent of null
@@ -32,6 +37,7 @@ public class TypeManager {
 
     /**
      * Gets a {@link Type} by its exact name (the baseName parameter used in {@link Type#Type(Class, String, String)})
+     *
      * @param name the name to get the Type from
      * @return the corresponding Type, or {@literal null} if nothing matched
      */
@@ -41,6 +47,7 @@ public class TypeManager {
 
     /**
      * Gets a {@link Type} using its plural forms, which means this matches any alternate and/or plural form.
+     *
      * @param name the name to get a Type from
      * @return the matching Type, or {@literal null} if nothing matched
      */
@@ -56,7 +63,8 @@ public class TypeManager {
 
     /**
      * Gets a {@link Type} from its associated {@link Class}.
-     * @param c the Class to get the Type from
+     *
+     * @param c   the Class to get the Type from
      * @param <T> the underlying type of the Class and the returned Type
      * @return the associated Type, or {@literal null}
      */
@@ -83,6 +91,10 @@ public class TypeManager {
     }
 
     public static String toString(Object[] objects) {
+        return toString(objects, StringMode.STRING);
+    }
+
+    public static String toString(Object[] objects, StringMode mode) {
         if (objects == null || objects.length == 0) return EMPTY_REPRESENTATION;
         var sb = new StringBuilder();
         for (var i = 0; i < objects.length; i++) {
@@ -95,7 +107,13 @@ public class TypeManager {
                 continue;
             }
             var type = getByClass(o.getClass());
-            sb.append(type.map(t -> (Object) t.getToStringFunction().apply(o)).orElse(o));
+            sb.append(type.map(t -> {
+                if (mode == StringMode.VARIABLE) {
+                    Function<Object, String> func = t.getToVariableNameFunction();
+                    if (func != null) return (Object) func.apply(o);
+                }
+                return (Object) t.getToStringFunction().apply(o);
+            }).orElse(o));
         }
         return sb.length() == 0 ? EMPTY_REPRESENTATION : sb.toString();
     }
@@ -103,6 +121,7 @@ public class TypeManager {
     /**
      * Gets a {@link PatternType} from a name. This determines the number (single/plural) from the input.
      * If the input happens to be the base name of a type, then a single PatternType (as in "not plural") of the corresponding type is returned.
+     *
      * @param name the name input
      * @return a corresponding PatternType, or {@literal null} if nothing matched
      */
