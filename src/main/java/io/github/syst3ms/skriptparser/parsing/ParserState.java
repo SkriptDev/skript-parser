@@ -21,6 +21,7 @@ public class ParserState {
     private final LinkedList<LinkedList<Statement>> currentStatements = new LinkedList<>();
     private final LinkedList<Pair<Set<Class<? extends SyntaxElement>>, Boolean>> restrictions = new LinkedList<>();
     private boolean isntAllowingSyntax;
+    private boolean isDelayed = false;
 
     {
         currentStatements.add(new LinkedList<>());
@@ -36,6 +37,7 @@ public class ParserState {
 
     /**
      * Sets the {@link TriggerContext}s handled by the currently parsed event
+     *
      * @param currentContexts the handled {@link TriggerContext}s
      */
     public void setCurrentContexts(Set<Class<? extends TriggerContext>> currentContexts) {
@@ -51,6 +53,7 @@ public class ParserState {
 
     /**
      * Adds a new enclosing {@link CodeSection} to the hierarchy
+     *
      * @param section the enclosing {@link CodeSection}
      */
     public void addCurrentSection(CodeSection section) {
@@ -68,6 +71,7 @@ public class ParserState {
      * Returns a list of all consecutive, successfully parsed {@linkplain Statement}s
      * in the enclosing section.
      * This is essentially a list with all previously parsed items of this section.
+     *
      * @return a list of all {@linkplain Statement}s in the enclosing section.
      */
     public LinkedList<Statement> getCurrentStatements() {
@@ -76,6 +80,7 @@ public class ParserState {
 
     /**
      * Adds a new {@link Statement} to the items of the enclosing section.
+     *
      * @param statement the enclosing {@link Statement}
      */
     public void addCurrentStatement(Statement statement) {
@@ -101,7 +106,8 @@ public class ParserState {
 
     /**
      * Define the syntax restrictions enforced by the current section
-     * @param allowedSyntaxes all allowed syntaxes
+     *
+     * @param allowedSyntaxes        all allowed syntaxes
      * @param restrictingExpressions whether expressions are also restricted
      */
     public void setSyntaxRestrictions(Set<Class<? extends SyntaxElement>> allowedSyntaxes, boolean restrictingExpressions) {
@@ -134,6 +140,24 @@ public class ParserState {
      */
     public boolean isRestrictingExpressions() {
         return restrictions.getLast().getSecond();
+    }
+
+    /**
+     * Check whether the parser state is currently delayed.
+     *
+     * @return whether the parser state is currently delayed
+     */
+    public boolean isDelayed() {
+        return this.isDelayed;
+    }
+
+    /**
+     * Sets whether the parser state is currently delayed.
+     *
+     * @param delayed whether the parser state is delayed
+     */
+    public void setDelayed(boolean delayed) {
+        this.isDelayed = delayed;
     }
 
 }
