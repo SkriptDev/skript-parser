@@ -757,7 +757,7 @@ public class SkriptRegistration {
             return this;
         }
 
-        public TypeRegistrar<C> toVariableNameFunction(@NotNull Function<? super C, String> toVariableNameFunction) {
+        public TypeRegistrar<C> toVariableNameFunction(Function<? super C, @NotNull String> toVariableNameFunction) {
             this.toVariableNameFunction = toVariableNameFunction;
             return this;
         }
