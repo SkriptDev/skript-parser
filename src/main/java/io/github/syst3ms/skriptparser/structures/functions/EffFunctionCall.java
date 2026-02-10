@@ -96,9 +96,27 @@ public class EffFunctionCall extends Effect {
                         }
                     }
                 } else {
+                    FunctionParameter<?> functionParameter = functionParameters[0];
+                    Class<?> paramType = functionParameter.getType();
+                    if (!paramType.isAssignableFrom(this.parsedExpr.getReturnType())) {
+                        String typeText = TypeManager.getByClass(paramType).get().withIndefiniteArticle(false);
+                        logger.error("The type of the provided value for the '" + functionParameter.getName()
+                            + "' parameter is not " + typeText + "/couldn't be converted to "
+                            + typeText, ErrorType.SEMANTIC_ERROR);
+                        return false;
+                    }
                     paramsExprs = new Expression<?>[]{parsedExpr}; // single parameter setting it to multiple values
                 }
             } else {
+                FunctionParameter<?> functionParameter = functionParameters[0];
+                Class<?> paramType = functionParameter.getType();
+                if (!paramType.isAssignableFrom(this.parsedExpr.getReturnType())) {
+                    String typeText = TypeManager.getByClass(paramType).get().withIndefiniteArticle(false);
+                    logger.error("The type of the provided value for the '" + functionParameter.getName()
+                        + "' parameter is not " + typeText + "/couldn't be converted to "
+                        + typeText, ErrorType.SEMANTIC_ERROR);
+                    return false;
+                }
                 paramsExprs = new Expression<?>[]{parsedExpr}; //
             }
         }
