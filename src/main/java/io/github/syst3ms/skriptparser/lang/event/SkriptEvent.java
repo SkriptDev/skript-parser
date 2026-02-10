@@ -89,4 +89,11 @@ public abstract class SkriptEvent implements SyntaxElement {
         return false;
     }
 
+    /**
+     * Called when this event is unloaded.
+     * This is optional to override.
+     */
+    public void unload() {
+    }
+
 }
