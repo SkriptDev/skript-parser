@@ -15,8 +15,6 @@ import io.github.syst3ms.skriptparser.lang.UnloadedTrigger;
 import io.github.syst3ms.skriptparser.lang.Variable;
 import io.github.syst3ms.skriptparser.lang.VariableString;
 import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
-import io.github.syst3ms.skriptparser.lang.base.ContextExpression;
-import io.github.syst3ms.skriptparser.lang.base.ConvertedExpression;
 import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.log.ErrorContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
@@ -27,9 +25,6 @@ import io.github.syst3ms.skriptparser.registration.ExpressionInfo;
 import io.github.syst3ms.skriptparser.registration.SkriptEventInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxInfo;
 import io.github.syst3ms.skriptparser.registration.SyntaxManager;
-import io.github.syst3ms.skriptparser.registration.context.ContextValue;
-import io.github.syst3ms.skriptparser.registration.context.ContextValue.State;
-import io.github.syst3ms.skriptparser.registration.context.ContextValues;
 import io.github.syst3ms.skriptparser.types.PatternType;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
@@ -114,10 +109,6 @@ public class SyntaxParser {
      * All {@link ConditionalExpression conditions} that are successfully parsed during parsing, in order of last successful parsing
      */
     private static final RecentElementList<ExpressionInfo<? extends ConditionalExpression, ? extends Boolean>> recentConditions = new RecentElementList<>();
-    /**
-     * All {@link ContextValue context values} that are successfully parsed during parsing, in order of last successful parsing
-     */
-    private static final RecentElementList<ContextValue<?, ?>> recentContextValues = new RecentElementList<>();
 
     /**
      * Parses an {@link Expression} from the given {@linkplain String} and {@link PatternType expected return type}
@@ -191,18 +182,6 @@ public class SyntaxParser {
                 return expr;
             }
             logger.forgetError();
-        }
-
-        // Parsing of standalone context values
-        var contextValue = parseContextValue(s, expectedType, parserState, logger);
-        if (contextValue.isPresent()) {
-            logger.clearErrors();
-            ContextExpression<?, ? extends T> contextExpression = contextValue.get();
-            if (!expectedType.getType().getTypeClass().isAssignableFrom(contextExpression.getReturnType())) {
-                Optional<? extends ConvertedExpression<? extends T, T>> convertedExpression = ConvertedExpression.newInstance(contextExpression, expectedType.getType().getTypeClass());
-                return convertedExpression;
-            }
-            return contextValue;
         }
 
         logger.setContext(ErrorContext.NO_MATCH);
@@ -290,71 +269,6 @@ public class SyntaxParser {
 
         logger.setContext(ErrorContext.NO_MATCH);
         logger.error("No expression matching '" + s + "' was found", ErrorType.NO_MATCH);
-        return Optional.empty();
-    }
-
-    /**
-     * Parses a {@link ContextValue} from the given {@linkplain String} and {@link PatternType expected return type}
-     * @param <T> the type of the context value
-     * @param toParse the string to be parsed as a context value
-     * @param expectedType the expected return type
-     * @param parserState the current parser state
-     * @param logger the logger
-     * @return an expression that was successfully parsed, or {@literal null} if the string is empty,
-     * no match was found
-     * or for another reason detailed in an error message.
-     */
-    public static <T> Optional<? extends ContextExpression<?, ? extends T>> parseContextValue(String toParse, PatternType<T> expectedType, ParserState parserState, SkriptLogger logger) {
-        var matchContext = new MatchContext(CONTEXT_VALUE_PATTERN, parserState, logger);
-        CONTEXT_VALUE_PATTERN.match(toParse, 0, matchContext);
-
-        var parseContext = matchContext.toParseResult();
-        var state = State.values()[parseContext.getNumericMark()];
-        boolean alone = !parseContext.hasMark("ctx");
-        var value = parseContext.getMatches().get(0).group();
-
-        for (Class<? extends TriggerContext> ctx : parseContext.getParserState().getCurrentContexts()) {
-            for (var info : ContextValues.getContextValues(ctx)) {
-                matchContext = new MatchContext(info.getPattern(), parserState, logger);
-
-                // Checking all conditions, so no false results slip through.
-                if (info.getPattern().match(value, 0, matchContext) != value.length()) {
-                    continue;
-                } else if (!info.getUsage().isCorrect(alone)) {
-                    if (alone) {
-                        logger.error(
-                                "The context value matching '" + toParse + "' cannot be used alone",
-                                ErrorType.SEMANTIC_ERROR,
-                                "Use 'context-something' instead of using this context value alone"
-                        );
-                    } else {
-                        logger.error(
-                                "The context value matching '" + toParse + "' must be used alone",
-                                ErrorType.SEMANTIC_ERROR,
-                                "Instead of 'context-something', use this context value as 'something'"
-                        );
-                    }
-                    return Optional.empty();
-                } else if (state != info.getState()) {
-                    logger.error("The time state of this context value (" + state.toString().toLowerCase() + ") is incorrect", ErrorType.SEMANTIC_ERROR);
-                    continue;
-                } else if (expectedType.isSingle() && !info.getReturnType().isSingle()) {
-                    logger.error(
-                            "A single value was expected, but " + toParse + " represents multiple values.",
-                            ErrorType.SEMANTIC_ERROR,
-                            "Use a loop/map to divert each element of this list into single elements"
-                    );
-                    return Optional.empty();
-                } else if (parserState.isRestrictingExpressions() && parserState.forbidsSyntax(ContextExpression.class)) {
-                    logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
-                    logger.error("The enclosing section does not allow the use of context expressions.", ErrorType.SEMANTIC_ERROR);
-                    return Optional.empty();
-                }
-
-                recentContextValues.acknowledge(info);
-                return Optional.of(new ContextExpression<>((ContextValue<?, T>) info, value, alone));
-            }
-        }
         return Optional.empty();
     }
 

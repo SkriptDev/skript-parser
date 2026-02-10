@@ -1,13 +1,13 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.docs.Documentation;
+import io.github.syst3ms.skriptparser.expressions.ExprContextValue;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.Structure;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.lang.base.ContextExpression;
 import io.github.syst3ms.skriptparser.lang.base.ExecutableExpression;
 import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.properties.ConditionalType;
@@ -469,7 +469,7 @@ public class SkriptRegistration {
     }
 
     /**
-     * Starts a registration process for a {@link ContextExpression}
+     * Starts a registration process for a {@link ExprContextValue}
      *
      * @param context    the TriggerContext class
      * @param returnType the returned type of this context value
@@ -491,7 +491,7 @@ public class SkriptRegistration {
     }
 
     /**
-     * Starts a registration process for a {@link ContextExpression} with a single return value.
+     * Starts a registration process for a {@link ExprContextValue} with a single return value.
      *
      * @param context    the TriggerContext class
      * @param returnType the returned type of this context value
@@ -506,7 +506,7 @@ public class SkriptRegistration {
     }
 
     /**
-     * Starts a registration process for a {@link ContextExpression} with a list return value.
+     * Starts a registration process for a {@link ExprContextValue} with a list return value.
      *
      * @param context    the TriggerContext class
      * @param returnType the returned type of this context value
