@@ -701,7 +701,7 @@ public class SyntaxParser {
     public static Optional<? extends UnloadedTrigger> parseTrigger(FileSection section, SkriptLogger logger) {
         if (section.getLineContent().isEmpty())
             return Optional.empty();
-        for (var info : recentEvents.mergeWith(SyntaxManager.getEvents())) {
+        for (var info : recentEvents.mergeWith(SyntaxManager.getTriggers())) {
             var trigger = matchEventInfo(section, info, logger);
             if (trigger.isPresent()) {
                 recentEvents.acknowledge(info);

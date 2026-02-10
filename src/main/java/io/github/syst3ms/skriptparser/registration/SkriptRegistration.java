@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.docs.Documentation;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.Structure;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.lang.base.ContextExpression;
@@ -77,6 +78,7 @@ public class SkriptRegistration {
     private final List<ConverterInfo<?, ?>> converters = new ArrayList<>();
     private final List<TagInfo<? extends Tag>> tags = new ArrayList<>();
     private final List<SkriptEventInfo<?>> events = new ArrayList<>();
+    private final List<StructureInfo<?>> structures = new ArrayList<>();
     protected final List<Type<?>> types = new ArrayList<>();
     private final SkriptAddon registerer;
     private final SkriptLogger logger;
@@ -128,6 +130,13 @@ public class SkriptRegistration {
      */
     public List<SkriptEventInfo<?>> getEvents() {
         return events;
+    }
+
+    /**
+     * @return All currently registered structures
+     */
+    public List<StructureInfo<?>> getStructures() {
+        return this.structures;
     }
 
     /**
@@ -425,6 +434,18 @@ public class SkriptRegistration {
     }
 
     /**
+     * Starts a registration process for a {@link Structure}
+     *
+     * @param c        the Structure's class
+     * @param patterns the Structure's patterns
+     * @param <S>      the Structure
+     * @return an {@link EventRegistrar} to continue the registration process
+     */
+    public <S extends Structure> StructureRegistrar<S> newStructure(Class<S> c, String... patterns) {
+        return new StructureRegistrar<>(c, patterns);
+    }
+
+    /**
      * Registers a {@link SkriptEvent}
      *
      * @param c               the SkriptEvent's class
@@ -719,7 +740,8 @@ public class SkriptRegistration {
         private final String baseName;
         private final String pattern;
         private Function<? super C, String> toStringFunction = o -> Objects.toString(o, TypeManager.NULL_REPRESENTATION);
-        @Nullable private Function<? super C, String> toVariableNameFunction;
+        @Nullable
+        private Function<? super C, String> toVariableNameFunction;
         @Nullable
         private Function<String, ? extends C> literalParser;
         @Nullable
@@ -1065,6 +1087,121 @@ public class SkriptRegistration {
                 }
             }
             events.add(new SkriptEventInfo<>(registerer, super.c, handledContexts, priority, parsePatterns(), this.documentation, data));
+            registerer.addHandledEvent(this.c);
+        }
+    }
+
+    public class StructureRegistrar<T extends Structure> extends SyntaxRegistrar<T> {
+        private Set<Class<? extends TriggerContext>> handledContexts = new HashSet<>();
+        private final Documentation documentation = new Documentation();
+
+        StructureRegistrar(Class<T> c, String... patterns) {
+            super(c, patterns);
+            this.documentation.setName(c.getSimpleName()); // Dummy name if not specified
+            typeCheck();
+        }
+
+        /**
+         * Set the contexts this structure can handle
+         *
+         * @param contexts the contexts
+         * @return The registrar
+         */
+        @SafeVarargs
+        public final StructureRegistrar<T> setHandledContexts(Class<? extends TriggerContext>... contexts) {
+            this.handledContexts = Set.of(contexts);
+            return this;
+        }
+
+        /**
+         * Prevent documentation generation for this structure.
+         *
+         * @return The registrar
+         */
+        public final StructureRegistrar<T> noDoc() {
+            this.documentation.noDoc();
+            return this;
+        }
+
+        /**
+         * Mark this structure as experimental for documentation.
+         *
+         * @return The registrar
+         */
+        public final StructureRegistrar<T> experimental() {
+            this.documentation.experimental();
+            return this;
+        }
+
+        /**
+         * Mark this structure as experimental with a custom message for documentation.
+         *
+         * @param message The custom message
+         * @return The registrar
+         */
+        public final StructureRegistrar<T> experimental(String message) {
+            this.documentation.experimental(message);
+            return this;
+        }
+
+        /**
+         * The name of this structure for documentation.
+         *
+         * @param name Name of the structure
+         * @return The registrar
+         */
+        public final StructureRegistrar<T> name(String name) {
+            this.documentation.setName(name);
+            return this;
+        }
+
+        /**
+         * The description of this structure for documentation.
+         *
+         * @param description The description of the structure
+         * @return The registrar
+         */
+        public final StructureRegistrar<T> description(String... description) {
+            this.documentation.setDescription(description);
+            return this;
+        }
+
+        /**
+         * Examples of this structure for documentation.
+         *
+         * @param examples The examples of the structure
+         * @return The registrar
+         */
+        public final StructureRegistrar<T> examples(String... examples) {
+            this.documentation.setExamples(examples);
+            return this;
+        }
+
+        /**
+         * The version this was added in for documentation.
+         *
+         * @param since The version this was added in
+         * @return The registrar
+         */
+        public final StructureRegistrar<T> since(String since) {
+            this.documentation.setSince(since);
+            return this;
+        }
+
+        /**
+         * Adds this structure to the list of currently registered syntaxes
+         */
+        @Override
+        public void register() {
+            for (int i = 0; i < super.patterns.size(); i++) {
+                var pattern = super.patterns.get(i);
+                if (pattern.startsWith("*")) {
+                    super.patterns.set(i, pattern.substring(1));
+                } else {
+                    super.patterns.set(i, pattern);
+                }
+            }
+            structures.add(new StructureInfo<>(registerer, super.c, handledContexts, priority, parsePatterns(), this.documentation, data));
             registerer.addHandledEvent(this.c);
         }
     }
