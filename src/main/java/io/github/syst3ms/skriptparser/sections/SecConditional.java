@@ -19,13 +19,13 @@ import java.util.function.Predicate;
  * run, like other 'else if' and 'else' sections. If there is no such clause, it will
  * execute the next statement instead.
  *
+ * @author Mwexim, Syst3ms
  * @name Conditional
  * @type SECTION
  * @pattern if %=boolean%
  * @pattern else if %=boolean%
  * @pattern else
  * @since ALPHA
- * @author Mwexim, Syst3ms
  */
 public class SecConditional extends CodeSection {
     static {
@@ -61,8 +61,8 @@ public class SecConditional extends CodeSection {
         }
 
         parseContext.getLogger().error(
-                "An '" + mode + "' must be placed after an 'if' or an 'else if'",
-                ErrorType.SEMANTIC_ERROR
+            "An '" + mode + "' must be placed after an 'if' or an 'else if'",
+            ErrorType.SEMANTIC_ERROR
         );
         return false;
     }
@@ -104,12 +104,12 @@ public class SecConditional extends CodeSection {
             return super.checkFinishing(finishingTest, logger, currentSectionLine, warnUnreachable);
         } else if (fallingClause != null) {
             return super.checkFinishing(finishingTest, logger, currentSectionLine, warnUnreachable)
-                    && fallingClause.checkFinishing(
-                            finishingTest,
-                            logger,
-                            currentSectionLine + items.size() + 1,
-                            warnUnreachable
-                    );
+                && fallingClause.checkFinishing(
+                finishingTest,
+                logger,
+                currentSectionLine + items.size() + 1,
+                warnUnreachable
+            );
         } else {
             return false;
         }
@@ -118,6 +118,7 @@ public class SecConditional extends CodeSection {
     /**
      * Sets the Conditional object this Conditional falls back to when it's condition verifies to
      * false. Setting this to an "if" Conditional may cause unexpected/confusing behaviour.
+     *
      * @param conditional the conditional section
      */
     public void setFallingClause(SecConditional conditional) {

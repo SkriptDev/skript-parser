@@ -114,7 +114,7 @@ public class EffReturn extends Effect {
         });
         if (isInFunction) {
             FunctionContext functionContext = (FunctionContext) ctx;
-            Function<?> function = functionContext.getOwningFunction();
+            Function<?> function = functionContext.owningFunction();
             function.setReturnValue(returned.getValues(ctx));
             return Optional.empty(); // stop the trigger
         }

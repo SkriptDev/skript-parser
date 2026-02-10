@@ -15,7 +15,7 @@ public class MultiMap<K, V> extends HashMap<K, List<V>> {
      * Looks for a list that is mapped to the given key. If there is one, then the given value is added to that list.
      * If there isn't, then a new entry is created and has the value added to it.
      *
-     * @param key the key
+     * @param key   the key
      * @param value the value
      */
     public void putOne(@Nullable K key, @Nullable V value) {

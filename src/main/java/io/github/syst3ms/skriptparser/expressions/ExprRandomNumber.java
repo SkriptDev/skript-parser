@@ -19,6 +19,8 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class ExprRandomNumber implements Expression<Number> {
 
+    private static final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
+
     static {
         Parser.getMainRegistration().newExpression(
                 ExprRandomNumber.class,
@@ -33,8 +35,6 @@ public class ExprRandomNumber implements Expression<Number> {
             .since("1.0.0")
             .register();
     }
-
-    private static final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
 
     private int pattern;
     private Expression<Number> lowerNumber, maxNumber;

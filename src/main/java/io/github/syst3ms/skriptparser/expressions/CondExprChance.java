@@ -10,6 +10,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class CondExprChance extends ConditionalExpression {
 
+    private static final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
+
     static {
         Parser.getMainRegistration().newExpression(CondExprChance.class, Boolean.class,
                 true, "chance of %number%[1:\\%]")
@@ -21,8 +23,6 @@ public class CondExprChance extends ConditionalExpression {
             .since("1.0.0")
             .register();
     }
-
-    private static final ThreadLocalRandom RANDOM = ThreadLocalRandom.current();
 
     private Expression<Number> chance;
     private boolean percent;

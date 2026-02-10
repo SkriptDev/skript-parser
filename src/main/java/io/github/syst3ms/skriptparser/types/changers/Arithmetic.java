@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.types.changers;
 
 /**
  * An interface describing arithmetic operations between two types
+ *
  * @param <A> the first type
  * @param <R> the second type
  */

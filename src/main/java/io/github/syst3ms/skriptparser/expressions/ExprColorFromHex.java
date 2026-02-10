@@ -15,41 +15,41 @@ import io.github.syst3ms.skriptparser.util.color.Color;
  * </ul>
  * A trailing hashtag (#) at the start of the string is allowed, but not necessary.
  *
+ * @author Mwexim
  * @name Color from Hex
  * @type EXPRESSION
  * @pattern [the] color (from|of) [the] hex[adecimal] [value] %string%
  * @since ALPHA
- * @author Mwexim
  */
 public class ExprColorFromHex implements Expression<Color> {
-	static {
-		Parser.getMainRegistration().newExpression(ExprColorFromHex.class, Color.class, true,
-				"[the] color (from|of) [the] hex[adecimal] [value] %string%")
-			.name("Color from Hex")
-			.description("Creates a color from its hexadecimal value.")
-			.since("1.0.0")
-			.register();
-	}
+    static {
+        Parser.getMainRegistration().newExpression(ExprColorFromHex.class, Color.class, true,
+                "[the] color (from|of) [the] hex[adecimal] [value] %string%")
+            .name("Color from Hex")
+            .description("Creates a color from its hexadecimal value.")
+            .since("1.0.0")
+            .register();
+    }
 
-	private Expression<String> hex;
+    private Expression<String> hex;
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		hex = (Expression<String>) expressions[0];
-		return true;
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        hex = (Expression<String>) expressions[0];
+        return true;
+    }
 
-	@Override
-	public Color[] getValues(TriggerContext ctx) {
-		return hex.getSingle(ctx)
-				.flatMap(val -> Color.ofHex(val.startsWith("#") ? val.substring(1) : val))
-				.map(val -> new Color[] {val})
-				.orElse(new Color[0]);
-	}
+    @Override
+    public Color[] getValues(TriggerContext ctx) {
+        return hex.getSingle(ctx)
+            .flatMap(val -> Color.ofHex(val.startsWith("#") ? val.substring(1) : val))
+            .map(val -> new Color[]{val})
+            .orElse(new Color[0]);
+    }
 
-	@Override
-	public String toString(TriggerContext ctx, boolean debug) {
-		return "color from hex " + hex.toString(ctx, debug);
-	}
+    @Override
+    public String toString(TriggerContext ctx, boolean debug) {
+        return "color from hex " + hex.toString(ctx, debug);
+    }
 }

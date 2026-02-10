@@ -17,7 +17,8 @@ public class StringUtils {
 
     /**
      * Counts combined occurrences of one or more strings in another
-     * @param s the string to find occurrences in
+     *
+     * @param s      the string to find occurrences in
      * @param toFind the strings to find occurrences of
      * @return the amount of total occurrences
      */
@@ -32,10 +33,11 @@ public class StringUtils {
 
     /**
      * Find where a given pair of braces closes.
+     *
      * @param pattern the string to look in
      * @param opening the opening brace
      * @param closing the closing brace
-     * @param start where the brace pair starts
+     * @param start   where the brace pair starts
      * @return the index at which the brace pair closes
      */
     public static int findClosingIndex(String pattern, char opening, char closing, int start) {
@@ -58,10 +60,11 @@ public class StringUtils {
 
     /**
      * Similar to {@link #findClosingIndex(String, char, char, int)}, but returns the enclosed text
+     *
      * @param pattern the string to look in
      * @param opening the opening brace
      * @param closing the closing brace
-     * @param start where the brace pair starts
+     * @param start   where the brace pair starts
      * @return the enclosed text
      */
     public static Optional<String> getEnclosedText(String pattern, char opening, char closing, int start) {
@@ -75,7 +78,8 @@ public class StringUtils {
 
     /**
      * Returns the next character in the string, skipping over curly braces and string literals
-     * @param s the string  to search
+     *
+     * @param s     the string  to search
      * @param index the current index
      * @return the index of the next "simple" character, or -1 if the end of the string has been reached
      * @throws StringIndexOutOfBoundsException if {@code index < 0}
@@ -114,7 +118,8 @@ public class StringUtils {
 
     /**
      * Finds the contents of an expression between %%
-     * @param s the string containing the percents
+     *
+     * @param s     the string containing the percents
      * @param start where the pair begins
      * @return the content between %%
      */
@@ -139,8 +144,9 @@ public class StringUtils {
 
     /**
      * Finds the contents until a closing bracket is found
-     * @param s the string containing the percents
-     * @param start where the pair begins
+     *
+     * @param s              the string containing the percents
+     * @param start          where the pair begins
      * @param closingBracket the closing bracket
      * @return the content until the closing bracket
      */
@@ -158,9 +164,10 @@ public class StringUtils {
 
     /**
      * Find the first occurrence of a string in another one, ignoring case
+     *
      * @param haystack the string to look in
-     * @param needle the string to look for
-     * @param start where to look from
+     * @param needle   the string to look for
+     * @param start    where to look from
      * @return the index of the first occurrence
      */
     public static int indexOfIgnoreCase(String haystack, String needle, int start) {
@@ -197,7 +204,8 @@ public class StringUtils {
 
     /**
      * Split a pattern at pipe characters, properly accounting for brackets and escapes
-     * @param s the string to split
+     *
+     * @param s      the string to split
      * @param logger the logger
      * @return the split string
      */
@@ -265,6 +273,7 @@ public class StringUtils {
 
     /**
      * Trims all strings in the array
+     *
      * @param strings the strings
      * @return the array with all of its contents trimmed
      */
@@ -276,7 +285,8 @@ public class StringUtils {
 
     /**
      * Adds a proper English indefinite article to a string
-     * @param noun the string
+     *
+     * @param noun   the string
      * @param plural whether it is plural or not
      * @return the string with its proper indefinite article
      */
@@ -303,6 +313,7 @@ public class StringUtils {
     /**
      * Capitalizes the first word or all words in a string.
      * A word is separated by a space character.
+     *
      * @param str the string to change
      * @return the capitalized string
      */
@@ -326,10 +337,10 @@ public class StringUtils {
             if (firstNoCase) {
                 firstNoCase = false;
                 ret.append(Character.toLowerCase(part.charAt(0)))
-                        .append(part.substring(1));
+                    .append(part.substring(1));
             } else {
                 ret.append(Character.toUpperCase(part.charAt(0)))
-                        .append(part.substring(1));
+                    .append(part.substring(1));
             }
         }
         return ret.toString();
@@ -337,7 +348,8 @@ public class StringUtils {
 
     /**
      * Converts a string into snake case.
-     * @param str the string to convert
+     *
+     * @param str  the string to convert
      * @param mode 0 for default mode, 1 for uppercase and 2 for lowercase
      * @return the converted string
      */
@@ -353,7 +365,8 @@ public class StringUtils {
 
     /**
      * Converts a string into kebab case.
-     * @param str the string to convert
+     *
+     * @param str  the string to convert
      * @param mode 0 for default mode, 1 for uppercase and 2 for lowercase
      * @return the converted string
      */
@@ -369,6 +382,7 @@ public class StringUtils {
 
     /**
      * Replaces all uppercase characters with lower case ones and vice versa.
+     *
      * @param str the string to change
      * @return the reversed string
      */
@@ -388,6 +402,7 @@ public class StringUtils {
 
     /**
      * Mirrors the string. This means the last character will be put first and vice versa.
+     *
      * @param str the string to change
      * @return the mirrored string
      */

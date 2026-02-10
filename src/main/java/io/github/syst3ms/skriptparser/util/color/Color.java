@@ -8,6 +8,7 @@ import static java.util.Map.entry;
 
 /**
  * Represents a color, written like #xxxxxx or with an RGB format.
+ *
  * @author Mwexim
  */
 public class Color {
@@ -45,6 +46,7 @@ public class Color {
 
     /**
      * The Color instance of given hex value.
+     *
      * @param r the red value
      * @param g the green value
      * @param b the blue value
@@ -56,6 +58,7 @@ public class Color {
 
     /**
      * The Color instance of given hex value.
+     *
      * @param r the red value
      * @param g the green value
      * @param b the blue value
@@ -64,9 +67,9 @@ public class Color {
      */
     public static Optional<Color> of(int r, int g, int b, int a) {
         if (0 <= r && r < 256
-                && 0 <= g && g < 256
-                && 0 <= b && b < 256
-                && 0 <= a && a < 256) {
+            && 0 <= g && g < 256
+            && 0 <= b && b < 256
+            && 0 <= a && a < 256) {
             return Optional.of(new Color(r, g, b, a));
         }
         return Optional.empty();
@@ -74,6 +77,7 @@ public class Color {
 
     /**
      * The Color instance of given hex value.
+     *
      * @param hex the hexadecimal value
      * @return a new Color instance
      */
@@ -83,7 +87,8 @@ public class Color {
 
     /**
      * The Color instance of given hex value.
-     * @param hex the hexadecimal value
+     *
+     * @param hex     the hexadecimal value
      * @param isAlpha whether or not the alpha parameter is present
      * @return a new Color instance
      */
@@ -105,6 +110,7 @@ public class Color {
 
     /**
      * The Color instance of given hex value.
+     *
      * @param hex the hexadecimal value in String form
      * @return a new Color instance
      * @see #COLOR_PATTERN
@@ -131,6 +137,7 @@ public class Color {
 
     /**
      * The Color instance of given literal.
+     *
      * @param literal the literal value, like 'yellow' or 'green'.
      * @return a new Color instance
      */
@@ -175,8 +182,8 @@ public class Color {
      */
     public String getHex() {
         return alpha == 255
-                ? String.format("%02x%02x%02x", red, green, blue)
-                : String.format("%02x%02x%02x%02x", red, green, blue, alpha);
+            ? String.format("%02x%02x%02x", red, green, blue)
+            : String.format("%02x%02x%02x%02x", red, green, blue, alpha);
     }
 
     public java.awt.Color toJavaColor() {

@@ -21,10 +21,10 @@ import java.util.Optional;
  * Note that only values that can be checked for difference are allowed
  * (this is for example numbers, dates, durations and others).
  *
+ * @author Mwexim
  * @name Difference
  * @pattern [the] difference (between|of) %object% and %object%
  * @since ALPHA
- * @author Mwexim
  */
 public class ExprDifference implements Expression<Object> {
     static {
@@ -50,7 +50,7 @@ public class ExprDifference implements Expression<Object> {
 
         if (first instanceof Literal<?> && second instanceof Literal<?>) {
             type = TypeManager.getByClass(
-                    ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())
+                ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())
             );
         } else if (first instanceof Variable<?> && second instanceof Variable<?>) {
             variablePresent = true;
@@ -80,7 +80,7 @@ public class ExprDifference implements Expression<Object> {
                 type = TypeManager.getByClass(first.getReturnType());
             } else {
                 type = TypeManager.getByClass(
-                        ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())
+                    ClassUtils.getCommonSuperclass(first.getReturnType(), second.getReturnType())
                 );
             }
         }
@@ -91,13 +91,13 @@ public class ExprDifference implements Expression<Object> {
             var secondType = TypeManager.getByClass(second.getReturnType());
             assert firstType.isPresent() && secondType.isPresent();
             parseContext.getLogger().error(
-                    "Cannot compare these two values"
-                            + " (types '"
-                            + firstType.get().getBaseName()
-                            + "' and '"
-                            + secondType.get().getBaseName()
-                            + "' are inconvertible)",
-                    ErrorType.SEMANTIC_ERROR
+                "Cannot compare these two values"
+                    + " (types '"
+                    + firstType.get().getBaseName()
+                    + "' and '"
+                    + secondType.get().getBaseName()
+                    + "' are inconvertible)",
+                ErrorType.SEMANTIC_ERROR
             );
             return false;
         }
@@ -112,28 +112,28 @@ public class ExprDifference implements Expression<Object> {
     @Override
     public Object[] getValues(TriggerContext ctx) {
         return DoubleOptional.ofOptional(first.getSingle(ctx), second.getSingle(ctx))
-                .mapToOptional((f, s) -> {
-                    // The arithmetic field isn't initialized here.
-                    if (variablePresent) {
-                        assert f.getClass() == s.getClass();
-                        var type = TypeManager.getByClass(f.getClass()).orElseThrow();
-                        var variableMath = type.getArithmetic();
-                        if (variableMath.isEmpty())
-                            return null;
-                        arithmetic = variableMath.get();
-                    }
+            .mapToOptional((f, s) -> {
+                // The arithmetic field isn't initialized here.
+                if (variablePresent) {
+                    assert f.getClass() == s.getClass();
+                    var type = TypeManager.getByClass(f.getClass()).orElseThrow();
+                    var variableMath = type.getArithmetic();
+                    if (variableMath.isEmpty())
+                        return null;
+                    arithmetic = variableMath.get();
+                }
 
-                    assert arithmetic != null;
-                    return new Object[] {arithmetic.difference(f, s)};
-                })
-                .orElse(new Object[0]);
+                assert arithmetic != null;
+                return new Object[]{arithmetic.difference(f, s)};
+            })
+            .orElse(new Object[0]);
     }
 
     @Override
     public Class<?> getReturnType() {
         return arithmetic != null
-                ? arithmetic.getRelativeType()
-                : ClassUtils.getCommonSuperclass(false, first.getReturnType(), second.getReturnType());
+            ? arithmetic.getRelativeType()
+            : ClassUtils.getCommonSuperclass(false, first.getReturnType(), second.getReturnType());
     }
 
     @Override

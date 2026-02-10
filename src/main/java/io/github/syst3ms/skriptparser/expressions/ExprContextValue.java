@@ -25,10 +25,6 @@ public class ExprContextValue<T, C extends TriggerContext> implements Expression
     private static final String PATTERN = "[the] [(1:(past|previous)|2:(future|next))] [ctx:(context|event)-]<.+>";
     private static final PatternElement CONTEXT_VALUE_PATTERN = PatternParser.parsePattern(PATTERN, new SkriptLogger()).orElseThrow();
 
-    private ContextValue<C, T> info;
-    private String value;
-    private boolean alone;
-
     static {
         //noinspection unchecked
         Parser.getMainRegistration().newExpression(ExprContextValue.class, Object.class, false,
@@ -39,6 +35,10 @@ public class ExprContextValue<T, C extends TriggerContext> implements Expression
             .since("1.0.0")
             .register();
     }
+
+    private ContextValue<C, T> info;
+    private String value;
+    private boolean alone;
 
     @SuppressWarnings("unchecked")
     @Override
@@ -145,7 +145,7 @@ public class ExprContextValue<T, C extends TriggerContext> implements Expression
 
     @Override
     public Class<? extends T> getReturnType() {
-        return this.info.getReturnType().getType().getTypeClass();
+        return this.info.getReturnType().type().getTypeClass();
     }
 
     @Override

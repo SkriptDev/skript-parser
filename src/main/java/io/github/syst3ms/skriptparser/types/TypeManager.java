@@ -15,15 +15,10 @@ import java.util.function.Function;
 @SuppressWarnings("unchecked")
 public class TypeManager {
 
-    public static enum StringMode {
-        STRING, VARIABLE
-    }
-
     /**
      * The string equivalent of null
      */
     public static final String NULL_REPRESENTATION = "<none>";
-
     /**
      * The string equivalent of an empty array
      */
@@ -149,6 +144,10 @@ public class TypeManager {
             nameToType.put(type.getBaseName(), type);
             classToType.put(type.getTypeClass(), type);
         }
+    }
+
+    public enum StringMode {
+        STRING, VARIABLE
     }
 
 }

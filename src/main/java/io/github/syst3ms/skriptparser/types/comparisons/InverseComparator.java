@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.types.comparisons;
 
 /**
  * A {@linkplain Comparator} that is the opposite of another one
+ *
  * @param <T1> the first type
  * @param <T2> the second type
  */

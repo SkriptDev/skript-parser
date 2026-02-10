@@ -14,54 +14,54 @@ import java.util.Optional;
 /**
  * The date that was a certain duration ago or is a certain duration in the future.
  *
+ * @author Mwexim
  * @name Ago/Later
  * @type EXPRESSION
  * @pattern %duration% (ago|in the past|before [the] [date] %date%)
  * @pattern %duration% (later|in the future|(from|after) [the] [date] %date%)
  * @since ALPHA
- * @author Mwexim
  */
 public class ExprDateAgoLater implements Expression<SkriptDate> {
-	static {
-		Parser.getMainRegistration().newExpression(
-				ExprDateAgoLater.class,
-				SkriptDate.class,
-				true,
-				"%duration% (ago|in the past|before [the] [date] %date%)",
-				"%duration% (later|in the future|(from|after) [the] [date] %date%)")
-			.name("Date Ago/Later")
-			.description("Returns the date that is a certain duration ago or in the future.")
-			.since("1.0.0")
-			.register();
-	}
+    static {
+        Parser.getMainRegistration().newExpression(
+                ExprDateAgoLater.class,
+                SkriptDate.class,
+                true,
+                "%duration% (ago|in the past|before [the] [date] %date%)",
+                "%duration% (later|in the future|(from|after) [the] [date] %date%)")
+            .name("Date Ago/Later")
+            .description("Returns the date that is a certain duration ago or in the future.")
+            .since("1.0.0")
+            .register();
+    }
 
-	private Expression<Duration> duration;
-	@Nullable
-	private Expression<SkriptDate> date;
-	private boolean past;
+    private Expression<Duration> duration;
+    @Nullable
+    private Expression<SkriptDate> date;
+    private boolean past;
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		past = matchedPattern == 0;
-		duration = (Expression<Duration>) expressions[0];
-		if (expressions.length == 2)
-			date = (Expression<SkriptDate>) expressions[1];
-		return true;
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        past = matchedPattern == 0;
+        duration = (Expression<Duration>) expressions[0];
+        if (expressions.length == 2)
+            date = (Expression<SkriptDate>) expressions[1];
+        return true;
+    }
 
-	@Override
-	public SkriptDate[] getValues(TriggerContext ctx) {
-		var actualDate = date != null ? date.getSingle(ctx) : Optional.of(SkriptDate.now());
-		return DoubleOptional.ofOptional(actualDate, duration.getSingle(ctx))
-				.mapToOptional((da, du) -> new SkriptDate[] {past ? da.minus(du) : da.plus(du)})
-				.orElse(new SkriptDate[0]);
-	}
+    @Override
+    public SkriptDate[] getValues(TriggerContext ctx) {
+        var actualDate = date != null ? date.getSingle(ctx) : Optional.of(SkriptDate.now());
+        return DoubleOptional.ofOptional(actualDate, duration.getSingle(ctx))
+            .mapToOptional((da, du) -> new SkriptDate[]{past ? da.minus(du) : da.plus(du)})
+            .orElse(new SkriptDate[0]);
+    }
 
-	@Override
-	public String toString(TriggerContext ctx, boolean debug) {
-		return date != null
-				? duration.toString(ctx, debug) + (past ? " before date " : " after date ") + date.toString(ctx, debug)
-				: duration.toString(ctx, debug) + (past ? " in the past" : " in the future");
-	}
+    @Override
+    public String toString(TriggerContext ctx, boolean debug) {
+        return date != null
+            ? duration.toString(ctx, debug) + (past ? " before date " : " after date ") + date.toString(ctx, debug)
+            : duration.toString(ctx, debug) + (past ? " in the past" : " in the future");
+    }
 }

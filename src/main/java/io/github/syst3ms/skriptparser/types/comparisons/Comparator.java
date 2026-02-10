@@ -4,6 +4,7 @@ import java.util.function.BiFunction;
 
 /**
  * An interface for comparing values of two given types
+ *
  * @param <T1> the first type
  * @param <T2> the second value
  * @see Comparators

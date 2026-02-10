@@ -8,10 +8,10 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 /**
  * A shorthand expression for giving things a default value. If the first thing isn't set, the second thing will be returned.
  *
+ * @author Olyno
  * @name Default Value
  * @pattern %objects% (otherwise|?) %objects%
  * @since ALPHA
- * @author Olyno
  */
 public class ExprDefaultValue implements Expression<Object> {
     static {
@@ -37,8 +37,8 @@ public class ExprDefaultValue implements Expression<Object> {
     @Override
     public Object[] getValues(TriggerContext ctx) {
         return firstValue.getValues(ctx).length != 0
-                ? firstValue.getValues(ctx)
-                : secondValue.getValues(ctx);
+            ? firstValue.getValues(ctx)
+            : secondValue.getValues(ctx);
     }
 
     @Override

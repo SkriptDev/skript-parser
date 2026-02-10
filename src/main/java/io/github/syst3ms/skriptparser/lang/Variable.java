@@ -30,6 +30,7 @@ import java.util.TreeMap;
 /**
  * A reference to a variable, whose value is only known at runtime. It can be local to the event, meaning it isn't
  * defined outside of the event it was first defined in. It can also be a list of multiple values. It can also be both.
+ *
  * @param <T> the common supertype of the possibly multiple values of the variable
  */
 @SuppressWarnings("unchecked")
@@ -78,6 +79,7 @@ public class Variable<T> implements Expression<T> {
     /**
      * Returns the raw value stored inside the variable map. This can either be the object
      * this Variable is referencing to or some sort of Map containing nested nodes.
+     *
      * @param ctx the event
      * @return the raw value
      */
@@ -86,11 +88,11 @@ public class Variable<T> implements Expression<T> {
         if (n.endsWith(Variables.LIST_SEPARATOR + "*") != list) // prevents e.g. {%expr%} where "%expr%" ends with "::*" from returning a Map
             return Optional.empty();
         return Variables.getVariable(n, ctx, local)
-                .or(() -> Variables.getVariable(
-                        (local ? Variables.LOCAL_VARIABLE_TOKEN : "") + name.defaultVariableName(),
-                        ctx,
-                        false
-                ));
+            .or(() -> Variables.getVariable(
+                (local ? Variables.LOCAL_VARIABLE_TOKEN : "") + name.defaultVariableName(),
+                ctx,
+                false
+            ));
     }
 
     private Optional<? extends T> getConverted(TriggerContext ctx) {
@@ -139,7 +141,7 @@ public class Variable<T> implements Expression<T> {
 
     @Override
     public Optional<Class<?>[]> acceptsChange(ChangeMode mode) {
-        return Optional.of(new Class[] {list ? Object[].class : Object.class});
+        return Optional.of(new Class[]{list ? Object[].class : Object.class});
     }
 
     @SuppressWarnings("rawtypes")
@@ -153,7 +155,7 @@ public class Variable<T> implements Expression<T> {
                     if (o == null)
                         return;
                     for (var i : o.entrySet()) {
-                        if (i.getKey() != null){
+                        if (i.getKey() != null) {
                             rem.add(i.getKey());
                         }
                     }
@@ -185,8 +187,8 @@ public class Variable<T> implements Expression<T> {
                 break;
             case RESET:
                 Optional<? extends Collection<?>> x = getRaw(ctx).map(r -> r instanceof Map
-                        ? ((Map<?, ?>) r).values()
-                        : Collections.singletonList(r)
+                    ? ((Map<?, ?>) r).values()
+                    : Collections.singletonList(r)
                 );
                 if (x.isEmpty())
                     return;
@@ -264,8 +266,8 @@ public class Variable<T> implements Expression<T> {
                                     o = Optional.of(d);
                                 if (d instanceof Number) {
                                     o = mode == ChangeMode.REMOVE
-                                            ? Optional.of(NumberMath.negate((Number) d))
-                                            : Optional.of(d);
+                                        ? Optional.of(NumberMath.negate((Number) d))
+                                        : Optional.of(d);
                                 }
                                 changed = true;
                                 continue;

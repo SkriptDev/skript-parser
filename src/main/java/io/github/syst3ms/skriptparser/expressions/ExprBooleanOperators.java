@@ -11,17 +11,17 @@ import java.util.Optional;
 /**
  * Basic boolean operators. It is possible to use conditions inside the operators.
  *
+ * @author Syst3ms
  * @name Boolean Operators
  * @pattern not %=boolean%
  * @pattern %=boolean% (or|\|\|) %=boolean%
  * @pattern %=boolean% (and|&&) %=boolean%
  * @since ALPHA
- * @author Syst3ms
  */
 public class ExprBooleanOperators implements Expression<Boolean> {
     static {
         Parser.getMainRegistration().newExpression(
-            ExprBooleanOperators.class, Boolean.class, true,
+                ExprBooleanOperators.class, Boolean.class, true,
                 "not %=boolean%",
                 "%=boolean% (or|\\|\\|) %=boolean%",
                 "%=boolean% (and|&&) %=boolean%")
@@ -54,12 +54,12 @@ public class ExprBooleanOperators implements Expression<Boolean> {
     public Boolean[] getValues(TriggerContext ctx) {
         assert second != null || pattern == 0;
         return first.getSingle(ctx)
-                .flatMap(f -> pattern == 0
-                        ? Optional.of(!f)
-                        : second.getSingle(ctx).map(s -> pattern == 1 ? f || s : f && s)
-                )
-                .map(val -> new Boolean[] {val})
-                .orElse(new Boolean[0]);
+            .flatMap(f -> pattern == 0
+                ? Optional.of(!f)
+                : second.getSingle(ctx).map(s -> pattern == 1 ? f || s : f && s)
+            )
+            .map(val -> new Boolean[]{val})
+            .orElse(new Boolean[0]);
     }
 
     @Override

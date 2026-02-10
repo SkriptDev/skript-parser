@@ -16,7 +16,7 @@ import io.github.syst3ms.skriptparser.registration.SyntaxManager;
  *     <li>{@code something has something}</li>
  * </ul>
  * The plural and negated forms are also supported.
- *
+ * <p>
  * The gains of using this class:
  * <ul>
  *     <li>There is a useful {@link #toString(TriggerContext, boolean, String) toString()}
@@ -25,6 +25,7 @@ import io.github.syst3ms.skriptparser.registration.SyntaxManager;
  *     <li>Registration is very straightforward.</li>
  *     <li>The performer expression is automatically checked for nullity.</li>
  * </ul>
+ *
  * @param <P> the type of the performer in this condition
  * @author Mwexim
  */
@@ -34,16 +35,40 @@ public abstract class PropertyConditional<P> extends ConditionalExpression {
 
     private Expression<P> performer;
 
+    public static String[] composePatterns(String performer, ConditionalType conditionalType, String property) {
+        var type = performer.startsWith("*") ? performer.substring(1) : "%" + performer + "%";
+        switch (conditionalType) {
+            case BE:
+                return new String[]{
+                    type + " (is|are) " + property,
+                    type + " (is|are)( not|n't) " + property,
+                };
+            case CAN:
+                return new String[]{
+                    type + " can " + property,
+                    type + " can([ ]not|'t) " + property,
+                };
+            case HAVE:
+                return new String[]{
+                    type + " (has|have) " + property,
+                    type + " does( not|n't) have " + property,
+                };
+            default:
+                throw new AssertionError();
+        }
+    }
+
     /**
      * This default {@code init()} implementation automatically properly sets the performer in this condition,
      * which can be accessed using {@link #getPerformer()}. If this implementation is overridden for one reason
      * or another, it must call {@link #setPerformer(Expression)} properly.
-     * @param expressions an array of expressions representing all the expressions that are being passed
-     *                    to this syntax element.
+     *
+     * @param expressions    an array of expressions representing all the expressions that are being passed
+     *                       to this syntax element.
      * @param matchedPattern the index of the pattern that was successfully matched. It corresponds to the order of
      *                       the syntaxes in registration
-     * @param parseContext an object containing additional information about the parsing of this syntax element, like
-     *                    regex matches and parse marks
+     * @param parseContext   an object containing additional information about the parsing of this syntax element, like
+     *                       regex matches and parse marks
      * @return whether the initialization was successful or not.
      */
     @SuppressWarnings("unchecked")
@@ -62,6 +87,7 @@ public abstract class PropertyConditional<P> extends ConditionalExpression {
     /**
      * Tests this condition for each individual performer. Negated conditions are taken care of
      * automatically, so one must not account for it in here.
+     *
      * @param performer the performer
      * @return whether the conditions is true for this performer
      */
@@ -72,16 +98,16 @@ public abstract class PropertyConditional<P> extends ConditionalExpression {
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
         var property = SyntaxManager.getExpressionExact(this)
-                .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
-                .getData(PROPERTY_IDENTIFIER, String.class);
+            .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
+            .getData(PROPERTY_IDENTIFIER, String.class);
         return toString(ctx, debug, property);
     }
 
     protected String toString(TriggerContext ctx, boolean debug, String property) {
         var performer = getPerformer();
         var conditionalType = SyntaxManager.getExpressionExact(this)
-                .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
-                .getData(CONDITIONAL_TYPE_IDENTIFIER, ConditionalType.class);
+            .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
+            .getData(CONDITIONAL_TYPE_IDENTIFIER, ConditionalType.class);
         switch (conditionalType) {
             case BE:
                 return performer.toString(ctx, debug) + (performer.isSingle() ? " is " : " are ") + (isNegated() ? "not " : "") + property;
@@ -104,28 +130,5 @@ public abstract class PropertyConditional<P> extends ConditionalExpression {
 
     public void setPerformer(Expression<P> performer) {
         this.performer = performer;
-    }
-
-    public static String[] composePatterns(String performer, ConditionalType conditionalType, String property) {
-        var type = performer.startsWith("*") ? performer.substring(1) : "%" + performer + "%";
-        switch (conditionalType) {
-            case BE:
-                return new String[] {
-                        type + " (is|are) " + property,
-                        type + " (is|are)( not|n't) " + property,
-                };
-            case CAN:
-                return new String[] {
-                        type + " can " + property,
-                        type + " can([ ]not|'t) " + property,
-                };
-            case HAVE:
-                return new String[] {
-                        type + " (has|have) " + property,
-                        type + " does( not|n't) have " + property,
-                };
-            default:
-                throw new AssertionError();
-        }
     }
 }

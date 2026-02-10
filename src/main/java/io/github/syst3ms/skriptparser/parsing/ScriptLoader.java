@@ -86,18 +86,18 @@ public class ScriptLoader {
                 );
             }
         }
-        unloadedTriggers.sort((a, b) -> b.getTrigger().getEvent().getLoadingPriority() - a.getTrigger().getEvent().getLoadingPriority());
+        unloadedTriggers.sort((a, b) -> b.trigger().getEvent().getLoadingPriority() - a.trigger().getEvent().getLoadingPriority());
 
         for (var unloaded : unloadedTriggers) {
             logger.finalizeLogs();
-            logger.setLine(unloaded.getLine());
-            var loaded = unloaded.getTrigger();
-            loaded.loadSection(unloaded.getSection(), unloaded.getParserState(), logger);
+            logger.setLine(unloaded.line());
+            var loaded = unloaded.trigger();
+            loaded.loadSection(unloaded.section(), unloaded.parserState(), logger);
             //unloaded.getEventInfo().getRegisterer().handleTrigger(scriptName,loaded);
 
-            SkriptEvent event = unloaded.getTrigger().getEvent();
+            SkriptEvent event = unloaded.trigger().getEvent();
 
-            Set<Class<? extends TriggerContext>> contexts = unloaded.getEventInfo().getContexts();
+            Set<Class<? extends TriggerContext>> contexts = unloaded.eventInfo().getContexts();
             if (contexts.isEmpty()) {
                 // A dummy context will be used for this
                 TriggerMap.addTrigger(scriptName, TriggerContext.class, loaded);

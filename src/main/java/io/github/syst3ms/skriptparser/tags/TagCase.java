@@ -5,35 +5,37 @@ import io.github.syst3ms.skriptparser.registration.tags.Tag;
 
 /**
  * Applies lowercase or uppercase to the affected string.
+ *
+ * @author Mwexim
  * @name Case Tag
  * @type TAG
  * @pattern case=lower|upper
  * @since ALPHA
- * @author Mwexim
  */
 public class TagCase implements Tag {
 
-	static {
-		Parser.getMainRegistration().addTag(TagCase.class);
-	}
+    static {
+        Parser.getMainRegistration().addTag(TagCase.class);
+    }
 
-	String param;
-	public boolean init(String key, String[] parameters) {
-		if (key.equalsIgnoreCase("case")
-				&& parameters.length == 1) {
-			param = parameters[0];
-			return true;
-		}
-		return false;
-	}
+    String param;
 
-	public String getValue(String affected) {
-		return param.equalsIgnoreCase("upper") ? affected.toUpperCase()
-				: param.equalsIgnoreCase("lower") ? affected.toLowerCase()
-				: affected;
-	}
+    public boolean init(String key, String[] parameters) {
+        if (key.equalsIgnoreCase("case")
+            && parameters.length == 1) {
+            param = parameters[0];
+            return true;
+        }
+        return false;
+    }
 
-	public String toString(boolean debug) {
-		return "<case=" + param + ">";
-	}
+    public String getValue(String affected) {
+        return param.equalsIgnoreCase("upper") ? affected.toUpperCase()
+            : param.equalsIgnoreCase("lower") ? affected.toLowerCase()
+            : affected;
+    }
+
+    public String toString(boolean debug) {
+        return "<case=" + param + ">";
+    }
 }

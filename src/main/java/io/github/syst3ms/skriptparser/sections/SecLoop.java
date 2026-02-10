@@ -59,6 +59,24 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
     @Nullable
     private Iterator<?> iterator;
 
+    /**
+     * Returns a SimpleLiteral containing the numbers 1 up until a certain amount, specified
+     * by the given expression.
+     *
+     * @param ctx  the context
+     * @param size the expression
+     * @return the SimpleLiteral
+     */
+    private static Expression<Integer> rangeOf(TriggerContext ctx, Expression<Integer> size) {
+        Integer[] range = (Integer[]) size.getSingle(ctx)
+            .filter(t -> t > 0)
+            .map(t -> Ranges.getRange(Integer.class).orElseThrow()
+                .function()
+                .apply(1, t)) // Upper bound is inclusive
+            .orElse(new Integer[0]);
+        return new SimpleLiteral<>(Integer.class, range);
+    }
+
     @Override
     public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
         if (!super.loadSection(section, parserState, logger))
@@ -160,23 +178,5 @@ public class SecLoop extends ArgumentSection implements Continuable, SelfReferen
             expression = rangeOf(TriggerContext.DUMMY, times);
         }
         return expression;
-    }
-
-    /**
-     * Returns a SimpleLiteral containing the numbers 1 up until a certain amount, specified
-     * by the given expression.
-     *
-     * @param ctx  the context
-     * @param size the expression
-     * @return the SimpleLiteral
-     */
-    private static Expression<Integer> rangeOf(TriggerContext ctx, Expression<Integer> size) {
-        Integer[] range = (Integer[]) size.getSingle(ctx)
-            .filter(t -> t > 0)
-            .map(t -> Ranges.getRange(Integer.class).orElseThrow()
-                .getFunction()
-                .apply(1, t)) // Upper bound is inclusive
-            .orElse(new Integer[0]);
-        return new SimpleLiteral<>(Integer.class, range);
     }
 }

@@ -40,14 +40,15 @@ public class TagManager {
     /**
      * Parse a string as a {@link Tag}.
      * Note that this does not support angle brackets ('<>') or ampersands ('&').
+     *
      * @param toParse the string to parse
-     * @param logger the logger
+     * @param logger  the logger
      * @return the parsed tag, empty if no tag was found
      */
     public static Optional<Tag> parseTag(String toParse, SkriptLogger logger) {
         if (toParse.isEmpty()
-                || Character.isWhitespace(toParse.charAt(0))
-                || Character.isWhitespace(toParse.charAt(toParse.length() - 1)))
+            || Character.isWhitespace(toParse.charAt(0))
+            || Character.isWhitespace(toParse.charAt(toParse.length() - 1)))
             return Optional.empty();
 
         for (var recentTag : recentTags) {
@@ -81,21 +82,22 @@ public class TagManager {
         assert values.length == 1 || values.length == 2;
         String key = values[0];
         String[] parameters = values.length == 2
-                // Basically splits at ',' but takes backslashes into account.
-                ? values[1].split("(?<!\\\\)(?:\\\\\\\\)*,")
-                : new String[0];
+            // Basically splits at ',' but takes backslashes into account.
+            ? values[1].split("(?<!\\\\)(?:\\\\\\\\)*,")
+            : new String[0];
         for (String s : parameters) {
             if (s.isEmpty())
                 return Optional.empty();
         }
         try {
             var tag = info.getSyntaxClass()
-                    .getDeclaredConstructor()
-                    .newInstance();
+                .getDeclaredConstructor()
+                .newInstance();
             logger.setContext(ErrorContext.INITIALIZATION);
             if (tag.init(key, parameters))
                 return Optional.of(tag);
-        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException |
+                 InvocationTargetException e) {
             logger.error("Couldn't instantiate class " + info.getSyntaxClass(), ErrorType.EXCEPTION);
         }
         return Optional.empty();

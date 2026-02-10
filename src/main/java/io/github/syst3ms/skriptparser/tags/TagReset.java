@@ -5,29 +5,30 @@ import io.github.syst3ms.skriptparser.registration.tags.Tag;
 
 /**
  * A tag that resets all currently ongoing tags.
+ *
+ * @author Mwexim
  * @name Reset Tag
  * @type TAG
  * @pattern reset, r
  * @since ALPHA
- * @author Mwexim
  */
 public class TagReset implements Tag {
 
-	static {
-		Parser.getMainRegistration().addTag(TagReset.class, 3);
-	}
+    static {
+        Parser.getMainRegistration().addTag(TagReset.class, 3);
+    }
 
-	public boolean init(String key, String[] parameters) {
-		return key.equalsIgnoreCase("reset")
-				|| key.equalsIgnoreCase("r")
-				&& parameters.length == 0;
-	}
+    public boolean init(String key, String[] parameters) {
+        return key.equalsIgnoreCase("reset")
+            || key.equalsIgnoreCase("r")
+            && parameters.length == 0;
+    }
 
-	public String getValue(String affected) {
-		return affected;
-	}
+    public String getValue(String affected) {
+        return affected;
+    }
 
-	public String toString(boolean debug) {
-		return "<reset>";
-	}
+    public String toString(boolean debug) {
+        return "<reset>";
+    }
 }

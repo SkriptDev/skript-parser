@@ -230,7 +230,7 @@ public class ExpressionElement implements PatternElement {
              */
             expression.ifPresent(e -> {
                 if (e instanceof Variable && types.length > 1) {
-                    var typeClasses = Arrays.stream(types).map(val -> val.getType().getTypeClass()).toArray(Class[]::new);
+                    var typeClasses = Arrays.stream(types).map(val -> val.type().getTypeClass()).toArray(Class[]::new);
                     ((Variable<?>) e).setReturnType(ClassUtils.getCommonSuperclass(typeClasses));
                 }
             });

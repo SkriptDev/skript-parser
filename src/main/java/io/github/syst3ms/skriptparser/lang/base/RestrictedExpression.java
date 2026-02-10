@@ -13,9 +13,10 @@ import java.util.List;
  * An expression that can only be used in select CodeSections. It is possible to make a RestrictedExpression "strict" ;
  * that is, it would be invalid to use it when not directly enclosed in one of its required sections.
  * It is possible to specify the error message that should be shown if the restrictions aren't followed.
- *
+ * <p>
  * This class shouldn't be used for expressions that should only work with specific {@link TriggerContext}s.
  * For this purpose, use {@link ParseContext#getParserState()} in conjuction with {@link ParserState#getCurrentContexts()}.
+ *
  * @param <T> the return type
  * @see ParserState#getCurrentContexts()
  */
@@ -36,10 +37,10 @@ public abstract class RestrictedExpression<T> implements Expression<T> {
         if (required == null) {
             var logger = parseContext.getLogger();
             logger.error(
-                    getSpecificErrorMessage() + " : '"
-                            + this.toString(TriggerContext.DUMMY, logger.isDebug()) + "'",
-                    ErrorType.SEMANTIC_ERROR,
-                    "This expression cannot be used everywhere. Refer to the documentation to see the correct usage of this expression");
+                getSpecificErrorMessage() + " : '"
+                    + this.toString(TriggerContext.DUMMY, logger.isDebug()) + "'",
+                ErrorType.SEMANTIC_ERROR,
+                "This expression cannot be used everywhere. Refer to the documentation to see the correct usage of this expression");
             return false;
         }
         return initialize(expressions, required, matchedPattern, parseContext);
@@ -49,18 +50,21 @@ public abstract class RestrictedExpression<T> implements Expression<T> {
 
     /**
      * The error message that should be displayed if this expression is used outside of one of its required sections
+     *
      * @return the error message that should be displayed if this expression is used outside of one of its required sections
      */
     protected abstract String getSpecificErrorMessage();
 
     /**
      * Returns a list of the classes of all the sections inside of which this expression can be used
+     *
      * @return a list of the classes of all the sections inside of which this expression can be used
      */
     protected abstract List<Class<? extends CodeSection>> getRequiredSections();
 
     /**
      * True if the directly enclosing section must be a required one (a member of {@link #getRequiredSections()}), false otherwise.
+     *
      * @return whether the directly enclosing section must be a required one or not
      */
     protected abstract boolean isStrict();

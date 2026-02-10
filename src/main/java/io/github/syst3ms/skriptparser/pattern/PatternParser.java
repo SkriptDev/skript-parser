@@ -240,7 +240,7 @@ public class PatternParser {
                         patternTypes.add(t.get());
                     }
                     var acceptConditional = m.group(3) != null;
-                    if (acceptConditional && patternTypes.stream().noneMatch(t -> t.getType().getTypeClass() == Boolean.class)) {
+                    if (acceptConditional && patternTypes.stream().noneMatch(t -> t.type().getTypeClass() == Boolean.class)) {
                         logger.error("Can't use the '=' flag on non-boolean types (index " + initialPos + ")", ErrorType.SEMANTIC_ERROR);
                         return Optional.empty();
                     }

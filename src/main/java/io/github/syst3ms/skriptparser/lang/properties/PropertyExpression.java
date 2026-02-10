@@ -22,26 +22,36 @@ import java.util.Objects;
  * to implement them.
  * The class also provides default implementations of {@link #init(Expression[], int, ParseContext)}
  * and {@link #getValues(TriggerContext)}. Their default functionality is specified below.
+ *
  * @param <T> The returned type of this expression.
  * @param <O> The type of the owner of this expression.
  * @author Mwexim
  */
-public abstract class PropertyExpression<O,T> implements Expression<T> {
+public abstract class PropertyExpression<O, T> implements Expression<T> {
     public static final String PROPERTY_IDENTIFIER = "property";
 
     private Expression<O> owner;
     private boolean genitive;
 
+    public static String[] composePatterns(String property, String owner) {
+        var ownerType = owner.startsWith("*") ? owner.substring(1) : "%" + owner + "%";
+        return new String[]{
+            ownerType + "'[s] " + property,
+            "[the] " + property + " of " + ownerType
+        };
+    }
+
     /**
      * This default {@code init()} implementation automatically properly sets the owner of this property,
      * which can be accessed using {@link #getOwner()}. If this implementation is overridden for one reason
      * or another, it must call {@link #setOwner(Expression)} properly.
-     * @param expressions an array of expressions representing all the expressions that are being passed
-     *                    to this syntax element.
+     *
+     * @param expressions    an array of expressions representing all the expressions that are being passed
+     *                       to this syntax element.
      * @param matchedPattern the index of the pattern that was successfully matched. It corresponds to the order of
      *                       the syntaxes in registration
-     * @param parseContext an object containing additional information about the parsing of this syntax element, like
-     *                    regex matches and parse marks
+     * @param parseContext   an object containing additional information about the parsing of this syntax element, like
+     *                       regex matches and parse marks
      * @return whether the initialization was successful or not.
      */
     @SuppressWarnings("unchecked")
@@ -54,18 +64,20 @@ public abstract class PropertyExpression<O,T> implements Expression<T> {
 
     /**
      * A simple default method that will apply {@link #getProperty(Object)} on the {@link #owner} of this property.
+     *
      * @param ctx the event
      * @return the values of this property after applying the {@link #getProperty(Object)} function on the owner.
      */
     @SuppressWarnings("unchecked")
     @Override
     public T[] getValues(TriggerContext ctx) {
-        List<T> list = this.owner.stream(ctx).map( this::getProperty).filter(Objects::nonNull).toList();
+        List<T> list = this.owner.stream(ctx).map(this::getProperty).filter(Objects::nonNull).toList();
         return list.toArray((T[]) Array.newInstance(getReturnType(), list.size()));
     }
 
     /**
      * For each owner, this method will be ran individually to convert it to this particular property.
+     *
      * @param owner the owner
      * @return the property value
      */
@@ -82,15 +94,15 @@ public abstract class PropertyExpression<O,T> implements Expression<T> {
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
         var property = SyntaxManager.getExpressionExact(this)
-                .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
-                .getData(PROPERTY_IDENTIFIER, String.class);
+            .orElseThrow(() -> new SkriptParserException("Unregistered property class: " + getClass().getName()))
+            .getData(PROPERTY_IDENTIFIER, String.class);
         return toString(ctx, debug, property);
     }
 
     protected String toString(TriggerContext ctx, boolean debug, String property) {
         return genitive
-                ? owner.toString(ctx, debug) + "'s " + property
-                : property + " of " + owner.toString(ctx, debug);
+            ? owner.toString(ctx, debug) + "'s " + property
+            : property + " of " + owner.toString(ctx, debug);
     }
 
     public Expression<O> getOwner() {
@@ -108,17 +120,10 @@ public abstract class PropertyExpression<O,T> implements Expression<T> {
      *     <li><b>regular:</b> book of Mwexim</li>
      * </ul>
      * One may use this method to check if the pattern used is in the genitive form.
+     *
      * @return whether the pattern is in the genitive form or not.
      */
     public boolean isGenitive() {
         return genitive;
-    }
-
-    public static String[] composePatterns(String property, String owner) {
-        var ownerType = owner.startsWith("*") ? owner.substring(1) : "%" + owner + "%";
-        return new String[] {
-                ownerType + "'[s] " + property,
-                "[the] " + property + " of " + ownerType
-        };
     }
 }

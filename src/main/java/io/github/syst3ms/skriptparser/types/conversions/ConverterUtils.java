@@ -10,32 +10,32 @@ import java.util.function.Function;
 public class ConverterUtils {
 
     public static <F, T> Function<?, Optional<? extends T>> createInstanceofConverter(ConverterInfo<F, T> conv) {
-        return createInstanceofConverter(conv.getFrom(), conv.getConverter());
+        return createInstanceofConverter(conv.from(), conv.converter());
     }
 
     public static <F, T> Function<?, Optional<? extends T>> createInstanceofConverter(Class<F> from, Function<? super F, Optional<? extends T>> conv) {
         return p -> Optional.ofNullable(p)
-                .filter(from::isInstance)
-                .flatMap(f -> conv.apply((F) f));
+            .filter(from::isInstance)
+            .flatMap(f -> conv.apply((F) f));
     }
 
     public static <F, T> Function<? super F, Optional<? extends T>> createInstanceofConverter(Function<? super F, Optional<? extends T>> conv, Class<T> to) {
         return p -> conv.apply(p)
-                .filter(to::isInstance)
-                .map(to::cast);
+            .filter(to::isInstance)
+            .map(to::cast);
     }
 
     public static <F, T> Function<?, Optional<? extends T>> createDoubleInstanceofConverter(ConverterInfo<F, ?> conv, Class<T> to) {
-        Function<? super F, ?> function = conv.getConverter();
-        return createDoubleInstanceofConverter(conv.getFrom(), (Function<F, Optional<?>>) function, to);
+        Function<? super F, ?> function = conv.converter();
+        return createDoubleInstanceofConverter(conv.from(), (Function<F, Optional<?>>) function, to);
     }
 
     public static <F, T> Function<?, Optional<? extends T>> createDoubleInstanceofConverter(Class<F> from, Function<? super F, Optional<?>> conv, Class<T> to) {
         return p -> Optional.ofNullable(p)
-                .filter(from::isInstance)
-                .flatMap(f -> conv.apply((F) f))
-                .filter(to::isInstance)
-                .map(to::cast);
+            .filter(from::isInstance)
+            .flatMap(f -> conv.apply((F) f))
+            .filter(to::isInstance)
+            .map(to::cast);
     }
 
 }

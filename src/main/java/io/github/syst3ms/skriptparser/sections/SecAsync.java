@@ -19,11 +19,11 @@ import java.util.Optional;
  * Only the code that is inside the section will be executed from another thread.
  * This may cause some delay. If you don't know what this is, you probably don't need it.
  *
+ * @author Mwexim
  * @name Async
  * @type SECTION
  * @pattern async[hronous[ly]]
  * @since ALPHA
- * @author Mwexim
  */
 public class SecAsync extends CodeSection {
     static {

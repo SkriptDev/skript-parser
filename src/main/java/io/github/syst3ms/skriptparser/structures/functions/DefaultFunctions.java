@@ -7,7 +7,7 @@ public class DefaultFunctions {
 
     static {
         SkriptRegistration reg = Parser.getMainRegistration();
-        Functions.newJavaFunction(reg,new JavaFunction<>(
+        Functions.newJavaFunction(reg, new JavaFunction<>(
                 "mod",
                 new FunctionParameter[]{new FunctionParameter<>("i", Number.class, true), new FunctionParameter<>("m", Number.class, true)},
                 Number.class,

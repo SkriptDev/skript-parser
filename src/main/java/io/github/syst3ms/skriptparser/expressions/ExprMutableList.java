@@ -11,19 +11,19 @@ import java.util.Collections;
 /**
  * Reverse, shuffle or order a given list.
  *
+ * @author Olyno
  * @name Mutable List
  * @pattern reverse[d] %objects%
  * @pattern shuffle[d] %objects%
  * @pattern sort[ed] %objects%
  * @since ALPHA
- * @author Olyno
  */
 public class ExprMutableList implements Expression<Object> {
     static {
         Parser.getMainRegistration().newExpression(ExprMutableList.class, Object.class, false,
-            "reverse[d] %objects%",
-            "shuffle[d] %objects%",
-            "sort[ed] %objects%")
+                "reverse[d] %objects%",
+                "shuffle[d] %objects%",
+                "sort[ed] %objects%")
             .name("Mutable List")
             .description("Reverses, shuffles or sorts a list.")
             .since("1.0.0")
@@ -67,6 +67,6 @@ public class ExprMutableList implements Expression<Object> {
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
-        return new String[] {"reversed ", "shuffled ", "sorted "}[type] + list.toString(ctx, debug);
+        return new String[]{"reversed ", "shuffled ", "sorted "}[type] + list.toString(ctx, debug);
     }
 }

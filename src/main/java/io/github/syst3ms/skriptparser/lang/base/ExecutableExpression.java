@@ -29,7 +29,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
  */
 public abstract class ExecutableExpression<T> extends Effect implements Expression<T> {
 
-	@Override
+    @Override
     protected void execute(TriggerContext ctx) {
         getValues(ctx, true);
     }
@@ -44,7 +44,8 @@ public abstract class ExecutableExpression<T> extends Effect implements Expressi
      * Otherwise, if used as an effect, performs side-effects with certain
      * {@link ExecutableExpression behaviour}. Note that when this is not the case,
      * this syntax, by convention, should not have any side-effects.
-     * @param ctx the context
+     *
+     * @param ctx      the context
      * @param isEffect whether this syntax is used as effect or as an expression
      * @return an array of the values
      */

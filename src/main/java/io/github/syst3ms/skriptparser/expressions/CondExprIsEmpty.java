@@ -12,11 +12,11 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
  * If you want a string list to be checked as a list instead of all separate strings,
  * you should use the 'list' modifier at the end.
  *
+ * @author Olyno
  * @name Is Empty
  * @pattern %objects% (is|are)[( not|n't)] empty
  * @pattern %strings% (is|are)[( not|n't)] [an] empty string[s]
  * @since ALPHA
- * @author Olyno
  */
 public class CondExprIsEmpty extends ConditionalExpression {
     static {
@@ -52,8 +52,8 @@ public class CondExprIsEmpty extends ConditionalExpression {
         } else {
             var values = expression.getValues(ctx);
             return isNegated() != (values.length != 1
-                    ? values.length == 0
-                    : values[0] instanceof String && ((String) values[0]).isBlank());
+                ? values.length == 0
+                : values[0] instanceof String && ((String) values[0]).isBlank());
         }
     }
 

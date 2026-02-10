@@ -30,48 +30,47 @@ import java.util.Optional;
  * will all be concatenated into one list and will replace the given expression.
  * Note that the mapped expression will be changed, hence why it can't be a literal list.
  *
+ * @author Mwexim
  * @name Flat Map
  * @type SECTION
  * @pattern flat map %~objects%|map %~objects% flat
  * @since ALPHA
- * @author Mwexim
  */
 public class SecFlatMap extends ReturnSection<Object> implements SelfReferencing {
     static {
         Parser.getMainRegistration().newSection(
                 SecFlatMap.class,
                 "flat map %~objects%|map %~objects% flat")
-			.name("Flat Map")
-			.description("Maps the returned value(s) to the values of a given expression, one by one.") // TODO BETTER DOCS
-			.since("1.0.0");
+            .name("Flat Map")
+            .description("Maps the returned value(s) to the values of a given expression, one by one.") // TODO BETTER DOCS
+            .since("1.0.0");
     }
 
+    private final List<Object> result = new ArrayList<>();
     private Expression<?> flatMapped;
+    @Nullable
+    private Statement actualNext;
+    @Nullable
+    private Iterator<?> iterator;
 
-	@Nullable
-	private Statement actualNext;
-	@Nullable
-	private Iterator<?> iterator;
-	private final List<Object> result = new ArrayList<>();
-
-	@Override
-	public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
-		var currentLine = logger.getLine();
-		super.setNext(this);
-		return super.loadSection(section, parserState, logger) && checkReturns(logger, currentLine, true);
-	}
+    @Override
+    public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
+        var currentLine = logger.getLine();
+        super.setNext(this);
+        return super.loadSection(section, parserState, logger) && checkReturns(logger, currentLine, true);
+    }
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         flatMapped = expressions[0];
         var logger = parseContext.getLogger();
         if (!flatMapped.acceptsChange(ChangeMode.SET, flatMapped.getReturnType(), false)
-				|| flatMapped.acceptsChange(ChangeMode.DELETE).isEmpty()) {
+            || flatMapped.acceptsChange(ChangeMode.DELETE).isEmpty()) {
             logger.error(
-                    "The expression '" +
-                            flatMapped.toString(TriggerContext.DUMMY, logger.isDebug()) +
-                            "' cannot be changed",
-                    ErrorType.SEMANTIC_ERROR
+                "The expression '" +
+                    flatMapped.toString(TriggerContext.DUMMY, logger.isDebug()) +
+                    "' cannot be changed",
+                ErrorType.SEMANTIC_ERROR
             );
             return false;
         }
@@ -79,45 +78,45 @@ public class SecFlatMap extends ReturnSection<Object> implements SelfReferencing
     }
 
     @SuppressWarnings("unchecked")
-	@Override
+    @Override
     public Optional<? extends Statement> walk(TriggerContext ctx) {
-		boolean isVariable = flatMapped instanceof Variable<?>;
-		if (iterator == null)
-			iterator = isVariable
-					? ((Variable<?>) flatMapped).variablesIterator(ctx)
-					: flatMapped.iterator(ctx);
+        boolean isVariable = flatMapped instanceof Variable<?>;
+        if (iterator == null)
+            iterator = isVariable
+                ? ((Variable<?>) flatMapped).variablesIterator(ctx)
+                : flatMapped.iterator(ctx);
 
-		if (iterator.hasNext()) {
-			setArguments(isVariable
-					? ((Pair<String, Object>) iterator.next()).getSecond()
-					: iterator.next()
-			);
-			return start();
-		} else {
-			if (result.size() == 0) {
-				flatMapped.change(ctx, ChangeMode.DELETE, new Object[0]);
-			} else {
-				flatMapped.change(ctx, ChangeMode.SET, result.toArray());
-			}
-			finish();
-			return Optional.ofNullable(actualNext);
-		}
+        if (iterator.hasNext()) {
+            setArguments(isVariable
+                ? ((Pair<String, Object>) iterator.next()).second()
+                : iterator.next()
+            );
+            return start();
+        } else {
+            if (result.size() == 0) {
+                flatMapped.change(ctx, ChangeMode.DELETE, new Object[0]);
+            } else {
+                flatMapped.change(ctx, ChangeMode.SET, result.toArray());
+            }
+            finish();
+            return Optional.ofNullable(actualNext);
+        }
     }
 
-	@Override
-	public void step(Statement item) {
-		assert getArguments().length == 1;
-		if (getReturned().isPresent()) {
-			result.addAll(Arrays.asList(getReturned().get())); // We add the filtered argument to the result
-		}
-	}
+    @Override
+    public void step(Statement item) {
+        assert getArguments().length == 1;
+        if (getReturned().isPresent()) {
+            result.addAll(Arrays.asList(getReturned().get())); // We add the filtered argument to the result
+        }
+    }
 
-	@Override
-	public void finish() {
-		// Cache clearing
-		iterator = null;
-		result.clear();
-	}
+    @Override
+    public void finish() {
+        // Cache clearing
+        iterator = null;
+        result.clear();
+    }
 
     @Override
     public Class<?> getReturnType() {
@@ -129,18 +128,18 @@ public class SecFlatMap extends ReturnSection<Object> implements SelfReferencing
         return false;
     }
 
-	@Override
-	public Statement setNext(@Nullable Statement next) {
-		actualNext = next;
-		return this;
-	}
+    @Override
+    public Statement setNext(@Nullable Statement next) {
+        actualNext = next;
+        return this;
+    }
 
-	@Override
-	public Optional<Statement> getActualNext() {
-		return Optional.ofNullable(actualNext);
-	}
+    @Override
+    public Optional<Statement> getActualNext() {
+        return Optional.ofNullable(actualNext);
+    }
 
-	@Override
+    @Override
     public String toString(TriggerContext ctx, boolean debug) {
         return "flat map " + flatMapped.toString(ctx, debug);
     }

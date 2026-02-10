@@ -134,9 +134,9 @@ public class SyntaxParser {
             return literal;
         }
 
-        var variable = (Optional<? extends Variable<? extends T>>) Variables.parseVariable(s, expectedType.getType().getTypeClass(), parserState, logger);
+        var variable = (Optional<? extends Variable<? extends T>>) Variables.parseVariable(s, expectedType.type().getTypeClass(), parserState, logger);
         if (variable.isPresent()) {
-            if (variable.filter(v -> !v.isSingle() && expectedType.isSingle()).isPresent()) {
+            if (variable.filter(v -> !v.isSingle() && expectedType.single()).isPresent()) {
                 logger.error(
                         "A single value was expected, but " +
                                 s +
@@ -162,7 +162,7 @@ public class SyntaxParser {
                 return booleanOperator;
             }
         }
-        if (!expectedType.isSingle()) {
+        if (!expectedType.single()) {
             var listLiteral = parseListLiteral(s, expectedType, parserState, logger);
             if (listLiteral.isPresent()) {
                 logger.clearErrors();
@@ -229,7 +229,7 @@ public class SyntaxParser {
             }
         }
         for (var info : recentExpressions.mergeWith(SyntaxManager.getAllExpressions())) {
-            if (info.getReturnType().getType().getTypeClass() != Boolean.class)
+            if (info.getReturnType().type().getTypeClass() != Boolean.class)
                 continue;
             var expr = (Optional<? extends Expression<Boolean>>) matchExpressionInfo(s, info, BOOLEAN_PATTERN_TYPE, parserState, logger);
             if (expr.isPresent()) {
@@ -275,8 +275,8 @@ public class SyntaxParser {
     private static <T> Optional<? extends Expression<? extends T>> matchExpressionInfo(String s, ExpressionInfo<?, ?> info, PatternType<T> expectedType, ParserState parserState, SkriptLogger logger) {
         var patterns = info.getPatterns();
         var infoType = info.getReturnType();
-        var infoTypeClass = infoType.getType().getTypeClass();
-        var expectedTypeClass = expectedType.getType().getTypeClass();
+        var infoTypeClass = infoType.type().getTypeClass();
+        var expectedTypeClass = expectedType.type().getTypeClass();
         if (!expectedTypeClass.isAssignableFrom(infoTypeClass) && !Converters.converterExists(infoTypeClass, expectedTypeClass))
             return Optional.empty();
         for (var i = 0; i < patterns.size(); i++) {
@@ -313,7 +313,7 @@ public class SyntaxParser {
                         }
                     }
                     if (!expression.isSingle() &&
-                            expectedType.isSingle()) {
+                            expectedType.single()) {
                         logger.error(
                                 "A single value was expected, but '" + s + "' represents multiple values.",
                                 ErrorType.SEMANTIC_ERROR,
@@ -352,7 +352,7 @@ public class SyntaxParser {
      * or for another reason detailed in an error message.
      */
     public static <T> Optional<? extends Expression<? extends T>> parseListLiteral(String s, PatternType<T> expectedType, ParserState parserState, SkriptLogger logger) {
-        assert !expectedType.isSingle();
+        assert !expectedType.single();
         if (!s.contains(",") && !s.contains("and") && !s.contains("nor") && !s.contains("or"))
             return Optional.empty();
         List<String> parts = new ArrayList<>();
@@ -458,7 +458,7 @@ public class SyntaxParser {
     public static <T> Optional<? extends Expression<? extends T>> parseLiteral(String s, PatternType<T> expectedType, ParserState parserState, SkriptLogger logger) {
         var classToTypeMap = TypeManager.getClassToTypeMap();
         for (var c : classToTypeMap.keySet()) {
-            Class<? extends T> expectedClass = expectedType.getType().getTypeClass();
+            Class<? extends T> expectedClass = expectedType.type().getTypeClass();
             if (expectedClass.isAssignableFrom(c) || Converters.converterExists(c, expectedClass)) {
                 Optional<? extends Function<String, ?>> literalParser = classToTypeMap.get(c).getLiteralParser();
                 if (literalParser.isPresent()) {
@@ -466,7 +466,7 @@ public class SyntaxParser {
                     if (literal.isPresent() && expectedClass.isAssignableFrom(c)) {
                         return Optional.of(new SimpleLiteral<>((Class<T>) literal.get().getClass(), literal.get()));
                     } else if (literal.isPresent()) {
-                        return new SimpleLiteral<>((Class<T>) c, literal.get()).convertExpression(expectedType.getType().getTypeClass());
+                        return new SimpleLiteral<>((Class<T>) c, literal.get()).convertExpression(expectedType.type().getTypeClass());
                     }
                 } else if (expectedClass == String.class || c == String.class) {
                     var vs = VariableString.newInstanceWithQuotes(s, parserState, logger)

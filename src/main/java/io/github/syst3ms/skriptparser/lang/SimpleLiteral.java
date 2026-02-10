@@ -14,14 +14,15 @@ import java.util.Optional;
 
 /**
  * A simple literal with a fixed set of values
+ *
  * @param <T> the type of the values
  */
 @SuppressWarnings("unchecked")
 public class SimpleLiteral<T> implements Literal<T> {
 
-    private boolean isAndList = true;
     private final Class<T> returnType;
     private final T[] values;
+    private boolean isAndList = true;
 
     public SimpleLiteral(T[] values) {
         this.values = values;

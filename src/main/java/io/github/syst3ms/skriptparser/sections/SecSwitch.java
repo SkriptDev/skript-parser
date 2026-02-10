@@ -46,12 +46,12 @@ import java.util.Set;
  * </pre>
  * Note that the default part is only executed if no match was found.
  *
+ * @author Mwexim
  * @name Switch
  * @type SECTION
- * @pattern (switch|given|match) %object%
- * @since ALPHA
- * @author Mwexim
+ * @pattern (switch | given | match) %object%
  * @see SecCase
+ * @since ALPHA
  */
 @SuppressWarnings("unchecked")
 public class SecSwitch extends CodeSection implements Finishing {
@@ -72,8 +72,8 @@ public class SecSwitch extends CodeSection implements Finishing {
             .register();
     }
 
-    private Expression<Object> matched;
     private final List<SecCase> cases = new ArrayList<>();
+    private Expression<Object> matched;
     @Nullable
     private Iterator<SecCase> iterator;
     @Nullable

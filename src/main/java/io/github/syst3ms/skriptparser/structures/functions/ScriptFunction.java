@@ -27,11 +27,11 @@ public final class ScriptFunction<T> extends Function<T> {
             FunctionParameter<?> p = parameters[i];
             Object[] val = params[i];
             //System.out.println(val.getClass());
-            if (p.isSingle() && val.length > 0) {
-                Variables.setVariable(p.getName(), val[0], functionContext, true);
+            if (p.single() && val.length > 0) {
+                Variables.setVariable(p.name(), val[0], functionContext, true);
             } else {
                 for (int j = 0; j < val.length; j++) {
-                    Variables.setVariable(p.getName() + "::" + (j + 1), val[j], functionContext, true);
+                    Variables.setVariable(p.name() + "::" + (j + 1), val[j], functionContext, true);
                 }
             }
         }

@@ -16,13 +16,12 @@ import java.util.regex.Pattern;
 
 public class Functions {
 
+    static final String FUNCTION_NAME_REGEX = "^[a-zA-Z0-9_]*";
+    static final String FUNCTION_CALL_PATTERN = "<(" + Functions.FUNCTION_NAME_REGEX + ")\\((.*)\\)>";
     private static final Map<String, List<Function<?>>> functionsMap = new HashMap<>();
     private static final Map<SkriptAddon, List<Function<?>>> FUNCTIONS_BY_ADDON = new HashMap<>();
-
     private static final String JAVA_FUNCTION_NAME = "java_functions_dont_change";
-    static final String FUNCTION_NAME_REGEX = "^[a-zA-Z0-9_]*";
     private static final Pattern FUNCTION_NAME_PATTERN = Pattern.compile(FUNCTION_NAME_REGEX);
-    static final String FUNCTION_CALL_PATTERN = "<(" + Functions.FUNCTION_NAME_REGEX + ")\\((.*)\\)>";
 
     private Functions() {
     }

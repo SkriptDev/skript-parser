@@ -7,11 +7,11 @@ import io.github.syst3ms.skriptparser.lang.properties.PropertyConditional;
 /**
  * Check if a given expression is set (null on the Java side) or not.
  *
+ * @author Syst3ms
  * @name Is Set
  * @type CONDITION
  * @pattern %~objects% (is|are)[ not|n't] set
  * @since ALPHA
- * @author Syst3ms
  */
 public class CondExprIsSet extends PropertyConditional<Object> {
     static {

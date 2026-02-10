@@ -53,11 +53,11 @@ public class SectionConfiguration {
      * a FileSection instance. This method should be called only once and will throw an error if attempting
      * to load the configuration multiple times. The default use-case would be to load the configuration inside
      * CodeSection's {@link CodeSection#loadSection(FileSection, ParserState, SkriptLogger) load} method.
-     * 
-     * @param parent the parent section
-     * @param section the file section
+     *
+     * @param parent      the parent section
+     * @param section     the file section
      * @param parserState the parse state
-     * @param logger the logger
+     * @param logger      the logger
      * @return whether the section was loaded successfully or errors occurred
      */
     public boolean loadConfiguration(@Nullable CodeSection parent, FileSection section, ParserState parserState, SkriptLogger logger) {
@@ -136,8 +136,8 @@ public class SectionConfiguration {
      *
      * @param key the key
      * @param cls the class to cast to
-     * @return the value cast to the given class, or an empty Optional if the key was not specified
      * @param <T> the type of the value
+     * @return the value cast to the given class, or an empty Optional if the key was not specified
      */
     @SuppressWarnings("unchecked")
     public <T> Optional<T> getValue(String key, Class<T> cls) {
@@ -151,7 +151,7 @@ public class SectionConfiguration {
 
     public <T> Optional<Expression<T>> getExpression(String key, Class<T> cls) {
         Object o = this.data.get(key);
-        if (o instanceof Expression<?> expression && cls.isAssignableFrom(expression.getReturnType()))  {
+        if (o instanceof Expression<?> expression && cls.isAssignableFrom(expression.getReturnType())) {
             return (Optional<Expression<T>>) Optional.of((T) expression);
         }
         return Optional.empty();

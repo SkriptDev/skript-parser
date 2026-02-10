@@ -23,6 +23,8 @@ import java.util.concurrent.ThreadLocalRandom;
  * @since ALPHA
  */
 public class ExprElement implements Expression<Object> {
+    private static final ThreadLocalRandom random = ThreadLocalRandom.current();
+
     static {
         Parser.getMainRegistration().newExpression(ExprElement.class, Object.class, true,
                 "(0:[the] first|1:[the] last|2:[a] random|3:[the] %integer%(st|nd|rd|th)) element [out] of %objects%",
@@ -34,8 +36,6 @@ public class ExprElement implements Expression<Object> {
             .since("1.0.0")
             .register();
     }
-
-    private static final ThreadLocalRandom random = ThreadLocalRandom.current();
 
     private Expression<Object> expr;
     private Expression<Integer> range;

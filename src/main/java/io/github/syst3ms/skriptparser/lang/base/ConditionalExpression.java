@@ -17,8 +17,9 @@ import io.github.syst3ms.skriptparser.sections.SecWhile;
  * </ol>
  * The simplest way to use a value of a conditional expression as if it were a regular boolean expression is to use
  * the {@code whether %=boolean%} expression.
- *
+ * <p>
  * Other, non-conditional boolean expressions should implement {@link Expression<Boolean>}
+ *
  * @see ExprWhether
  * @see SecConditional
  * @see SecWhile
@@ -35,6 +36,7 @@ public abstract class ConditionalExpression implements Expression<Boolean> {
 
     /**
      * Whether a condition is negated. This is used in conjunction with {@link #setNegated(boolean)}.
+     *
      * @return whether the condition is negated
      */
     public boolean isNegated() {
@@ -44,6 +46,7 @@ public abstract class ConditionalExpression implements Expression<Boolean> {
     /**
      * Decides whether the output of a condition should be inverted in order to create a "negated" condition.
      * This was made a built-in method because it is a very common feature of conditions.
+     *
      * @param negated whether the condition should be negated
      */
     public void setNegated(boolean negated) {

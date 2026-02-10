@@ -37,27 +37,25 @@ import java.util.regex.PatternSyntaxException;
 public abstract class VariableStorage implements Closeable {
 
     /**
-     * Whether this variable storage has been {@link #close() closed}.
-     */
-    protected volatile boolean closed;
-
-    /**
      * The name of the database used in the configurations.
      */
     protected final String name;
-
+    protected final Gson gson;
+    protected final LinkedBlockingQueue<SerializedVariable> changesQueue = new LinkedBlockingQueue<>(1000);
+    private final SkriptLogger logger;
+    private final long errorInterval = 10;
+    /**
+     * Whether this variable storage has been {@link #close() closed}.
+     */
+    protected volatile boolean closed;
     /**
      * The pattern of the variable name this storage accepts.
      * {@code null} for '{@code .*}' or '{@code .*}'.
      */
     @Nullable
     private Pattern variableNamePattern;
-
-    private final SkriptLogger logger;
-    protected final Gson gson;
     private File file;
-
-    protected final LinkedBlockingQueue<SerializedVariable> changesQueue = new LinkedBlockingQueue<>(1000);
+    private long lastError = Long.MIN_VALUE;
 
     /**
      * Creates a new variable storage with the given name.
@@ -90,12 +88,12 @@ public abstract class VariableStorage implements Closeable {
             while (!closed) {
                 try {
                     SerializedVariable variable = changesQueue.take();
-                    SerializedVariable.Value value = variable.value;
+                    SerializedVariable.Value value = variable.value();
 
                     if (value != null) {
-                        save(variable.name, value.type, value.data);
+                        save(variable.name(), value.type(), value.data());
                     } else {
-                        save(variable.name, null, null);
+                        save(variable.name(), null, null);
                     }
                 } catch (InterruptedException ignored) {
                 }
@@ -230,12 +228,12 @@ public abstract class VariableStorage implements Closeable {
     protected abstract boolean load(ConfigSection section);
 
     protected void loadVariable(String name, SerializedVariable variable) {
-        Value value = variable.value;
+        Value value = variable.value();
         if (value == null) {
             Variables.queueVariableChange(name, null);
             return;
         }
-        loadVariable(name, value.type, value.data);
+        loadVariable(name, value.type(), value.data());
     }
 
     /**
@@ -304,10 +302,10 @@ public abstract class VariableStorage implements Closeable {
             return new SerializedVariable(name, null);
         Type<T> type = (Type<T>) TypeManager.getByClassExact(value.getClass()).orElse(null);
         if (type == null) return null;
-            //throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be serialized. No type registered.");
+        //throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be serialized. No type registered.");
         TypeSerializer<T> serializer = type.getSerializer().orElse(null);
         if (serializer == null) return null;
-            //throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be serialized. No type serializer.");
+        //throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be serialized. No type serializer.");
         JsonElement element = serializer.serialize(gson, value);
         return new SerializedVariable(name, new Value(type.getBaseName(), element));
     }
@@ -332,9 +330,6 @@ public abstract class VariableStorage implements Closeable {
         return serializer.deserialize(gson, value);
     }
 
-    private long lastError = Long.MIN_VALUE;
-    private long ERROR_INTERVAL = 10;
-
     /**
      * Saves the given serialized variable.
      *
@@ -342,7 +337,7 @@ public abstract class VariableStorage implements Closeable {
      */
     final void save(SerializedVariable variable) {
         if (!changesQueue.offer(variable)) {
-            if (lastError < System.currentTimeMillis() - ERROR_INTERVAL * 1000) {
+            if (lastError < System.currentTimeMillis() - errorInterval * 1000) {
                 // Inform console about overload of variable changes
                 System.out.println("Skript cannot save any variables to the database '" + name + "'. " +
                     "The thread will hang to avoid losing variable.");

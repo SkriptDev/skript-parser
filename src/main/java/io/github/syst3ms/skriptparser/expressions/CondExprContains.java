@@ -16,12 +16,12 @@ import org.jetbrains.annotations.Nullable;
  * See if a given list of objects contain a given element.
  * You can also check if a string contains another string.
  *
+ * @author Mwexim
  * @name Contain
  * @type CONDITION
  * @pattern %string% [does(n't| not)] contain[s] %string%
  * @pattern %objects% [do[es](n't| not)] contain[s] %objects%
  * @since ALPHA
- * @author Mwexim
  */
 public class CondExprContains extends ConditionalExpression {
     static {
@@ -52,16 +52,16 @@ public class CondExprContains extends ConditionalExpression {
         comparator = (Comparator<Object, Object>) Comparators.getComparator(first.getReturnType(), second.getReturnType()).orElse(null);
         // If the expressions are variables, their return type is unknown at parse time
         if (first.getReturnType() != Object.class
-                && second.getReturnType() != Object.class
-                && comparator == null) {
+            && second.getReturnType() != Object.class
+            && comparator == null) {
             var logger = parseContext.getLogger();
             logger.error(
-                    "'" +
+                "'" +
                     first.toString(TriggerContext.DUMMY, logger.isDebug()) +
                     "' can never contain '" +
                     second.toString(TriggerContext.DUMMY, logger.isDebug()) +
                     "' because their values cannot be compared",
-                    ErrorType.SEMANTIC_ERROR
+                ErrorType.SEMANTIC_ERROR
             );
             return false;
         }
@@ -70,9 +70,9 @@ public class CondExprContains extends ConditionalExpression {
         setNegated(parseContext.getNumericMark() == 1);
         if (!onlyString && !first.isAndList()) {
             parseContext.getLogger().error(
-                    "An or-list cannot contain any values",
-                    ErrorType.SEMANTIC_ERROR,
-                    "If you want to check if an or-list 'contains' a value, you should do an equality check instead."
+                "An or-list cannot contain any values",
+                ErrorType.SEMANTIC_ERROR,
+                "If you want to check if an or-list 'contains' a value, you should do an equality check instead."
             );
             return false;
         }
@@ -83,19 +83,19 @@ public class CondExprContains extends ConditionalExpression {
     public boolean check(TriggerContext ctx) {
         if (onlyString) {
             return isNegated() != DoubleOptional.ofOptional(first.getSingle(ctx), second.getSingle(ctx))
-                    .map(toCheck -> (String) toCheck, toMatch -> (String) toMatch)
-                    .mapToOptional(String::contains)
-                    .orElse(false);
+                .map(toCheck -> (String) toCheck, toMatch -> (String) toMatch)
+                .mapToOptional(String::contains)
+                .orElse(false);
         } else {
             return second.check(
-                    ctx,
-                    toMatch -> Expression.check(
-                            first.getValues(ctx),
-                            toCheck -> (comparator == null ? Comparators.compare(toCheck, toMatch) : comparator.apply(toCheck, toMatch)).is(Relation.EQUAL),
-                            false,
-                            !first.isAndList()
-                    ),
-                    isNegated()
+                ctx,
+                toMatch -> Expression.check(
+                    first.getValues(ctx),
+                    toCheck -> (comparator == null ? Comparators.compare(toCheck, toMatch) : comparator.apply(toCheck, toMatch)).is(Relation.EQUAL),
+                    false,
+                    !first.isAndList()
+                ),
+                isNegated()
             );
         }
     }

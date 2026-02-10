@@ -10,13 +10,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.math.BigDecimal.*;
+import static java.math.BigDecimal.ONE;
+import static java.math.BigDecimal.TEN;
+import static java.math.BigDecimal.ZERO;
+import static java.math.BigDecimal.valueOf;
 
 /**
  * Provides advanced functions operating on {@link BigDecimal}s.
  * Taken from <a href="github.com/eobermuhlner/big-math/blob/master/ch.obermuhlner.math.big/src/main/java/ch/obermuhlner/math/big/BigDecimalMath.java">@obermuhlner's Github</a>
- *
+ * <p>
  * I do not claim ownership of this code, it is the intellectual property of <a href="github.com/eobermuhlner">@obermuhlner</a>.
+ *
  * @author @obermuhlner
  */
 public class BigDecimalMath {
@@ -38,11 +42,11 @@ public class BigDecimalMath {
     private static final int EXPECTED_INITIAL_PRECISION = 15;
     private static final Map<Integer, List<BigDecimal>> spougeFactorialConstantsCache = new HashMap<>();
     private static final Object spougeFactorialConstantsCacheLock = new Object();
+    private static final BigDecimal[] factorialCache = new BigDecimal[100];
     private static volatile BigDecimal log2Cache;
     private static volatile BigDecimal log3Cache;
     private static volatile BigDecimal log10Cache;
     private static volatile BigDecimal piCache;
-    private static final BigDecimal[] factorialCache = new BigDecimal[100];
     private static BigDecimal eCache;
 
     static {
@@ -68,8 +72,8 @@ public class BigDecimalMath {
      */
     public static boolean isIntValue(BigDecimal value) {
         return value.compareTo(ZERO) == 0
-                || value.scale() <= 0
-                || value.stripTrailingZeros().scale() <= 0;
+            || value.scale() <= 0
+            || value.stripTrailingZeros().scale() <= 0;
     }
 
     /**
@@ -368,8 +372,8 @@ public class BigDecimalMath {
      */
     public static BigDecimal pow(BigDecimal x, long y, MathContext mathContext) {
         var mc = mathContext.getPrecision() == 0
-                ? mathContext
-                : new MathContext(mathContext.getPrecision() + 10, mathContext.getRoundingMode());
+            ? mathContext
+            : new MathContext(mathContext.getPrecision() + 10, mathContext.getRoundingMode());
 
         // TODO optimize y=0, y=1, y=10^k, y=-1, y=-10^k
 
@@ -418,7 +422,7 @@ public class BigDecimalMath {
         }
 
         var mc = new MathContext(Math.max(mathContext.getPrecision(), -integerY.scale()) + 30,
-                mathContext.getRoundingMode()
+            mathContext.getRoundingMode()
         );
 
         var result = ONE;
@@ -792,7 +796,7 @@ public class BigDecimalMath {
             dividendTerm2 += 2;
             dividendTerm3 += 6;
             var dividend = BigDecimal.valueOf(dividendTerm1).multiply(BigDecimal.valueOf(dividendTerm2))
-                                            .multiply(BigDecimal.valueOf(dividendTerm3));
+                .multiply(BigDecimal.valueOf(dividendTerm3));
             kPower3 = valueK.pow(3);
             var divisor = kPower3.multiply(valueDivisor, mc);
             a = a.multiply(dividend).divide(divisor, mc);
@@ -1060,9 +1064,9 @@ public class BigDecimalMath {
 
     public static BigDecimal getBigDecimal(Number n) {
         return n instanceof BigDecimal
-                ? (BigDecimal) n : n instanceof BigInteger
-                ? new BigDecimal((BigInteger) n)
-                : new BigDecimal(n.toString());
+            ? (BigDecimal) n : n instanceof BigInteger
+            ? new BigDecimal((BigInteger) n)
+            : new BigDecimal(n.toString());
     }
 
     public static BigInteger getBigInteger(Number n) {

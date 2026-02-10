@@ -70,6 +70,7 @@ import java.util.stream.Collectors;
  */
 public class SkriptRegistration {
 
+    protected final List<Type<?>> types = new ArrayList<>();
     private final MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
     private final List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
     private final List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
@@ -79,7 +80,6 @@ public class SkriptRegistration {
     private final List<TagInfo<? extends Tag>> tags = new ArrayList<>();
     private final List<SkriptEventInfo<?>> events = new ArrayList<>();
     private final List<StructureInfo<?>> structures = new ArrayList<>();
-    protected final List<Type<?>> types = new ArrayList<>();
     private final SkriptAddon registerer;
     private final SkriptLogger logger;
     protected boolean newTypes;
@@ -102,6 +102,39 @@ public class SkriptRegistration {
     public SkriptRegistration(SkriptAddon registerer, SkriptLogger logger) {
         this.registerer = registerer;
         this.logger = logger;
+    }
+
+    private static String removePrefix(String str) {
+        return str.startsWith("*") ? str.substring(1) : str;
+    }
+
+    private static int findAppropriatePriority(PatternElement el) {
+        if (el instanceof TextElement) {
+            return 5;
+        } else if (el instanceof RegexGroup) {
+            return 1;
+        } else if (el instanceof ChoiceGroup) {
+            var priority = 5;
+            for (ChoiceElement choice : ((ChoiceGroup) el).getChoices()) {
+                priority = Math.min(priority, findAppropriatePriority(choice.getElement()));
+            }
+            return priority;
+        } else if (el instanceof ExpressionElement) {
+            return 2;
+        } else {
+            assert el instanceof CompoundElement : "a single Optional group as a pattern";
+            var compound = (CompoundElement) el;
+            var elements = compound.getElements();
+            var priority = 5;
+            for (PatternElement element : elements) {
+                var e = element instanceof OptionalGroup ? ((OptionalGroup) element).getElement() : element;
+                priority = Math.min(priority, findAppropriatePriority(e));
+                if (!(element instanceof OptionalGroup || e instanceof TextElement && ((TextElement) e).getText().isBlank()))
+                    break;
+            }
+            var containsRegex = elements.stream().anyMatch(p -> p instanceof RegexGroup);
+            return containsRegex ? Math.min(priority, 3) : priority;
+        }
     }
 
     /**
@@ -398,7 +431,6 @@ public class SkriptRegistration {
     public <C extends CodeSection> SectionRegistrar<C> newSection(Class<C> c, String... patterns) {
         return new SectionRegistrar<>(c, patterns);
     }
-
 
     /**
      * Registers a {@link CodeSection}
@@ -726,6 +758,26 @@ public class SkriptRegistration {
         }
     }
 
+    public SkriptLogger getLogger() {
+        return this.logger;
+    }
+
+    /**
+     * Add a consumer to be called when this SkriptRegistration finishes registration.
+     *
+     * @param consumer the consumer with the SkriptAddon reference.
+     */
+    public void onFinishRegistration(Consumer<SkriptAddon> consumer) {
+        finishConsumers.add(consumer);
+    }
+
+    private void typeCheck() {
+        if (newTypes) {
+            TypeManager.register(this);
+            newTypes = false;
+        }
+    }
+
     public interface Registrar {
         void register();
     }
@@ -739,6 +791,7 @@ public class SkriptRegistration {
         private final Class<C> c;
         private final String baseName;
         private final String pattern;
+        private final Documentation documentation = new Documentation();
         private Function<? super C, String> toStringFunction = o -> Objects.toString(o, TypeManager.NULL_REPRESENTATION);
         @Nullable
         private Function<? super C, String> toVariableNameFunction;
@@ -752,7 +805,6 @@ public class SkriptRegistration {
         private TypeSerializer<C> serializer;
         @Nullable
         private Supplier<Iterator<C>> supplier;
-        private final Documentation documentation = new Documentation();
 
         public TypeRegistrar(Class<C> c, String baseName, String pattern) {
             this.c = c;
@@ -869,9 +921,9 @@ public class SkriptRegistration {
     public abstract class SyntaxRegistrar<C extends SyntaxElement> implements Registrar {
         protected final Class<C> c;
         protected final List<String> patterns = new ArrayList<>();
-        protected int priority;
         protected final Map<String, Object> data = new HashMap<>();
         protected final Documentation documentation = new Documentation();
+        protected int priority;
 
         SyntaxRegistrar(Class<C> c, String... patterns) {
             this.c = c;
@@ -1017,8 +1069,8 @@ public class SkriptRegistration {
     }
 
     public class EventRegistrar<T extends SkriptEvent> extends SyntaxRegistrar<T> {
-        private Set<Class<? extends TriggerContext>> handledContexts = new HashSet<>();
         private final Documentation documentation = new Documentation();
+        private Set<Class<? extends TriggerContext>> handledContexts = new HashSet<>();
 
         EventRegistrar(Class<T> c, String... patterns) {
             super(c, patterns);
@@ -1092,8 +1144,8 @@ public class SkriptRegistration {
     }
 
     public class StructureRegistrar<T extends Structure> extends SyntaxRegistrar<T> {
-        private Set<Class<? extends TriggerContext>> handledContexts = new HashSet<>();
         private final Documentation documentation = new Documentation();
+        private Set<Class<? extends TriggerContext>> handledContexts = new HashSet<>();
 
         StructureRegistrar(Class<T> c, String... patterns) {
             super(c, patterns);
@@ -1277,59 +1329,6 @@ public class SkriptRegistration {
                 assert listFunction != null;
                 contextValues.add(ContextValue.createList(context, type.get(), pattern.get(), listFunction, listSetterFunction, state, usage, excluded));
             }
-        }
-    }
-
-    public SkriptLogger getLogger() {
-        return this.logger;
-    }
-
-    /**
-     * Add a consumer to be called when this SkriptRegistration finishes registration.
-     *
-     * @param consumer the consumer with the SkriptAddon reference.
-     */
-    public void onFinishRegistration(Consumer<SkriptAddon> consumer) {
-        finishConsumers.add(consumer);
-    }
-
-    private void typeCheck() {
-        if (newTypes) {
-            TypeManager.register(this);
-            newTypes = false;
-        }
-    }
-
-    private static String removePrefix(String str) {
-        return str.startsWith("*") ? str.substring(1) : str;
-    }
-
-    private static int findAppropriatePriority(PatternElement el) {
-        if (el instanceof TextElement) {
-            return 5;
-        } else if (el instanceof RegexGroup) {
-            return 1;
-        } else if (el instanceof ChoiceGroup) {
-            var priority = 5;
-            for (ChoiceElement choice : ((ChoiceGroup) el).getChoices()) {
-                priority = Math.min(priority, findAppropriatePriority(choice.getElement()));
-            }
-            return priority;
-        } else if (el instanceof ExpressionElement) {
-            return 2;
-        } else {
-            assert el instanceof CompoundElement : "a single Optional group as a pattern";
-            var compound = (CompoundElement) el;
-            var elements = compound.getElements();
-            var priority = 5;
-            for (PatternElement element : elements) {
-                var e = element instanceof OptionalGroup ? ((OptionalGroup) element).getElement() : element;
-                priority = Math.min(priority, findAppropriatePriority(e));
-                if (!(element instanceof OptionalGroup || e instanceof TextElement && ((TextElement) e).getText().isBlank()))
-                    break;
-            }
-            var containsRegex = elements.stream().anyMatch(p -> p instanceof RegexGroup);
-            return containsRegex ? Math.min(priority, 3) : priority;
         }
     }
 }
