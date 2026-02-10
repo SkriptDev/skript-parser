@@ -28,6 +28,9 @@ public class CondExprIsEmpty extends ConditionalExpression {
             .examples("if {_list::*} is empty:",
                 "if {_string} is not empty:")
             .since("1.0.0")
+            .setPriority(1)
+            // Higher priority than CondExprContains(0)
+            // This prevents trying to compare to an object named "empty"
             .register();
     }
 
