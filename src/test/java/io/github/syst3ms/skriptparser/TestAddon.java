@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 public class TestAddon extends SkriptAddon {
-    private final Map<String,List<Trigger>> testTriggers = new HashMap<>();
+    private final Map<String, List<Trigger>> testTriggers = new HashMap<>();
 
     public TestAddon(String name) {
         super(name);
