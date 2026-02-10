@@ -13,8 +13,8 @@ public class Ranges {
 
     public static <B, T> void registerRange(Class<B> bound, Class<T> to, BiFunction<? super B, ? super B, T[]> function) {
         rangeMap.put(
-                bound,
-                new RangeInfo<>(bound, to, function)
+            bound,
+            new RangeInfo<>(bound, to, function)
         );
     }
 

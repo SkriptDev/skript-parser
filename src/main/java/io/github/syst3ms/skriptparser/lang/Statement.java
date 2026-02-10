@@ -12,10 +12,47 @@ import java.util.function.Consumer;
  * @see Effect
  */
 public abstract class Statement implements SyntaxElement {
+    public static Consumer<IllegalStateException> illegalStateRunnable;
     @Nullable
     protected CodeSection parent;
     @Nullable
     protected Statement next;
+
+    public static void setIllegalStateHandler(Consumer<IllegalStateException> consumer) {
+        Statement.illegalStateRunnable = consumer;
+    }
+
+    /**
+     * Runs all code starting at a given point sequentially.
+     * Do note this will not clear local variables after running.
+     *
+     * @param start   the Statement the method should getFirst run
+     * @param context the context
+     * @return {@code true} if the code ran normally, and {@code false} if any exception occurred
+     */
+    public static boolean runAll(Statement start, TriggerContext context) {
+        Optional<? extends Statement> item = Optional.of(start);
+        try {
+            while (item.isPresent())
+                item = item.flatMap(i -> i.walk(context));
+            return true;
+        } catch (StackOverflowError so) {
+            System.err.println("The script repeated itself infinitely!");
+            return false;
+        } catch (IllegalStateException e) {
+            if (illegalStateRunnable != null) {
+                illegalStateRunnable.accept(e);
+            } else {
+                System.err.println("An exception occurred. Stack trace:");
+                e.printStackTrace();
+            }
+            return false;
+        } catch (Exception e) {
+            System.err.println("An exception occurred. Stack trace:");
+            e.printStackTrace();
+        }
+        return false;
+    }
 
     /**
      * Executes this Statement
@@ -85,43 +122,5 @@ public abstract class Statement implements SyntaxElement {
         } else {
             return Optional.empty();
         }
-    }
-
-    public static Consumer<IllegalStateException> illegalStateRunnable;
-
-    public static void setIllegalStateHandler(Consumer<IllegalStateException> consumer) {
-        Statement.illegalStateRunnable = consumer;
-    }
-
-    /**
-     * Runs all code starting at a given point sequentially.
-     * Do note this will not clear local variables after running.
-     *
-     * @param start   the Statement the method should first run
-     * @param context the context
-     * @return {@code true} if the code ran normally, and {@code false} if any exception occurred
-     */
-    public static boolean runAll(Statement start, TriggerContext context) {
-        Optional<? extends Statement> item = Optional.of(start);
-        try {
-            while (item.isPresent())
-                item = item.flatMap(i -> i.walk(context));
-            return true;
-        } catch (StackOverflowError so) {
-            System.err.println("The script repeated itself infinitely!");
-            return false;
-        } catch (IllegalStateException e) {
-            if (illegalStateRunnable != null) {
-                illegalStateRunnable.accept(e);
-            } else {
-                System.err.println("An exception occurred. Stack trace:");
-                e.printStackTrace();
-            }
-            return false;
-        } catch (Exception e) {
-            System.err.println("An exception occurred. Stack trace:");
-            e.printStackTrace();
-        }
-        return false;
     }
 }

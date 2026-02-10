@@ -19,10 +19,10 @@ import java.util.function.BiFunction;
 /**
  * Returns a range of values between two endpoints. Types supported by default are integers and characters (length 1 strings).
  *
+ * @author Syst3ms
  * @name Range
  * @pattern [the] range from %object% to %object%
  * @since ALPHA
- * @author Syst3ms
  */
 public class ExprRange implements Expression<Object> {
     static {
@@ -45,11 +45,11 @@ public class ExprRange implements Expression<Object> {
         if (range == null) {
             SkriptLogger logger = parseContext.getLogger();
             logger.error(
-                    "Cannot get a range between "
-                            + from.toString(TriggerContext.DUMMY, logger.isDebug())
-                            + " and "
-                            + to.toString(TriggerContext.DUMMY, logger.isDebug()),
-                    ErrorType.SEMANTIC_ERROR);
+                "Cannot get a range between "
+                    + from.toString(TriggerContext.DUMMY, logger.isDebug())
+                    + " and "
+                    + to.toString(TriggerContext.DUMMY, logger.isDebug()),
+                ErrorType.SEMANTIC_ERROR);
             return false;
         }
         return true;
@@ -59,22 +59,22 @@ public class ExprRange implements Expression<Object> {
     @Override
     public Object[] getValues(TriggerContext ctx) {
         return DoubleOptional.ofOptional(from.getSingle(ctx), to.getSingle(ctx))
-                .mapToOptional((f, t) -> {
-                    // This is safe... right?
-                    if (Comparators.compare(f, t) == Relation.GREATER) {
-                        return CollectionUtils.reverseArray(
-                                (Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.getFunction()).apply(t, f)
-                        );
-                    } else {
-                        return (Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.getFunction()).apply(f, t);
-                    }
-                })
-                .orElse(new Object[0]);
+            .mapToOptional((f, t) -> {
+                // This is safe... right?
+                if (Comparators.compare(f, t) == Relation.GREATER) {
+                    return CollectionUtils.reverseArray(
+                        (Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.function()).apply(t, f)
+                    );
+                } else {
+                    return (Object[]) ((BiFunction<? super Object, ? super Object, ?>) this.range.function()).apply(f, t);
+                }
+            })
+            .orElse(new Object[0]);
     }
 
     @Override
     public Class<?> getReturnType() {
-        return range.getTo();
+        return range.to();
     }
 
     @Override

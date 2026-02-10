@@ -28,7 +28,7 @@ public class FileUtils {
      * before a line break to indicate to the parser that it should be considered as a single line. For example :
      * <pre>
      *     set {large_list::*} to "one long string", \
-     *                            "a second long string", \
+     *                            "a getSecond long string", \
      *                            "yet another long string" \
      *                            "an even longer string which would make reading very awkward otherwise", \
      *                            "nearing the end of the list" and \
@@ -89,10 +89,10 @@ public class FileUtils {
         var lines = multilineText.split("\0");
         // Inspired from Kotlin's trimIndent() function
         var baseIndent = Arrays.stream(lines)
-                .skip(1) // First line's indent should be ignored
-                .mapToInt(l -> getIndentationLevel(l, true))
-                .min()
-                .orElse(0);
+            .skip(1) // First line's indent should be ignored
+            .mapToInt(l -> getIndentationLevel(l, true))
+            .min()
+            .orElse(0);
         if (baseIndent == 0)
             return multilineText.replace("\0", "");
         var pat = Pattern.compile("\\s");
@@ -154,7 +154,7 @@ public class FileUtils {
                         }
                     }
                     if (load &&
-                            !path.matches(".+\\$\\d+\\.class")) { // It's of very little use to load anonymous classes
+                        !path.matches(".+\\$\\d+\\.class")) { // It's of very little use to load anonymous classes
                         final var c = path.replace('/', '.').substring(0, path.length() - ".class".length());
                         try {
                             Class.forName(c, true, FileUtils.class.getClassLoader());

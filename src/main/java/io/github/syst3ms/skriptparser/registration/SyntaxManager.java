@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class SyntaxManager {
+
     /**
      * The ordering describing the order in which syntaxes should be tested during parsing
      */
@@ -32,6 +33,7 @@ public class SyntaxManager {
         sections.addAll(reg.getSections());
         sections.sort(INFO_COMPARATOR);
         triggers.addAll(reg.getEvents());
+        triggers.addAll(reg.getStructures());
         triggers.sort(INFO_COMPARATOR);
         for (var entry : reg.getExpressions().entrySet()) {
             var key = entry.getKey();
@@ -53,8 +55,8 @@ public class SyntaxManager {
 
     /**
      * @param expr the expression instance
-     * @param <E> the expression class
-     * @param <T> the expression return type
+     * @param <E>  the expression class
+     * @param <T>  the expression return type
      * @return the {@link ExpressionInfo} corresponding to the given {@link Expression} instance
      */
     @SuppressWarnings("unchecked")
@@ -83,9 +85,12 @@ public class SyntaxManager {
     }
 
     /**
-     * @return a list of all currently registered events
+     * Get all currently registered triggers (events/structures).
+     *
+     * @return a list of all currently registered triggers (events/structures)
      */
-    public static List<SkriptEventInfo<?>> getEvents() {
+    public static List<SkriptEventInfo<?>> getTriggers() {
         return triggers;
     }
+
 }

@@ -6,19 +6,19 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 
 /**
- * A shorthand expression for giving things a default value. If the first thing isn't set, the second thing will be returned.
+ * A shorthand expression for giving things a default value. If the getFirst thing isn't set, the getSecond thing will be returned.
  *
+ * @author Olyno
  * @name Default Value
  * @pattern %objects% (otherwise|?) %objects%
  * @since ALPHA
- * @author Olyno
  */
 public class ExprDefaultValue implements Expression<Object> {
     static {
         Parser.getMainRegistration().newExpression(ExprDefaultValue.class, Object.class, false,
                 "%objects% (otherwise|?) %objects%")
             .name("Default Value")
-            .description("Returns the first expression if it's set, otherwise the second expression.")
+            .description("Returns the getFirst expression if it's set, otherwise the getSecond expression.")
             .examples("set {_var} to {_otherVarIfSet} otherwise \"world\"",
                 "send {_varIfSet} ? \"ruh roh, no message\"")
             .since("1.0.0");
@@ -37,8 +37,8 @@ public class ExprDefaultValue implements Expression<Object> {
     @Override
     public Object[] getValues(TriggerContext ctx) {
         return firstValue.getValues(ctx).length != 0
-                ? firstValue.getValues(ctx)
-                : secondValue.getValues(ctx);
+            ? firstValue.getValues(ctx)
+            : secondValue.getValues(ctx);
     }
 
     @Override

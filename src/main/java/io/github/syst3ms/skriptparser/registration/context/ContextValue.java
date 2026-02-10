@@ -24,17 +24,9 @@ public class ContextValue<C extends TriggerContext, T> {
     private final BiConsumer<C, T[]> listSetterFunction;
     private final State state;
     private final Usage usage;
+    private final @Nullable String description;
 
     private final Class<? extends C>[] excluded;
-
-//	@SuppressWarnings("unchecked")
-//	public ContextValue(Class<C> context,
-//						Type<T> returnType, boolean isSingle,
-//						PatternElement pattern,
-//						Function<C, T[]> function,
-//						State state, Usage usage) {
-//		this(context, returnType, isSingle, pattern, function, state, usage, new Class[0]);
-//	}
 
     public ContextValue(Class<C> context,
                         Type<T> returnType, boolean isSingle,
@@ -44,6 +36,7 @@ public class ContextValue<C extends TriggerContext, T> {
                         @Nullable BiConsumer<C, T> singleSetterFunction,
                         @Nullable BiConsumer<C, T[]> listSetterFunction,
                         State state, Usage usage,
+                        @Nullable String description,
                         Class<? extends C>[] excluded) {
         this.context = context;
         this.returnType = new PatternType<>(returnType, isSingle);
@@ -55,6 +48,7 @@ public class ContextValue<C extends TriggerContext, T> {
         this.listSetterFunction = listSetterFunction;
         this.state = state;
         this.usage = usage;
+        this.description = description;
         this.excluded = excluded;
     }
 
@@ -66,8 +60,10 @@ public class ContextValue<C extends TriggerContext, T> {
         BiConsumer<C, T> singleSetterFunction,
         State state,
         Usage usage,
+        @Nullable String description,
         Class<? extends C>[] excluded) {
-        return new ContextValue<>(context, returnType, true, pattern, singleFunction, null, singleSetterFunction, null, state, usage, excluded);
+        return new ContextValue<>(context, returnType, true, pattern, singleFunction, null,
+            singleSetterFunction, null, state, usage, description, excluded);
     }
 
     public static <C extends TriggerContext, T> ContextValue<C, T> createList(
@@ -78,8 +74,10 @@ public class ContextValue<C extends TriggerContext, T> {
         BiConsumer<C, T[]> listSetterFunction,
         State state,
         Usage usage,
+        @Nullable String description,
         Class<? extends C>[] excluded) {
-        return new ContextValue<>(context, returnType, false, pattern, null, listFunction, null, listSetterFunction, state, usage, excluded);
+        return new ContextValue<>(context, returnType, false, pattern, null, listFunction,
+            null, listSetterFunction, state, usage, description, excluded);
     }
 
     public Class<C> getContext() {
@@ -149,6 +147,15 @@ public class ContextValue<C extends TriggerContext, T> {
     }
 
     /**
+     * Get the description of this context value.
+     *
+     * @return Description of this context value or null if none is provided
+     */
+    public @Nullable String getDescription() {
+        return this.description;
+    }
+
+    /**
      * Some subclasses don't want to inherit the context values of their parents.
      * The returned array contains all the subclasses that should be excluded when parsing
      * this context value.
@@ -203,4 +210,5 @@ public class ContextValue<C extends TriggerContext, T> {
             return alone && this != EXPRESSION_ONLY || !alone && this != ALONE_ONLY;
         }
     }
+
 }

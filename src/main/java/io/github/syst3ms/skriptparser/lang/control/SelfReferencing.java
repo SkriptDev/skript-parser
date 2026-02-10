@@ -12,17 +12,19 @@ import java.util.Optional;
  * <br>
  * When creating syntax, one may need to take this into account. This is mostly done by sections that
  * iterate over their respective contents multiple times.
+ *
  * @see SecWhile
  * @see SecLoop
  */
 public interface SelfReferencing {
-	/**
-	 * This statement returns itself as the next statement to run
-	 * in {@link Statement#getNext() getNext()}.
-	 * <br>
-	 * This method will return the actual statement that follows this statement.
-	 * This means, by convention, the next element that is not nested more than this statement.
-	 * @return the element that is actually after this section
-	 */
-	Optional<Statement> getActualNext();
+    /**
+     * This statement returns itself as the next statement to run
+     * in {@link Statement#getNext() getNext()}.
+     * <br>
+     * This method will return the actual statement that follows this statement.
+     * This means, by convention, the next element that is not nested more than this statement.
+     *
+     * @return the element that is actually after this section
+     */
+    Optional<Statement> getActualNext();
 }

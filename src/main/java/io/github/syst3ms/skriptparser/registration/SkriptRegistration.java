@@ -1,12 +1,13 @@
 package io.github.syst3ms.skriptparser.registration;
 
 import io.github.syst3ms.skriptparser.docs.Documentation;
+import io.github.syst3ms.skriptparser.expressions.ExprContextValue;
 import io.github.syst3ms.skriptparser.lang.CodeSection;
 import io.github.syst3ms.skriptparser.lang.Effect;
 import io.github.syst3ms.skriptparser.lang.Expression;
+import io.github.syst3ms.skriptparser.lang.Structure;
 import io.github.syst3ms.skriptparser.lang.SyntaxElement;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
-import io.github.syst3ms.skriptparser.lang.base.ContextExpression;
 import io.github.syst3ms.skriptparser.lang.base.ExecutableExpression;
 import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
 import io.github.syst3ms.skriptparser.lang.properties.ConditionalType;
@@ -69,6 +70,7 @@ import java.util.stream.Collectors;
  */
 public class SkriptRegistration {
 
+    protected final List<Type<?>> types = new ArrayList<>();
     private final MultiMap<Class<?>, ExpressionInfo<?, ?>> expressions = new MultiMap<>();
     private final List<SyntaxInfo<? extends CodeSection>> sections = new ArrayList<>();
     private final List<SyntaxInfo<? extends Effect>> effects = new ArrayList<>();
@@ -77,7 +79,7 @@ public class SkriptRegistration {
     private final List<ConverterInfo<?, ?>> converters = new ArrayList<>();
     private final List<TagInfo<? extends Tag>> tags = new ArrayList<>();
     private final List<SkriptEventInfo<?>> events = new ArrayList<>();
-    protected final List<Type<?>> types = new ArrayList<>();
+    private final List<StructureInfo<?>> structures = new ArrayList<>();
     private final SkriptAddon registerer;
     private final SkriptLogger logger;
     protected boolean newTypes;
@@ -100,6 +102,39 @@ public class SkriptRegistration {
     public SkriptRegistration(SkriptAddon registerer, SkriptLogger logger) {
         this.registerer = registerer;
         this.logger = logger;
+    }
+
+    private static String removePrefix(String str) {
+        return str.startsWith("*") ? str.substring(1) : str;
+    }
+
+    private static int findAppropriatePriority(PatternElement el) {
+        if (el instanceof TextElement) {
+            return 5;
+        } else if (el instanceof RegexGroup) {
+            return 1;
+        } else if (el instanceof ChoiceGroup) {
+            var priority = 5;
+            for (ChoiceElement choice : ((ChoiceGroup) el).getChoices()) {
+                priority = Math.min(priority, findAppropriatePriority(choice.getElement()));
+            }
+            return priority;
+        } else if (el instanceof ExpressionElement) {
+            return 2;
+        } else {
+            assert el instanceof CompoundElement : "a single Optional group as a pattern";
+            var compound = (CompoundElement) el;
+            var elements = compound.getElements();
+            var priority = 5;
+            for (PatternElement element : elements) {
+                var e = element instanceof OptionalGroup ? ((OptionalGroup) element).getElement() : element;
+                priority = Math.min(priority, findAppropriatePriority(e));
+                if (!(element instanceof OptionalGroup || e instanceof TextElement && ((TextElement) e).getText().isBlank()))
+                    break;
+            }
+            var containsRegex = elements.stream().anyMatch(p -> p instanceof RegexGroup);
+            return containsRegex ? Math.min(priority, 3) : priority;
+        }
     }
 
     /**
@@ -128,6 +163,13 @@ public class SkriptRegistration {
      */
     public List<SkriptEventInfo<?>> getEvents() {
         return events;
+    }
+
+    /**
+     * @return All currently registered structures
+     */
+    public List<StructureInfo<?>> getStructures() {
+        return this.structures;
     }
 
     /**
@@ -390,7 +432,6 @@ public class SkriptRegistration {
         return new SectionRegistrar<>(c, patterns);
     }
 
-
     /**
      * Registers a {@link CodeSection}
      *
@@ -425,6 +466,18 @@ public class SkriptRegistration {
     }
 
     /**
+     * Starts a registration process for a {@link Structure}
+     *
+     * @param c        the Structure's class
+     * @param patterns the Structure's patterns
+     * @param <S>      the Structure
+     * @return an {@link EventRegistrar} to continue the registration process
+     */
+    public <S extends Structure> StructureRegistrar<S> newStructure(Class<S> c, String... patterns) {
+        return new StructureRegistrar<>(c, patterns);
+    }
+
+    /**
      * Registers a {@link SkriptEvent}
      *
      * @param c               the SkriptEvent's class
@@ -448,7 +501,7 @@ public class SkriptRegistration {
     }
 
     /**
-     * Starts a registration process for a {@link ContextExpression}
+     * Starts a registration process for a {@link ExprContextValue}
      *
      * @param context    the TriggerContext class
      * @param returnType the returned type of this context value
@@ -470,7 +523,7 @@ public class SkriptRegistration {
     }
 
     /**
-     * Starts a registration process for a {@link ContextExpression} with a single return value.
+     * Starts a registration process for a {@link ExprContextValue} with a single return value.
      *
      * @param context    the TriggerContext class
      * @param returnType the returned type of this context value
@@ -485,7 +538,7 @@ public class SkriptRegistration {
     }
 
     /**
-     * Starts a registration process for a {@link ContextExpression} with a list return value.
+     * Starts a registration process for a {@link ExprContextValue} with a list return value.
      *
      * @param context    the TriggerContext class
      * @param returnType the returned type of this context value
@@ -705,6 +758,26 @@ public class SkriptRegistration {
         }
     }
 
+    public SkriptLogger getLogger() {
+        return this.logger;
+    }
+
+    /**
+     * Add a consumer to be called when this SkriptRegistration finishes registration.
+     *
+     * @param consumer the consumer with the SkriptAddon reference.
+     */
+    public void onFinishRegistration(Consumer<SkriptAddon> consumer) {
+        finishConsumers.add(consumer);
+    }
+
+    private void typeCheck() {
+        if (newTypes) {
+            TypeManager.register(this);
+            newTypes = false;
+        }
+    }
+
     public interface Registrar {
         void register();
     }
@@ -718,8 +791,10 @@ public class SkriptRegistration {
         private final Class<C> c;
         private final String baseName;
         private final String pattern;
+        private final Documentation documentation = new Documentation();
         private Function<? super C, String> toStringFunction = o -> Objects.toString(o, TypeManager.NULL_REPRESENTATION);
-        @Nullable private Function<? super C, String> toVariableNameFunction;
+        @Nullable
+        private Function<? super C, String> toVariableNameFunction;
         @Nullable
         private Function<String, ? extends C> literalParser;
         @Nullable
@@ -730,7 +805,6 @@ public class SkriptRegistration {
         private TypeSerializer<C> serializer;
         @Nullable
         private Supplier<Iterator<C>> supplier;
-        private final Documentation documentation = new Documentation();
 
         public TypeRegistrar(Class<C> c, String baseName, String pattern) {
             this.c = c;
@@ -847,9 +921,9 @@ public class SkriptRegistration {
     public abstract class SyntaxRegistrar<C extends SyntaxElement> implements Registrar {
         protected final Class<C> c;
         protected final List<String> patterns = new ArrayList<>();
-        protected int priority;
         protected final Map<String, Object> data = new HashMap<>();
         protected final Documentation documentation = new Documentation();
+        protected int priority;
 
         SyntaxRegistrar(Class<C> c, String... patterns) {
             this.c = c;
@@ -995,8 +1069,8 @@ public class SkriptRegistration {
     }
 
     public class EventRegistrar<T extends SkriptEvent> extends SyntaxRegistrar<T> {
-        private Set<Class<? extends TriggerContext>> handledContexts = new HashSet<>();
         private final Documentation documentation = new Documentation();
+        private Set<Class<? extends TriggerContext>> handledContexts = new HashSet<>();
 
         EventRegistrar(Class<T> c, String... patterns) {
             super(c, patterns);
@@ -1069,6 +1143,121 @@ public class SkriptRegistration {
         }
     }
 
+    public class StructureRegistrar<T extends Structure> extends SyntaxRegistrar<T> {
+        private final Documentation documentation = new Documentation();
+        private Set<Class<? extends TriggerContext>> handledContexts = new HashSet<>();
+
+        StructureRegistrar(Class<T> c, String... patterns) {
+            super(c, patterns);
+            this.documentation.setName(c.getSimpleName()); // Dummy name if not specified
+            typeCheck();
+        }
+
+        /**
+         * Set the contexts this structure can handle
+         *
+         * @param contexts the contexts
+         * @return The registrar
+         */
+        @SafeVarargs
+        public final StructureRegistrar<T> setHandledContexts(Class<? extends TriggerContext>... contexts) {
+            this.handledContexts = Set.of(contexts);
+            return this;
+        }
+
+        /**
+         * Prevent documentation generation for this structure.
+         *
+         * @return The registrar
+         */
+        public final StructureRegistrar<T> noDoc() {
+            this.documentation.noDoc();
+            return this;
+        }
+
+        /**
+         * Mark this structure as experimental for documentation.
+         *
+         * @return The registrar
+         */
+        public final StructureRegistrar<T> experimental() {
+            this.documentation.experimental();
+            return this;
+        }
+
+        /**
+         * Mark this structure as experimental with a custom message for documentation.
+         *
+         * @param message The custom message
+         * @return The registrar
+         */
+        public final StructureRegistrar<T> experimental(String message) {
+            this.documentation.experimental(message);
+            return this;
+        }
+
+        /**
+         * The name of this structure for documentation.
+         *
+         * @param name Name of the structure
+         * @return The registrar
+         */
+        public final StructureRegistrar<T> name(String name) {
+            this.documentation.setName(name);
+            return this;
+        }
+
+        /**
+         * The description of this structure for documentation.
+         *
+         * @param description The description of the structure
+         * @return The registrar
+         */
+        public final StructureRegistrar<T> description(String... description) {
+            this.documentation.setDescription(description);
+            return this;
+        }
+
+        /**
+         * Examples of this structure for documentation.
+         *
+         * @param examples The examples of the structure
+         * @return The registrar
+         */
+        public final StructureRegistrar<T> examples(String... examples) {
+            this.documentation.setExamples(examples);
+            return this;
+        }
+
+        /**
+         * The version this was added in for documentation.
+         *
+         * @param since The version this was added in
+         * @return The registrar
+         */
+        public final StructureRegistrar<T> since(String since) {
+            this.documentation.setSince(since);
+            return this;
+        }
+
+        /**
+         * Adds this structure to the list of currently registered syntaxes
+         */
+        @Override
+        public void register() {
+            for (int i = 0; i < super.patterns.size(); i++) {
+                var pattern = super.patterns.get(i);
+                if (pattern.startsWith("*")) {
+                    super.patterns.set(i, pattern.substring(1));
+                } else {
+                    super.patterns.set(i, pattern);
+                }
+            }
+            structures.add(new StructureInfo<>(registerer, super.c, handledContexts, priority, parsePatterns(), this.documentation, data));
+            registerer.addHandledEvent(this.c);
+        }
+    }
+
     public class ContextValueRegistrar<C extends TriggerContext, T> implements Registrar {
         private final Class<C> context;
         private final Class<T> returnType;
@@ -1081,6 +1270,7 @@ public class SkriptRegistration {
         private BiConsumer<C, T[]> listSetterFunction;
         private State state = State.PRESENT;
         private Usage usage = Usage.EXPRESSION_ONLY;
+        private String description;
 
         @SuppressWarnings("unchecked")
         private Class<? extends C>[] excluded = new Class[0];
@@ -1120,6 +1310,11 @@ public class SkriptRegistration {
             return this;
         }
 
+        public final ContextValueRegistrar<C, T> description(String description) {
+            this.description = description;
+            return this;
+        }
+
         @Override
         public void register() {
             var pattern = PatternParser.parsePattern(this.pattern, logger);
@@ -1135,64 +1330,14 @@ public class SkriptRegistration {
             // Register the context value
             if (this.isSingle) {
                 assert singleFunction != null;
-                contextValues.add(ContextValue.createSingle(context, type.get(), pattern.get(), singleFunction, singleSetterFunction, state, usage, excluded));
+                contextValues.add(ContextValue.createSingle(context, type.get(), pattern.get(),
+                    singleFunction, singleSetterFunction, state, usage, description, excluded));
             } else {
                 assert listFunction != null;
-                contextValues.add(ContextValue.createList(context, type.get(), pattern.get(), listFunction, listSetterFunction, state, usage, excluded));
+                contextValues.add(ContextValue.createList(context, type.get(), pattern.get(),
+                    listFunction, listSetterFunction, state, usage, description, excluded));
             }
         }
     }
 
-    public SkriptLogger getLogger() {
-        return this.logger;
-    }
-
-    /**
-     * Add a consumer to be called when this SkriptRegistration finishes registration.
-     *
-     * @param consumer the consumer with the SkriptAddon reference.
-     */
-    public void onFinishRegistration(Consumer<SkriptAddon> consumer) {
-        finishConsumers.add(consumer);
-    }
-
-    private void typeCheck() {
-        if (newTypes) {
-            TypeManager.register(this);
-            newTypes = false;
-        }
-    }
-
-    private static String removePrefix(String str) {
-        return str.startsWith("*") ? str.substring(1) : str;
-    }
-
-    private static int findAppropriatePriority(PatternElement el) {
-        if (el instanceof TextElement) {
-            return 5;
-        } else if (el instanceof RegexGroup) {
-            return 1;
-        } else if (el instanceof ChoiceGroup) {
-            var priority = 5;
-            for (ChoiceElement choice : ((ChoiceGroup) el).getChoices()) {
-                priority = Math.min(priority, findAppropriatePriority(choice.getElement()));
-            }
-            return priority;
-        } else if (el instanceof ExpressionElement) {
-            return 2;
-        } else {
-            assert el instanceof CompoundElement : "a single Optional group as a pattern";
-            var compound = (CompoundElement) el;
-            var elements = compound.getElements();
-            var priority = 5;
-            for (PatternElement element : elements) {
-                var e = element instanceof OptionalGroup ? ((OptionalGroup) element).getElement() : element;
-                priority = Math.min(priority, findAppropriatePriority(e));
-                if (!(element instanceof OptionalGroup || e instanceof TextElement && ((TextElement) e).getText().isBlank()))
-                    break;
-            }
-            var containsRegex = elements.stream().anyMatch(p -> p instanceof RegexGroup);
-            return containsRegex ? Math.min(priority, 3) : priority;
-        }
-    }
 }

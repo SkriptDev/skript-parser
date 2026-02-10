@@ -6,6 +6,7 @@ import java.util.Optional;
 
 /**
  * A list of literals, whose values are known at parse time
+ *
  * @param <T> the common supertype of all literals in the list
  * @see Literal
  */

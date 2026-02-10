@@ -16,7 +16,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
     public final static String DATE_FORMAT = "EEEE dd MMMM yyyy HH:mm:ss.SSS"; // Add 'zzzXXX' to display time zone as well
     public final static Locale DATE_LOCALE = Locale.US;
 
-    private static TimeZone defaultTimeZone = TimeZone.getDefault();
+    private static final TimeZone defaultTimeZone = TimeZone.getDefault();
 
     private long timestamp;
 
@@ -26,6 +26,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
 
     /**
      * Creates a new {@link SkriptDate} of the current time.
+     *
      * @return the date
      */
     public static SkriptDate now() {
@@ -39,6 +40,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * The timestamp is internally stored as a date in the UTC time zone.
      * Use {@linkplain #of(long, TimeZone) this} method if you wish to
      * take a non-default time zone into account.
+     *
      * @param timestamp the timestamp
      * @return the date
      */
@@ -51,8 +53,9 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * Note that timestamps are expressed in milliseconds.
      * The zone offset is taken into account when calculating the
      * final timestamp.
+     *
      * @param timestamp the timestamp
-     * @param zone the time zone
+     * @param zone      the time zone
      * @return the date
      */
     public static SkriptDate of(long timestamp, TimeZone zone) {
@@ -64,15 +67,17 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * Note that this takes the {@linkplain #defaultTimeZone default time zone}
      * into account. Use {@linkplain #today(TimeZone) this} method if you want
      * to use a non-default time zone.
+     *
      * @return the date
      */
-	public static SkriptDate today() {
-	    return today(defaultTimeZone);
-	}
+    public static SkriptDate today() {
+        return today(defaultTimeZone);
+    }
 
     /**
      * Creates a new {@link SkriptDate} of the current date at midnight
      * in a specific time zone.
+     *
      * @param zone the zone
      * @return the date
      */
@@ -99,6 +104,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
     /**
      * Returns the {@linkplain Duration duration} between the
      * given dates.
+     *
      * @param other the other date
      * @return the duration
      */
@@ -109,6 +115,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
     /**
      * Adds a specific {@linkplain Duration duration} to this date.
      * A negative duration will subtract instead.
+     *
      * @param duration the duration
      */
     public void add(Duration duration) {
@@ -118,6 +125,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
     /**
      * Subtracts a specific {@linkplain Duration duration} from this date.
      * A negative duration will add instead.
+     *
      * @param duration the duration
      */
     public void subtract(Duration duration) {
@@ -128,6 +136,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * Adds a specific {@linkplain Duration duration} to this date
      * and returns the result of this addition.
      * A negative duration will subtract instead.
+     *
      * @param duration the duration
      * @return the date
      */
@@ -139,6 +148,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
      * Subtracts a specific {@linkplain Duration duration} from this date
      * and returns the result of this subtraction.
      * A negative duration will add instead.
+     *
      * @param duration the duration
      * @return the date
      */
@@ -148,6 +158,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
 
     /**
      * Returns this date as a {@link LocalDate}.
+     *
      * @return the {@link LocalDate} of this date
      */
     public LocalDateTime toLocalDateTime() {
@@ -166,6 +177,7 @@ public class SkriptDate implements Comparable<SkriptDate> {
 
     /**
      * Returns the string representation of this date using a certain format.
+     *
      * @param format the format
      * @return the string representation of this date
      */

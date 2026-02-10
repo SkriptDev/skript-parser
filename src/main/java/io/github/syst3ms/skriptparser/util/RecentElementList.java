@@ -14,9 +14,10 @@ import java.util.NoSuchElementException;
 /**
  * A simple list that is only meant to keep track of which syntaxes are used frequently, in order to preemptively check
  * them against a string that's being parsed.
- *
+ * <p>
  * To illustrate the behaviour of this class, imagine you use some syntax A 8 times, then use syntax B once. The very
- * next time the parser does the "recent syntaxes" check, it will check syntax A first, because it was used more than syntax B.
+ * next time the parser does the "recent syntaxes" check, it will check syntax A getFirst, because it was used more than syntax B.
+ *
  * @param <T> the type of {@link SyntaxInfo}
  */
 public class RecentElementList<T> implements Iterable<T> {
@@ -25,7 +26,7 @@ public class RecentElementList<T> implements Iterable<T> {
      * hierarchy, and the "recent syntaxes" check works fine. But if there are many syntaxes in that list, then if one
      * wants to use a syntax one hasn't used before, it would take a lot of time to actually match the pattern against
      * it, since there's all the previously used syntaxes to check beforehand.
-     *
+     * <p>
      * Hence, the maximum number of recent elements is capped.
      */
     // Ideally this would be properly configurable. I'll let it be a constant for now.
@@ -37,11 +38,13 @@ public class RecentElementList<T> implements Iterable<T> {
     private final Map<T, Integer> backing = new HashMap<>();
     private final List<T> occurrences = new ArrayList<>();
 
-    public RecentElementList() {}
+    public RecentElementList() {
+    }
 
     /**
      * Updates a given syntax's position inside of the frequency hierarchy. This is used to acknowledge that a given{@link SyntaxInfo}
      * has been successfully parsed, and should as such be part of the "recent syntaxes" check.
+     *
      * @param element the element to update
      */
     public void acknowledge(T element) {
@@ -62,6 +65,7 @@ public class RecentElementList<T> implements Iterable<T> {
      * Merges the elements of this list and the elements of the other list into a new set.
      * The elements of this list have priority over the other elements. There will be
      * no duplicate elements in the returned collection.
+     *
      * @param other the other list
      * @return a merged set with the elements of both lists
      */
@@ -74,6 +78,7 @@ public class RecentElementList<T> implements Iterable<T> {
 
     /**
      * Removes the elements of this {@link RecentElementList} from another {@link List}, in-place.
+     *
      * @param list the list to remove from
      */
     public void removeFrom(List<T> list) {
@@ -82,6 +87,7 @@ public class RecentElementList<T> implements Iterable<T> {
 
     /**
      * Custom iterator sorted by frequency of use
+     *
      * @return an iterator where syntaxes appear in decreasing order of frequency of use
      */
     @NotNull

@@ -23,5 +23,6 @@ public class TestContext implements TriggerContext {
     }
 
     // We want to see if inherited methods are able to register values as well.
-    public static class SubTestContext extends TestContext { /* Nothing */ }
+    public static class SubTestContext extends TestContext { /* Nothing */
+    }
 }

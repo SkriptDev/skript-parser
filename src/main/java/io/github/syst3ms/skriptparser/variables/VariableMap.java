@@ -44,7 +44,7 @@ public class VariableMap {
 
                     // We sort the indexes as best as we can
                     boolean numerical = current.keySet().stream()
-                            .allMatch(val -> val.matches("[1-9][0-9]*"));
+                        .allMatch(val -> val.matches("[1-9][0-9]*"));
                     var treeMap = new TreeMap<>(numerical ? NUMERIC_INDEX_COMPARATOR : Comparator.<String>naturalOrder());
                     treeMap.putAll(current);
 
@@ -66,11 +66,11 @@ public class VariableMap {
     }
 
     /**
-	 * Sets a variable.
-	 *
-	 * @param name  The variable's name. Can be a "list variable::*" (<tt>value</tt> must be <tt>null</tt> in this case)
-	 * @param value The variable's value. Use <tt>null</tt> to delete the variable.
-	 */
+     * Sets a variable.
+     *
+     * @param name  The variable's name. Can be a "list variable::*" (<tt>value</tt> must be <tt>null</tt> in this case)
+     * @param value The variable's value. Use <tt>null</tt> to delete the variable.
+     */
     @SuppressWarnings("unchecked")
     public void setVariable(String name, @Nullable Object value) {
         if (!name.endsWith("*")) {

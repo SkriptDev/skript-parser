@@ -11,8 +11,8 @@ public interface TypeSerializer<T> {
     /**
      * Serialize a value to a GSON json element.
      * The Gson object is preserved from the VariableStorage.
-     * 
-     * @param gson Gson context.
+     *
+     * @param gson  Gson context.
      * @param value the value to serialize
      * @return the classes of the objects that the implementing object can be changed to
      */
@@ -21,8 +21,8 @@ public interface TypeSerializer<T> {
     /**
      * Deserialize a GSON json element to object.
      * The Gson object is preserved from the VariableStorage.
-     * 
-     * @param gson Gson context.
+     *
+     * @param gson    Gson context.
      * @param element the GSON json element.
      */
     T deserialize(Gson gson, JsonElement element);

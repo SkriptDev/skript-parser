@@ -8,6 +8,7 @@ import java.util.Optional;
 /**
  * An {@link ArgumentSection} that can hold information about valued returned by the code inside it (typically through
  * {@link EffReturn}).
+ *
  * @param <T> the type of the return value.
  */
 public abstract class ReturnSection<T> extends ArgumentSection {
@@ -16,6 +17,7 @@ public abstract class ReturnSection<T> extends ArgumentSection {
 
     /**
      * The values being returned from inside this section.
+     *
      * @return an Optional describing the returned values, or an empty Optional if no values have been returned so far.
      */
     public Optional<T[]> getReturned() {
@@ -24,6 +26,7 @@ public abstract class ReturnSection<T> extends ArgumentSection {
 
     /**
      * Sets the values returned from inside this section.
+     *
      * @param returned the returned values
      * @throws ClassCastException if the values passed aren't of the type {@link T}
      */

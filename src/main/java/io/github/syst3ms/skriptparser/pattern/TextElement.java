@@ -33,7 +33,7 @@ public class TextElement implements PatternElement {
         }
         var end = 0;
         var stripped = text.strip();
-        // We advance until we reach the first non-whitespace character in s
+        // We advance until we reach the getFirst non-whitespace character in s
         if (index + start + stripped.length() > s.length()) {
             return -1;
         }

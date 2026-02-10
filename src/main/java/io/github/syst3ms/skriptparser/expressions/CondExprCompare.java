@@ -40,14 +40,14 @@ import java.util.Optional;
  */
 public class CondExprCompare extends ConditionalExpression {
     public static final PatternInfos<Relation> PATTERNS = new PatternInfos<>(new Object[][]{
-            {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither)| [8:each]) (greater|more|higher|bigger|larger|above) [than] or (equal to|the same as)|\\>=) %objects% [0x10:each|0x18:respectively]", Relation.GREATER_OR_EQUAL},
-            {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither)| [8:each]) (less|smaller|below) [than] or (equal to|the same as)|\\<=) %objects% [0x10:each|0x18:respectively]", Relation.SMALLER_OR_EQUAL},
-            {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither)| [8:each]) ((greater|more|higher|bigger|larger) than|above)|\\>) %objects% [0x10:each|0x18:respectively]", Relation.GREATER},
-            {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither)| [8:each]) ((less|smaller) than|below)|\\<) %objects% [0x10:each|0x18:respectively]", Relation.SMALLER},
-            {"[1:neither] %objects% [8:each] (is|are)(2:n't [8:each]|2:[8: each] not) between %objects% and %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
-            {"[1:neither] %objects% [8:each] (is|are) [8:each] between %objects% and %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
-            {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither)) [equal to]|2:!=) %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
-            {"[1:neither] %objects% [8:each] ((is|are) [8:each] [equal to|the same as]|=[=]) %objects% [0x10:each|0x18:respectively]", Relation.EQUAL}
+        {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither)| [8:each]) (greater|more|higher|bigger|larger|above) [than] or (equal to|the same as)|\\>=) %objects% [0x10:each|0x18:respectively]", Relation.GREATER_OR_EQUAL},
+        {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither)| [8:each]) (less|smaller|below) [than] or (equal to|the same as)|\\<=) %objects% [0x10:each|0x18:respectively]", Relation.SMALLER_OR_EQUAL},
+        {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither)| [8:each]) ((greater|more|higher|bigger|larger) than|above)|\\>) %objects% [0x10:each|0x18:respectively]", Relation.GREATER},
+        {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither)| [8:each]) ((less|smaller) than|below)|\\<) %objects% [0x10:each|0x18:respectively]", Relation.SMALLER},
+        {"[1:neither] %objects% [8:each] (is|are)(2:n't [8:each]|2:[8: each] not) between %objects% and %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
+        {"[1:neither] %objects% [8:each] (is|are) [8:each] between %objects% and %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
+        {"[1:neither] %objects% [8:each] ((is|are)(2:(n't [8:each]|[8: each] not|4:[8: each] neither)) [equal to]|2:!=) %objects% [0x10:each|0x18:respectively]", Relation.EQUAL},
+        {"[1:neither] %objects% [8:each] ((is|are) [8:each] [equal to|the same as]|=[=]) %objects% [0x10:each|0x18:respectively]", Relation.EQUAL}
     });
 
     static {
@@ -74,6 +74,14 @@ public class CondExprCompare extends ConditionalExpression {
     private boolean firstEach;
     private boolean secondEach;
 
+    private static String errorString(Expression<?> expr, boolean debug) {
+        if (expr.getReturnType() == Object.class)
+            return expr.toString(TriggerContext.DUMMY, debug);
+        Optional<? extends Type<?>> exprType = TypeManager.getByClass(expr.getReturnType());
+        assert exprType.isPresent();
+        return StringUtils.withIndefiniteArticle(exprType.get().getBaseName(), !expr.isSingle());
+    }
+
     @SuppressWarnings("null")
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext result) {
@@ -88,7 +96,7 @@ public class CondExprCompare extends ConditionalExpression {
             setNegated(true);
         if ((parseMark & 1) != 0) // "neither" on the left side
             setNegated(!isNegated());
-        if ((parseMark & 4) != 0) {// "neither" on the right side
+        if ((parseMark & 4) != 0) { // "neither" on the right side
             if (second instanceof ExpressionList) {
                 second.setAndList(!second.isAndList());
             }
@@ -101,42 +109,42 @@ public class CondExprCompare extends ConditionalExpression {
             if (firstEach && secondEach && first.isSingle() && second.isSingle() && (third == null || third.isSingle())) {
                 logger.warn("Using \"respectively\" or two \"each\" options on single values is redundant");
             } else if (firstEach
-                    && secondEach
-                    && (first.isAndList() != second.isAndList() ||
-                        first.isSingle() != second.isSingle())) {
+                && secondEach
+                && (first.isAndList() != second.isAndList() ||
+                first.isSingle() != second.isSingle())) {
                 /*
                  * Here we want to rule out some obviously impossible combinations:
                  *  - Respectively comparing a single value and a list
                  *  - Respectively comparing lists that aren't both "and" or "or"
                  */
                 logger.error(
-                        "'" +
-                                first.toString(TriggerContext.DUMMY, logger.isDebug()) +
-                                "' and '" +
-                                second.toString(TriggerContext.DUMMY, logger.isDebug()) +
-                                "' cannot be compared respectively",
-                        ErrorType.SEMANTIC_ERROR
+                    "'" +
+                        first.toString(TriggerContext.DUMMY, logger.isDebug()) +
+                        "' and '" +
+                        second.toString(TriggerContext.DUMMY, logger.isDebug()) +
+                        "' cannot be compared respectively",
+                    ErrorType.SEMANTIC_ERROR
                 );
                 return false;
             } else if (third != null
-                    && secondEach
-                    && (firstEach && first.isAndList() != second.isAndList()
-                        || second.isAndList() != third.isAndList()
-                        || firstEach && first.isSingle() != second.isSingle()
-                        || second.isSingle() != third.isSingle())) {
+                && secondEach
+                && (firstEach && first.isAndList() != second.isAndList()
+                || second.isAndList() != third.isAndList()
+                || firstEach && first.isSingle() != second.isSingle()
+                || second.isSingle() != third.isSingle())) {
                 /*
-                 * What is ruled out here is using "each" when "second" and "third" don't match in number or in and/or type.
+                 * What is ruled out here is using "each" when "getSecond" and "third" don't match in number or in and/or type.
                  * Otherwise these are fundamentally the same checks as above but when "third" is present.
                  */
                 logger.error(
-                        "'" +
-                                first.toString(TriggerContext.DUMMY, logger.isDebug()) +
-                                "' cannot be compared respectively with '" +
-                                second.toString(TriggerContext.DUMMY, logger.isDebug()) +
-                                "' and '" +
-                                third.toString(TriggerContext.DUMMY, logger.isDebug()) +
-                                "'",
-                        ErrorType.SEMANTIC_ERROR
+                    "'" +
+                        first.toString(TriggerContext.DUMMY, logger.isDebug()) +
+                        "' cannot be compared respectively with '" +
+                        second.toString(TriggerContext.DUMMY, logger.isDebug()) +
+                        "' and '" +
+                        third.toString(TriggerContext.DUMMY, logger.isDebug()) +
+                        "'",
+                    ErrorType.SEMANTIC_ERROR
                 );
                 return false;
             } else if (firstEach && first.isSingle()) {
@@ -164,30 +172,30 @@ public class CondExprCompare extends ConditionalExpression {
          * two lists order-insensitively.
          */
         contentComparison = third == null
-                && relation == Relation.EQUAL
-                && !(firstEach || secondEach)
-                && !(first.isSingle() || second.isSingle());
+            && relation == Relation.EQUAL
+            && !(firstEach || secondEach)
+            && !(first.isSingle() || second.isSingle());
 
         if (!initComparator()) {
             if (third == null) {
                 logger.error(
-                        "'" +
+                    "'" +
                         first.toString(TriggerContext.DUMMY, logger.isDebug()) +
                         "' and '" +
                         second.toString(TriggerContext.DUMMY, logger.isDebug()) +
                         "' cannot be compared",
-                        ErrorType.SEMANTIC_ERROR
+                    ErrorType.SEMANTIC_ERROR
                 );
             } else {
                 logger.error(
-                        "'" +
+                    "'" +
                         first.toString(TriggerContext.DUMMY, logger.isDebug()) +
                         "' cannot be compared with '" +
                         second.toString(TriggerContext.DUMMY, logger.isDebug()) +
                         "' and '" +
                         third.toString(TriggerContext.DUMMY, logger.isDebug()) +
                         "'",
-                        ErrorType.SEMANTIC_ERROR
+                    ErrorType.SEMANTIC_ERROR
                 );
             }
             return false;
@@ -197,7 +205,7 @@ public class CondExprCompare extends ConditionalExpression {
                 return relation.isEqualOrInverse() || comparator.supportsOrdering();
             } else if (!comparator.supportsOrdering()) {
                 logger.error(
-                        errorString(first, logger.isDebug()) +
+                    errorString(first, logger.isDebug()) +
                         " cannot be ordered between " +
                         errorString(second, logger.isDebug()) +
                         " and " +
@@ -212,8 +220,8 @@ public class CondExprCompare extends ConditionalExpression {
     private boolean initComparator() {
         Class<?> f = first.getReturnType();
         Class<?> s = third == null
-                ? second.getReturnType()
-                : ClassUtils.getCommonSuperclass(second.getReturnType(), third.getReturnType());
+            ? second.getReturnType()
+            : ClassUtils.getCommonSuperclass(second.getReturnType(), third.getReturnType());
 
         if (f == Object.class || s == Object.class) {
             return true;
@@ -221,40 +229,6 @@ public class CondExprCompare extends ConditionalExpression {
         return (comparator = (Comparator<Object, Object>) Comparators.getComparator(f, s).orElse(null)) != null;
     }
 
-    /*
-     * # := condition (e.g. is, is less than, contains, is enchanted with, has permission, etc.)
-     * !# := not #
-     *
-     * a and b # x === a # x && b # x
-     * a or b # x === a # x || b # x
-     * a # x and y === a # x && a # y
-     * a # x or y === a # x || a # y
-     * a and b # x and y === a # x and y && b # x and y === a # x && a # y && b # x && b # y
-     * a and b # x or y === a # x or y && b # x or y
-     * a or b # x and y === a # x and y || b # x and y
-     * a or b # x or y === a # x or y || b # x or y
-     *
-     *
-     * a and b !# x === a !# x && b !# x
-     * neither a nor b # x === a !# x && b !# x		// nor = and
-     * a or b !# x === a !# x || b !# x
-     *
-     * a !# x and y === a !# x || a !# y							// e.g. "player doesn't have 2 emeralds and 5 gold ingots" == "NOT(player has 2 emeralds and 5 gold ingots)" == "player doesn't have 2 emeralds OR player doesn't have 5 gold ingots"
-     * a # neither x nor y === a !# x && a !# y		// nor = or 	// e.g. "player has neither 2 emeralds nor 5 gold ingots" == "player doesn't have 2 emeralds AND player doesn't have 5 gold ingots"
-     * a # neither x nor y === a !# x && a !# y		// nor = or 	// e.g. "player is neither the attacker nor the victim" == "player is not the attacker AND player is not the victim"
-     * a !# x or y === a !# x && a !# y								// e.g. "player doesn't have 2 emeralds or 5 gold ingots" == "NOT(player has 2 emeralds or 5 gold ingots)" == "player doesn't have 2 emeralds AND player doesn't have 5 gold ingots"
-     *
-     * a and b !# x and y === a !# x and y && b !# x and y === (a !# x || a !# y) && (b !# x || b !# y)
-     * a and b !# x or y === a !# x or y && b !# x or y
-     * a and b # neither x nor y === a # neither x nor y && b # neither x nor y
-     *
-     * a or b !# x and y === a !# x and y || b !# x and y
-     * a or b !# x or y === a !# x or y || b !# x or y
-     * a or b # neither x nor y === a # neither x nor y || b # neither x nor y
-     *
-     * neither a nor b # x and y === a !# x and y && b !# x and y		// nor = and
-     * neither a nor b # x or y === a !# x or y && b !# x or y			// nor = and
-     */
     @Override
     public boolean check(TriggerContext ctx) {
         Object[] firstValues = first.getArray(ctx);
@@ -270,8 +244,8 @@ public class CondExprCompare extends ConditionalExpression {
                 for (int i = 0; i < firstValues.length; i++) {
                     hasElement = true;
                     boolean b = fullCompare(
-                            Arrays.copyOfRange(firstValues, i, i+1),
-                            Arrays.copyOfRange(secondValues, i, i+1)
+                        Arrays.copyOfRange(firstValues, i, i + 1),
+                        Arrays.copyOfRange(secondValues, i, i + 1)
                     );
                     if (and && !b)
                         return false;
@@ -285,17 +259,17 @@ public class CondExprCompare extends ConditionalExpression {
                 return hasElement && and;
             } else if (firstEach) {
                 return Expression.check(
-                        firstValues,
-                        f -> fullCompare(new Object[]{f}, secondValues),
-                        false,
-                        first.isAndList()
+                    firstValues,
+                    f -> fullCompare(new Object[]{f}, secondValues),
+                    false,
+                    first.isAndList()
                 );
             } else if (secondEach) {
                 return Expression.check(
-                        secondValues,
-                        s -> fullCompare(firstValues, new Object[]{s}),
-                        false,
-                        second.isAndList()
+                    secondValues,
+                    s -> fullCompare(firstValues, new Object[]{s}),
+                    false,
+                    second.isAndList()
                 );
             } else {
                 return fullCompare(firstValues, secondValues);
@@ -309,9 +283,9 @@ public class CondExprCompare extends ConditionalExpression {
             for (int i = 0; i < firstValues.length; i++) {
                 hasElement = true;
                 boolean b = fullCompareWithThird(
-                        Arrays.copyOfRange(firstValues, i, i+1),
-                        Arrays.copyOfRange(secondValues, i, i+1),
-                        Arrays.copyOfRange(thirdValues, i, i+1)
+                    Arrays.copyOfRange(firstValues, i, i + 1),
+                    Arrays.copyOfRange(secondValues, i, i + 1),
+                    Arrays.copyOfRange(thirdValues, i, i + 1)
                 );
                 if (and && !b)
                     return false;
@@ -321,10 +295,10 @@ public class CondExprCompare extends ConditionalExpression {
             return hasElement && and;
         } else if (firstEach) {
             return Expression.check(
-                    firstValues,
-                    f -> fullCompareWithThird(new Object[]{f}, secondValues, thirdValues),
-                    false,
-                    first.isAndList()
+                firstValues,
+                f -> fullCompareWithThird(new Object[]{f}, secondValues, thirdValues),
+                false,
+                first.isAndList()
             );
         } else if (secondEach) {
             if (secondValues.length != thirdValues.length)
@@ -335,9 +309,9 @@ public class CondExprCompare extends ConditionalExpression {
             for (int i = 0; i < secondValues.length; i++) {
                 hasElement = true;
                 boolean b = fullCompareWithThird(
-                        firstValues,
-                        Arrays.copyOfRange(secondValues, i, i+1),
-                        Arrays.copyOfRange(thirdValues, i, i+1)
+                    firstValues,
+                    Arrays.copyOfRange(secondValues, i, i + 1),
+                    Arrays.copyOfRange(thirdValues, i, i + 1)
                 );
                 if (and && !b)
                     return false;
@@ -353,19 +327,19 @@ public class CondExprCompare extends ConditionalExpression {
     private boolean fullCompare(Object[] firstValues, Object[] secondValues) {
         if (!contentComparison) {
             return Expression.check(
-                    firstValues,
-                    o1 -> Expression.check(
-                            secondValues,
-                            o2 -> relation.is(
-                                    comparator != null ?
-                                            comparator.apply(o1, o2)
-                                            : Comparators.compare(o1, o2)
-                            ),
-                            false,
-                            second.isAndList()
+                firstValues,
+                o1 -> Expression.check(
+                    secondValues,
+                    o2 -> relation.is(
+                        comparator != null ?
+                            comparator.apply(o1, o2)
+                            : Comparators.compare(o1, o2)
                     ),
-                    isNegated(),
-                    first.isAndList()
+                    false,
+                    second.isAndList()
+                ),
+                isNegated(),
+                first.isAndList()
             );
         } else {
             if (firstValues.length != secondValues.length)
@@ -393,38 +367,38 @@ public class CondExprCompare extends ConditionalExpression {
     private boolean fullCompareWithThird(Object[] firstValues, Object[] secondValues, Object[] thirdValues) {
         assert third != null;
         return Expression.check(
-                firstValues,
-                o1 -> Expression.check(
-                        secondValues,
-                        o2 -> Expression.check(
-                                thirdValues,
-                                o3 -> {
-                                    boolean isBetween;
-                                    if (comparator != null) {
-                                        isBetween =
-                                                (Relation.GREATER_OR_EQUAL.is(comparator.apply(o1, o2)) &&
-                                                        Relation.SMALLER_OR_EQUAL.is(comparator.apply(o1, o3)))
-                                                        || // Check OPPOSITE (switching o2 / o3)
-                                                        (Relation.GREATER_OR_EQUAL.is(comparator.apply(o1, o3)) &&
-                                                                Relation.SMALLER_OR_EQUAL.is(comparator.apply(o1, o2)));
-                                    } else {
-                                        isBetween =
-                                                (Relation.GREATER_OR_EQUAL.is(Comparators.compare(o1, o2)) &&
-                                                        Relation.SMALLER_OR_EQUAL.is(Comparators.compare(o1, o3)))
-                                                        || // Check OPPOSITE (switching o2 / o3)
-                                                        (Relation.GREATER_OR_EQUAL.is(Comparators.compare(o1, o3)) &&
-                                                                Relation.SMALLER_OR_EQUAL.is(Comparators.compare(o1, o2)));
-                                    }
-                                    return relation == Relation.NOT_EQUAL != isBetween;
-                                },
-                                false,
-                                third.isAndList()
-                        ),
-                        false,
-                        second.isAndList()
+            firstValues,
+            o1 -> Expression.check(
+                secondValues,
+                o2 -> Expression.check(
+                    thirdValues,
+                    o3 -> {
+                        boolean isBetween;
+                        if (comparator != null) {
+                            isBetween =
+                                (Relation.GREATER_OR_EQUAL.is(comparator.apply(o1, o2)) &&
+                                    Relation.SMALLER_OR_EQUAL.is(comparator.apply(o1, o3)))
+                                    || // Check OPPOSITE (switching o2 / o3)
+                                    (Relation.GREATER_OR_EQUAL.is(comparator.apply(o1, o3)) &&
+                                        Relation.SMALLER_OR_EQUAL.is(comparator.apply(o1, o2)));
+                        } else {
+                            isBetween =
+                                (Relation.GREATER_OR_EQUAL.is(Comparators.compare(o1, o2)) &&
+                                    Relation.SMALLER_OR_EQUAL.is(Comparators.compare(o1, o3)))
+                                    || // Check OPPOSITE (switching o2 / o3)
+                                    (Relation.GREATER_OR_EQUAL.is(Comparators.compare(o1, o3)) &&
+                                        Relation.SMALLER_OR_EQUAL.is(Comparators.compare(o1, o2)));
+                        }
+                        return relation == Relation.NOT_EQUAL != isBetween;
+                    },
+                    false,
+                    third.isAndList()
                 ),
-                isNegated(),
-                first.isAndList()
+                false,
+                second.isAndList()
+            ),
+            isNegated(),
+            first.isAndList()
         );
     }
 
@@ -434,27 +408,19 @@ public class CondExprCompare extends ConditionalExpression {
         Expression<?> third = this.third;
         if (third == null) {
             s = first.toString(ctx, debug) + " is " + (isNegated() ? "not " : "") + relation + " " + second.toString(
-                    ctx, debug);
+                ctx, debug);
         } else {
             s = first.toString(ctx, debug) +
-                    " is " +
-                    (isNegated() ? "not " : "") +
-                    "between " +
-                    second.toString(ctx, debug) +
-                    " and " +
-                    third.toString(ctx, debug);
+                " is " +
+                (isNegated() ? "not " : "") +
+                "between " +
+                second.toString(ctx, debug) +
+                " and " +
+                third.toString(ctx, debug);
         }
         if (debug) {
             s += " (comparator: " + comparator + ")";
         }
         return s;
-    }
-
-    private static String errorString(Expression<?> expr, boolean debug) {
-        if (expr.getReturnType() == Object.class)
-            return expr.toString(TriggerContext.DUMMY, debug);
-        Optional<? extends Type<?>> exprType = TypeManager.getByClass(expr.getReturnType());
-        assert exprType.isPresent();
-        return StringUtils.withIndefiniteArticle(exprType.get().getBaseName(), !expr.isSingle());
     }
 }

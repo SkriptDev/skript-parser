@@ -11,11 +11,11 @@ import io.github.syst3ms.skriptparser.util.FileUtils;
 /**
  * The name of the current executed script, without the extension.
  *
+ * @author Mwexim
  * @name Script Name
  * @pattern [the] script[['s] name]
  * @pattern name of [the] script
  * @since ALPHA
- * @author Mwexim
  */
 public class LitScriptName implements Literal<String> {
     static {
@@ -38,7 +38,7 @@ public class LitScriptName implements Literal<String> {
 
     @Override
     public String[] getValues() {
-        return new String[] {FileUtils.removeExtension(logger.getFileName())};
+        return new String[]{FileUtils.removeExtension(logger.getFileName())};
     }
 
     @Override

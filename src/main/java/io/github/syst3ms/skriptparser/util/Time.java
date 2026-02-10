@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 /**
  * Represents a time, as one could see on a clock.
+ *
  * @author Mwexim
  */
 public class Time implements Comparable<Time> {
@@ -43,6 +44,7 @@ public class Time implements Comparable<Time> {
 
     /**
      * The current time, as it would be visible on a clock.
+     *
      * @return the current time
      */
     public static Time now() {
@@ -51,10 +53,11 @@ public class Time implements Comparable<Time> {
 
     /**
      * A time instance from given values.
-     * @param hours the hours, between 0 and 23
+     *
+     * @param hours   the hours, between 0 and 23
      * @param minutes the minutes, between 0 and 59
      * @param seconds the seconds, between 0 and 59
-     * @param millis the milliseconds, between 0 and 999
+     * @param millis  the milliseconds, between 0 and 999
      * @return a new time instance
      */
     public static Time of(int hours, int minutes, int seconds, int millis) {
@@ -63,6 +66,7 @@ public class Time implements Comparable<Time> {
 
     /**
      * A time instance from a given LocalTime instance.
+     *
      * @param time the time
      * @return a new time instance
      */
@@ -72,16 +76,18 @@ public class Time implements Comparable<Time> {
 
     /**
      * A time instance from a given date.
+     *
      * @param date the date
      * @return a new time instance
      */
     public static Time of(SkriptDate date) {
         var lcd = date.toLocalDateTime();
-        return new Time(LocalTime.of(lcd.getHour(), lcd.getMinute(), lcd.getSecond(), lcd.getNano()));
+        return new Time(lcd.toLocalTime());
     }
 
     /**
      * Parses a given string as a time, using one of the three patterns.
+     *
      * @param toParse the string to parse
      * @return an Optional describing the parsed Time instance,
      * empty if no match was found.
@@ -95,8 +101,8 @@ public class Time implements Comparable<Time> {
 
         Matcher matcher;
         if (!(matcher = DEFAULT_TIME_PATTERN.matcher(toParse)).matches()
-                && !(matcher = BRITISH_TIME_PATTERN.matcher(toParse)).matches()
-                && !(matcher = DETAILED_TIME_PATTERN.matcher(toParse)).matches())
+            && !(matcher = BRITISH_TIME_PATTERN.matcher(toParse)).matches()
+            && !(matcher = DETAILED_TIME_PATTERN.matcher(toParse)).matches())
             return Optional.empty();
 
         int hours = Integer.parseInt(matcher.group(1));
@@ -112,9 +118,9 @@ public class Time implements Comparable<Time> {
         int seconds = count >= 3 && matcher.group(3) != null ? Integer.parseInt(matcher.group(3)) : 0;
         int millis = count >= 4 && matcher.group(4) != null ? Integer.parseInt(matcher.group(4)) : 0;
         if (hours < 0 || 23 < hours
-                || minutes < 0 || 59 < minutes
-                || seconds < 0 || 59 < seconds
-                || millis < 0 || 999 < millis)
+            || minutes < 0 || 59 < minutes
+            || seconds < 0 || 59 < seconds
+            || millis < 0 || 999 < millis)
             return Optional.empty();
 
         return Optional.of(of(hours, minutes, seconds, millis));
@@ -151,6 +157,7 @@ public class Time implements Comparable<Time> {
 
     /**
      * The duration between two given time instances
+     *
      * @param other the time instance to compare
      * @return the duration between the instances, or {@link Duration#ZERO ZERO} if one instance is invalid
      */
@@ -160,6 +167,7 @@ public class Time implements Comparable<Time> {
 
     /**
      * Add a {@link Duration} to this time.
+     *
      * @param span {@link Duration} to add
      */
     public void add(Duration span) {
@@ -168,6 +176,7 @@ public class Time implements Comparable<Time> {
 
     /**
      * Subtract a {@link Duration} from this time.
+     *
      * @param span {@link Duration} to subtract
      */
     public void subtract(Duration span) {
@@ -176,6 +185,7 @@ public class Time implements Comparable<Time> {
 
     /**
      * Get a new instance of this time with the added Duration.
+     *
      * @param span {@link Duration} to add to this Time
      * @return new {@link Time} with the added Duration
      */
@@ -185,6 +195,7 @@ public class Time implements Comparable<Time> {
 
     /**
      * Get a new instance of this time with the subtracted Duration.
+     *
      * @param span {@link Duration} to subtract from this Time
      * @return new {@link Time} with the subtracted Duration
      */

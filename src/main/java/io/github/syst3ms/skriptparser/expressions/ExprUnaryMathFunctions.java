@@ -11,13 +11,14 @@ import java.util.function.UnaryOperator;
 
 /**
  * Miscellaneous math functions taking in a single argument
- * 
+ *
+ * @author Syst3ms
  * @name Unary Math Functions
  * @pattern abs %number%
  * @pattern \\|%number%\\|
  * @pattern %number%!
  * @pattern factorial of %number%
- * @pattern (sqrt|square root of) %number%
+ * @pattern (sqrt | square root of) %number%
  * @pattern floor[ed] %number%
  * @pattern ceil[ing|ed] %number%
  * @pattern round[ed] %number%
@@ -32,33 +33,32 @@ import java.util.function.UnaryOperator;
  * @pattern tanh %number%
  * @pattern ln %number%
  * @since ALPHA
- * @author Syst3ms
  */
 public class ExprUnaryMathFunctions implements Expression<Number> {
-	// TODO support brackets in the patterns
-	private static final PatternInfos<UnaryOperator<Number>> PATTERNS = new PatternInfos<>(
-		new Object[][]{
-			{"abs %number%|\\|%number%\\|", (UnaryOperator<Number>) NumberMath::abs},
-			{"%number%!", (UnaryOperator<Number>) NumberMath::factorial},
-			{"factorial of %number%", (UnaryOperator<Number>) NumberMath::factorial},
-			{"(sqrt|square root of) %number%", (UnaryOperator<Number>) NumberMath::sqrt},
-			{"floor[ed] %number%", (UnaryOperator<Number>) NumberMath::floor},
-			{"ceil[ing|ed] %number%", (UnaryOperator<Number>) NumberMath::ceil},
-			{"round[ed] %number%", (UnaryOperator<Number>) NumberMath::round},
-			{"sin %number%", (UnaryOperator<Number>) NumberMath::sin},
-			{"cos %number%", (UnaryOperator<Number>) NumberMath::cos},
-			{"tan %number%", (UnaryOperator<Number>) NumberMath::tan},
-			{"asin %number%", (UnaryOperator<Number>) NumberMath::asin},
-			{"acos %number%", (UnaryOperator<Number>) NumberMath::acos},
-			{"atan %number%", (UnaryOperator<Number>) NumberMath::atan},
-			{"sinh %number%", (UnaryOperator<Number>) NumberMath::sinh},
-			{"cosh %number%", (UnaryOperator<Number>) NumberMath::cosh},
-			{"tanh %number%", (UnaryOperator<Number>) NumberMath::tanh},
-			{"ln %number%", (UnaryOperator<Number>) NumberMath::ln}
-		}
-	);
+    // TODO support brackets in the patterns
+    private static final PatternInfos<UnaryOperator<Number>> PATTERNS = new PatternInfos<>(
+        new Object[][]{
+            {"abs %number%|\\|%number%\\|", (UnaryOperator<Number>) NumberMath::abs},
+            {"%number%!", (UnaryOperator<Number>) NumberMath::factorial},
+            {"factorial of %number%", (UnaryOperator<Number>) NumberMath::factorial},
+            {"(sqrt|square root of) %number%", (UnaryOperator<Number>) NumberMath::sqrt},
+            {"floor[ed] %number%", (UnaryOperator<Number>) NumberMath::floor},
+            {"ceil[ing|ed] %number%", (UnaryOperator<Number>) NumberMath::ceil},
+            {"round[ed] %number%", (UnaryOperator<Number>) NumberMath::round},
+            {"sin %number%", (UnaryOperator<Number>) NumberMath::sin},
+            {"cos %number%", (UnaryOperator<Number>) NumberMath::cos},
+            {"tan %number%", (UnaryOperator<Number>) NumberMath::tan},
+            {"asin %number%", (UnaryOperator<Number>) NumberMath::asin},
+            {"acos %number%", (UnaryOperator<Number>) NumberMath::acos},
+            {"atan %number%", (UnaryOperator<Number>) NumberMath::atan},
+            {"sinh %number%", (UnaryOperator<Number>) NumberMath::sinh},
+            {"cosh %number%", (UnaryOperator<Number>) NumberMath::cosh},
+            {"tanh %number%", (UnaryOperator<Number>) NumberMath::tanh},
+            {"ln %number%", (UnaryOperator<Number>) NumberMath::ln}
+        }
+    );
 
-	// TODO disable until I can remove all the "BIG" stuff
+    // TODO disable until I can remove all the "BIG" stuff
 //	static {
 //		Parser.getMainRegistration().addExpression(
 //			ExprUnaryMathFunctions.class,
@@ -68,51 +68,51 @@ public class ExprUnaryMathFunctions implements Expression<Number> {
 //		);
 //	}
 
-	private int pattern;
-	private Expression<Number> number;
+    private int pattern;
+    private Expression<Number> number;
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		pattern = matchedPattern;
-		number = (Expression<Number>) expressions[0];
-		return true;
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        pattern = matchedPattern;
+        number = (Expression<Number>) expressions[0];
+        return true;
+    }
 
-	@Override
-	public Number[] getValues(TriggerContext ctx) {
-		return number.getSingle(ctx)
-				.map(n -> new Number[] {PATTERNS.getInfo(pattern).apply(n)})
-				.orElse(new Number[0]);
-	}
+    @Override
+    public Number[] getValues(TriggerContext ctx) {
+        return number.getSingle(ctx)
+            .map(n -> new Number[]{PATTERNS.getInfo(pattern).apply(n)})
+            .orElse(new Number[0]);
+    }
 
-	@Override
-	public String toString(TriggerContext ctx, boolean debug) {
-		/*
-		 * This is dirty, but at least it's better than switching over all cases
-		 */
-		String pat = PATTERNS.getPatterns()[pattern];
-		String expr = number.toString(ctx, debug);
-		if (StringUtils.count(pat, "(", "[") == 0) {
-			return pat.replace("%number%", expr);
-		} else {
-			switch (pattern) {
-				case 0:
-					return "abs " + expr;
-				case 1:
-				case 2:
-					return "factorial of " + expr;
-				case 3:
-					return "square root of " + expr;
-				case 4:
-					return "floored " + expr;
-				case 5:
-					return "ceiled " + expr;
-				case 6:
-					return "rounded " + expr;
-				default:
-					throw new IllegalStateException();
-			}
-		}
-	}
+    @Override
+    public String toString(TriggerContext ctx, boolean debug) {
+        /*
+         * This is dirty, but at least it's better than switching over all cases
+         */
+        String pat = PATTERNS.getPatterns()[pattern];
+        String expr = number.toString(ctx, debug);
+        if (StringUtils.count(pat, "(", "[") == 0) {
+            return pat.replace("%number%", expr);
+        } else {
+            switch (pattern) {
+                case 0:
+                    return "abs " + expr;
+                case 1:
+                case 2:
+                    return "factorial of " + expr;
+                case 3:
+                    return "square root of " + expr;
+                case 4:
+                    return "floored " + expr;
+                case 5:
+                    return "ceiled " + expr;
+                case 6:
+                    return "rounded " + expr;
+                default:
+                    throw new IllegalStateException();
+            }
+        }
+    }
 }

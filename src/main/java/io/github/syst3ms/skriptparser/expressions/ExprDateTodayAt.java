@@ -13,45 +13,46 @@ import java.time.Duration;
 /**
  * Today at a given time. When no time is set,
  * it will take today's date as it would be midnight.
+ * <p>
+ * + * @author Mwexim
  *
-+ * @author Mwexim
-  * @name Today At
-  * @type EXPRESSION
-  * @pattern today [at %time%]
-  * @since ALPHA
-  */
+ * @name Today At
+ * @type EXPRESSION
+ * @pattern today [at %time%]
+ * @since ALPHA
+ */
 public class ExprDateTodayAt implements Expression<SkriptDate> {
-	static {
-		Parser.getMainRegistration().newExpression(ExprDateTodayAt.class, SkriptDate.class, true,
-				"today [at %time%]")
-			.name("Today At")
-			.description("Returns the date of today at a given time. If no time is specified, it will return the date of today at midnight.")
-			.since("1.0.0")
-			.register();
-	}
+    static {
+        Parser.getMainRegistration().newExpression(ExprDateTodayAt.class, SkriptDate.class, true,
+                "today [at %time%]")
+            .name("Today At")
+            .description("Returns the date of today at a given time. If no time is specified, it will return the date of today at midnight.")
+            .since("1.0.0")
+            .register();
+    }
 
-	@Nullable
-	private Expression<Time> time;
+    @Nullable
+    private Expression<Time> time;
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		if (expressions.length > 0)
-			time = (Expression<Time>) expressions[0];
- 		return true;
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        if (expressions.length > 0)
+            time = (Expression<Time>) expressions[0];
+        return true;
+    }
 
-	@Override
-	public SkriptDate[] getValues(TriggerContext ctx) {
-		if (time != null)
-			return time.getSingle(ctx)
-					.map(ti -> new SkriptDate[] {SkriptDate.today().plus(Duration.ofMillis(ti.toMillis()))})
-					.orElse(new SkriptDate[0]);
-		return new SkriptDate[] {SkriptDate.today()};
-	}
+    @Override
+    public SkriptDate[] getValues(TriggerContext ctx) {
+        if (time != null)
+            return time.getSingle(ctx)
+                .map(ti -> new SkriptDate[]{SkriptDate.today().plus(Duration.ofMillis(ti.toMillis()))})
+                .orElse(new SkriptDate[0]);
+        return new SkriptDate[]{SkriptDate.today()};
+    }
 
-	@Override
-	public String toString(TriggerContext ctx, boolean debug) {
-		return "today" + (time != null ? " at " + time.toString(ctx, debug) : "");
-	}
+    @Override
+    public String toString(TriggerContext ctx, boolean debug) {
+        return "today" + (time != null ? " at " + time.toString(ctx, debug) : "");
+    }
 }

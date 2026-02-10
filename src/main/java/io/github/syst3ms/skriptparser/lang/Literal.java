@@ -4,9 +4,14 @@ import java.util.Optional;
 
 /**
  * An expression whose value is known at parse time
+ *
  * @param <T> the type of the literal
  */
 public interface Literal<T> extends Expression<T> {
+    static boolean isLiteral(Expression<?> exp) {
+        return exp instanceof Literal || exp instanceof VariableString && ((VariableString) exp).isSimple();
+    }
+
     T[] getValues();
 
     default Optional<? extends T> getSingle() {
@@ -16,9 +21,5 @@ public interface Literal<T> extends Expression<T> {
     @Override
     default T[] getValues(TriggerContext ctx) {
         return getValues();
-    }
-
-    static boolean isLiteral(Expression<?> exp) {
-        return exp instanceof Literal || exp instanceof VariableString && ((VariableString) exp).isSimple();
     }
 }

@@ -16,8 +16,17 @@ import java.util.Map;
  */
 public abstract class SkriptAddon {
 
-    private final List<Class<? extends SkriptEvent>> handledEvents = new ArrayList<>();
     private static final Map<String, SkriptAddon> ADDONS = new HashMap<>();
+    private final List<Class<? extends SkriptEvent>> handledEvents = new ArrayList<>();
+    private final String addonName;
+
+    public SkriptAddon(String name) {
+        if (ADDONS.containsKey(name)) {
+            throw new IllegalArgumentException("An addon with the name " + name + " is already registered!");
+        }
+        this.addonName = name;
+        ADDONS.put(name, this);
+    }
 
     /**
      * Returns an unmodifiable list of all SkriptAddons that are registered globally.
@@ -36,16 +45,6 @@ public abstract class SkriptAddon {
      */
     public static @Nullable SkriptAddon getAddon(String name) {
         return ADDONS.get(name);
-    }
-
-    private final String addonName;
-
-    public SkriptAddon(String name) {
-        if (ADDONS.containsKey(name)) {
-            throw new IllegalArgumentException("An addon with the name " + name + " is already registered!");
-        }
-        this.addonName = name;
-        ADDONS.put(name, this);
     }
 
     public final String getAddonName() {

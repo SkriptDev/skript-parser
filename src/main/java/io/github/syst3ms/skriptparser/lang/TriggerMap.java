@@ -33,6 +33,9 @@ public class TriggerMap {
      * @param scriptName Script name to clear triggers for
      */
     public static void clearTriggers(String scriptName) {
+        TRIGGERS.getOrDefault(scriptName, Map.of()).values().forEach(triggers -> {
+            triggers.forEach(trigger -> trigger.getEvent().unload());
+        });
         TRIGGERS.remove(scriptName);
         Functions.removeFunctions(scriptName);
     }

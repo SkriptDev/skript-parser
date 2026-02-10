@@ -19,11 +19,11 @@ import java.util.Optional;
  * Use this to make sure a script reaches a certain line of code.
  * Cannot be used outside of tests.
  *
+ * @author Mwexim
  * @name Birth
  * @type SECTION
  * @pattern birth [with [message] %string%]
  * @since ALPHA
- * @author Mwexim
  */
 public class SecBirth extends CodeSection {
     static {
@@ -60,9 +60,9 @@ public class SecBirth extends CodeSection {
         }
         if (!dead) {
             SyntaxParserTest.addError(new SkriptRuntimeException(
-                    message == null
-                            ? "Birth section was not killed afterwards (" + logger.getFileName() + ")"
-                            : message.getSingle(ctx).map(s -> (String) s).orElse(TypeManager.EMPTY_REPRESENTATION) + " (" + logger.getFileName() + ")"
+                message == null
+                    ? "Birth section was not killed afterwards (" + logger.getFileName() + ")"
+                    : message.getSingle(ctx).map(s -> (String) s).orElse(TypeManager.EMPTY_REPRESENTATION) + " (" + logger.getFileName() + ")"
             ));
         }
         dead = false;

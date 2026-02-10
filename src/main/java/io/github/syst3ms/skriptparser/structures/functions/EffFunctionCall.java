@@ -62,7 +62,7 @@ public class EffFunctionCall extends Effect {
         String exprString = result.group(2);
         PatternType<?> objectType = TypeManager.getPatternType("objects").get();
         Optional<? extends Expression<?>> optionalExpression =
-                SyntaxParser.parseExpression(exprString, objectType, parseContext.getParserState(), logger);
+            SyntaxParser.parseExpression(exprString, objectType, parseContext.getParserState(), logger);
         if (optionalExpression.isPresent()) {
             parsedExpr = optionalExpression.get();
             if (functionParameters.length == 0) {
@@ -74,7 +74,7 @@ public class EffFunctionCall extends Effect {
                 if (!(functionParameters.length == 1 && !functionParameters[0].isSingle())) { // allows for function f(ints: ints) | f(1, 2, 3, 4)
                     if (paramsExprs.length != functionParameters.length) {
                         logger.error("This function requires " + functionParameters.length + " parameters, but "
-                                             + paramsExprs.length + " were given.", ErrorType.SEMANTIC_ERROR);
+                            + paramsExprs.length + " were given.", ErrorType.SEMANTIC_ERROR);
                         return false;
                     }
                     for (int i = 0; i < functionParameters.length; i++) {
@@ -82,27 +82,44 @@ public class EffFunctionCall extends Effect {
                         Expression<?> providedParamExpr = paramsExprs[i];
                         if (functionParameter.isSingle() && !providedParamExpr.isSingle()) {
                             logger.error("The '" + functionParameter.getName() + "' parameter accepts a single " +
-                                                 "value, but was given more.", ErrorType.SEMANTIC_ERROR);
+                                "value, but was given more.", ErrorType.SEMANTIC_ERROR);
                             return false;
                         }
                         // if (!functionParameter.getType().isAssignableFrom(providedParamExpr.getReturnType())) { // no converter check
                         if (!functionParameter.getType().isAssignableFrom(providedParamExpr.getReturnType())
-                                    && !Converters.converterExists(functionParameter.getType(), providedParamExpr.getReturnType())) {
+                            && !Converters.converterExists(functionParameter.getType(), providedParamExpr.getReturnType())) {
                             String typeText = TypeManager.getByClass(functionParameter.getType()).get().withIndefiniteArticle(false);
                             logger.error("The type of the provided value for the '" + functionParameter.getName()
-                                                 + "' parameter is not " + typeText + "/couldn't be converted to "
-                                                 + typeText, ErrorType.SEMANTIC_ERROR);
+                                + "' parameter is not " + typeText + "/couldn't be converted to "
+                                + typeText, ErrorType.SEMANTIC_ERROR);
                             return false;
                         }
                     }
                 } else {
+                    FunctionParameter<?> functionParameter = functionParameters[0];
+                    Class<?> paramType = functionParameter.getType();
+                    if (!paramType.isAssignableFrom(this.parsedExpr.getReturnType())) {
+                        String typeText = TypeManager.getByClass(paramType).get().withIndefiniteArticle(false);
+                        logger.error("The type of the provided value for the '" + functionParameter.getName()
+                            + "' parameter is not " + typeText + "/couldn't be converted to "
+                            + typeText, ErrorType.SEMANTIC_ERROR);
+                        return false;
+                    }
                     paramsExprs = new Expression<?>[]{parsedExpr}; // single parameter setting it to multiple values
                 }
             } else {
+                FunctionParameter<?> functionParameter = functionParameters[0];
+                Class<?> paramType = functionParameter.getType();
+                if (!paramType.isAssignableFrom(this.parsedExpr.getReturnType())) {
+                    String typeText = TypeManager.getByClass(paramType).get().withIndefiniteArticle(false);
+                    logger.error("The type of the provided value for the '" + functionParameter.getName()
+                        + "' parameter is not " + typeText + "/couldn't be converted to "
+                        + typeText, ErrorType.SEMANTIC_ERROR);
+                    return false;
+                }
                 paramsExprs = new Expression<?>[]{parsedExpr}; //
             }
-        }
-        else if (functionParameters.length > 0) {
+        } else if (functionParameters.length > 0) {
             logger.error("The function has more than 1 parameter, but none were provided.", ErrorType.SEMANTIC_ERROR);
             return false;
         }

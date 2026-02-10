@@ -19,7 +19,7 @@ import java.util.function.Function;
  * @author Mwexim
  * @name Date Information
  * @type EXPRESSION
- * @pattern [the] (year[s]|month[s]|day[s] (of|in) year|day[s] (of|in) month|day[s] (of|in) week|hour[s]|minute[s]|second[s]|milli[second][s]) (of|in) %date/time%
+ * @pattern [the] (year[s]|month[s]|day[s] (of|in) year|day[s] (of|in) month|day[s] (of|in) week|hour[s]|minute[s]|getSecond[s]|milli[getSecond][s]) (of|in) %date/time%
  * @pattern [the] (era|month|weekday|day [(of|in) week]) [name] (of|in) [date] %date%
  * @since ALPHA
  */
@@ -32,8 +32,8 @@ public class ExprDateInformation implements Expression<Object> {
         {"day[s] (of|in) week", (Function<LocalDateTime, Number>) val -> val.getDayOfWeek().getValue()},
         {"hour[s]", (Function<LocalDateTime, Number>) LocalDateTime::getHour},
         {"minute[s]", (Function<LocalDateTime, Number>) LocalDateTime::getMinute},
-        {"second[s]", (Function<LocalDateTime, Number>) LocalDateTime::getSecond},
-        {"milli[second][s]", (Function<LocalDateTime, Number>) val -> val.getNano() / 1_000_000}
+        {"getSecond[s]", (Function<LocalDateTime, Number>) LocalDateTime::getSecond},
+        {"milli[getSecond][s]", (Function<LocalDateTime, Number>) val -> val.getNano() / 1_000_000}
     });
 
     private static final PatternInfos<Function<LocalDateTime, String>> STRING_VALUES = new PatternInfos<>(new Object[][]{

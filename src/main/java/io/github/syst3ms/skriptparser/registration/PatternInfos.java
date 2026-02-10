@@ -8,6 +8,7 @@ import io.github.syst3ms.skriptparser.pattern.ChoiceGroup;
 
 /**
  * An object used to retrieve depending on which pattern was matched
+ *
  * @param <T> the type of the data to be retrieved
  * @see SyntaxElement#init(Expression[], int, ParseContext)
  */
@@ -29,6 +30,7 @@ public class PatternInfos<T> {
 
     /**
      * The data corresponding to the pattern index
+     *
      * @param pattern the pattern index
      * @return the corresponding data
      */
@@ -47,6 +49,7 @@ public class PatternInfos<T> {
     /**
      * Joins all the possibilities together, forming a {@link ChoiceGroup}
      * with numeric parse marks.
+     *
      * @return a single choice group pattern
      */
     public String toChoiceGroup() {

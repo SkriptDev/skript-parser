@@ -20,7 +20,7 @@ public class ExprTernary implements Expression<Object> {
                 "%objects% if %=boolean%[,] (otherwise|else) %objects%",
                 "%=boolean% ? %objects% \\: %objects%")
             .name("Ternary")
-            .description("Returns the first object if the boolean is true, otherwise the second object.")
+            .description("Returns the getFirst object if the boolean is true, otherwise the getSecond object.")
             .since("1.0.0")
             .register();
     }

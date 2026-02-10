@@ -7,10 +7,8 @@ import java.util.Optional;
 
 public abstract sealed class Function<T> permits ScriptFunction, JavaFunction {
 
-    private final String name;
-
     protected final FunctionParameter<?>[] parameters;
-
+    private final String name;
     private final Class<? extends T> returnType;
 
     private final boolean returnSingle;
@@ -55,11 +53,11 @@ public abstract sealed class Function<T> permits ScriptFunction, JavaFunction {
     @Override
     public String toString() {
         return "Function{" +
-                "name='" + name + '\'' +
-                ", parameters=" + Arrays.toString(parameters) +
-                ", returnType=" + returnType +
-                ", returnSingle=" + returnSingle +
-                '}';
+            "name='" + name + '\'' +
+            ", parameters=" + Arrays.toString(parameters) +
+            ", returnType=" + returnType +
+            ", returnSingle=" + returnSingle +
+            '}';
     }
 
 }

@@ -9,26 +9,26 @@ import org.jetbrains.annotations.Contract;
 import java.util.Optional;
 
 public class SimpleCodeSection extends CodeSection {
-	private final String name;
+    private final String name;
 
-	public SimpleCodeSection(FileSection section, ParserState parserState, SkriptLogger logger, String name) {
-		this.name = name;
-		loadSection(section, parserState, logger);
-	}
+    public SimpleCodeSection(FileSection section, ParserState parserState, SkriptLogger logger, String name) {
+        this.name = name;
+        loadSection(section, parserState, logger);
+    }
 
-	@Override
-	@Contract("_, _, _ -> fail")
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		throw new UnsupportedOperationException();
-	}
+    @Override
+    @Contract("_, _, _ -> fail")
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        throw new UnsupportedOperationException();
+    }
 
-	@Override
-	public Optional<? extends Statement> walk(TriggerContext ctx) {
-		return getFirst();
-	}
+    @Override
+    public Optional<? extends Statement> walk(TriggerContext ctx) {
+        return getFirst();
+    }
 
-	@Override
-	public String toString(TriggerContext ctx, boolean debug) {
-		return name;
-	}
+    @Override
+    public String toString(TriggerContext ctx, boolean debug) {
+        return name;
+    }
 }

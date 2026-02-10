@@ -31,16 +31,18 @@ import java.util.regex.Pattern;
 @SuppressWarnings("unused")
 public class Variables {
 
-    static final MultiMap<Class<? extends VariableStorage>, String> AVAILABLE_STORAGES = new MultiMap<>();
-    static final List<VariableStorage> STORAGES = new ArrayList<>();
-
-    private static final Map<TriggerContext, VariableMap> localVariables = new HashMap<>(); // Make trigger-specific
-    private static final VariableMap variableMap = new VariableMap();
-    private static final ReentrantLock LOCK = new ReentrantLock();
-
     public static final Pattern REGEX_PATTERN = Pattern.compile("\\{([^{}]|%\\{|}%)+}");
     public static final String LOCAL_VARIABLE_TOKEN = "_";
     public static final String LIST_SEPARATOR = "::";
+    static final MultiMap<Class<? extends VariableStorage>, String> AVAILABLE_STORAGES = new MultiMap<>();
+    static final List<VariableStorage> STORAGES = new ArrayList<>();
+    private static final Map<TriggerContext, VariableMap> localVariables = new HashMap<>(); // Make trigger-specific
+    private static final VariableMap variableMap = new VariableMap();
+    private static final ReentrantLock LOCK = new ReentrantLock();
+    /**
+     * Changes to variables that have not yet been performed.
+     */
+    private static final Queue<VariableChange> VARIABLE_CHANGE_QUEUE = new ConcurrentLinkedQueue<>();
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean hasStorages() {
@@ -52,9 +54,9 @@ public class Variables {
     }
 
     public static void shutdown() {
-        for (VariableStorage STORAGE : STORAGES) {
+        for (VariableStorage storage : STORAGES) {
             try {
-                STORAGE.close();
+                storage.close();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -232,11 +234,6 @@ public class Variables {
         }
     }
 
-    /**
-     * Changes to variables that have not yet been performed.
-     */
-    private static final Queue<VariableChange> VARIABLE_CHANGE_QUEUE = new ConcurrentLinkedQueue<>();
-
     public static void queueVariableChange(String name, @Nullable Object value) {
         if (!hasStorages())
             return;
@@ -317,19 +314,11 @@ public class Variables {
     /**
      * Represents a variable that is to be changed.
      * Key-value pair. Key being the variable name.
+     *
+     * @param name  The variable name of the changed variable.
+     * @param value The value of the variable change.
      */
-    private static class VariableChange {
-
-        /**
-         * The variable name of the changed variable.
-         */
-        public final String name;
-
-        /**
-         * The value of the variable change.
-         */
-        @Nullable
-        public final Object value;
+    private record VariableChange(String name, @Nullable Object value) {
 
         /**
          * Creates a new {@link VariableChange} with the given name and value.
@@ -337,9 +326,7 @@ public class Variables {
          * @param name  the variable name.
          * @param value the new variable value.
          */
-        public VariableChange(String name, @Nullable Object value) {
-            this.name = name;
-            this.value = value;
+        private VariableChange {
         }
 
     }

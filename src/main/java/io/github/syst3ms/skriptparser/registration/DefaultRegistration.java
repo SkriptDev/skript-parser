@@ -79,6 +79,7 @@ public class DefaultRegistration {
                 public JsonElement serialize(Gson gson, Integer value) {
                     return gson.toJsonTree(value, Integer.class);
                 }
+
                 @Override
                 public Integer deserialize(Gson gson, JsonElement element) {
                     return gson.fromJson(element, Integer.class);
@@ -124,6 +125,7 @@ public class DefaultRegistration {
                 public JsonElement serialize(Gson gson, Float value) {
                     return gson.toJsonTree(value, Float.class);
                 }
+
                 @Override
                 public Float deserialize(Gson gson, JsonElement element) {
                     return gson.fromJson(element, Float.class);
@@ -170,6 +172,7 @@ public class DefaultRegistration {
                 public JsonElement serialize(Gson gson, Double value) {
                     return gson.toJsonTree(value, Double.class);
                 }
+
                 @Override
                 public Double deserialize(Gson gson, JsonElement element) {
                     return gson.fromJson(element, Double.class);
@@ -425,6 +428,7 @@ public class DefaultRegistration {
                     long nano = value.getTime().toNanoOfDay();
                     return gson.toJsonTree(nano, Long.class);
                 }
+
                 @Override
                 public Time deserialize(Gson gson, JsonElement element) {
                     long asInt = element.getAsLong();

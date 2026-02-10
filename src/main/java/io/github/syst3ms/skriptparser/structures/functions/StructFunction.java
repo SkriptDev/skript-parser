@@ -16,7 +16,7 @@ public class StructFunction extends Structure {
 
     static {
         Parser.getMainRegistration()
-            .newEvent(StructFunction.class, "*[:local[ ]] func[tion] <" + Functions.FUNCTION_NAME_REGEX + ">" +
+            .newStructure(StructFunction.class, "*[:local[ ]] func[tion] <" + Functions.FUNCTION_NAME_REGEX + ">" +
                 "\\([params:%*functionparameters%]\\)[return: \\:\\: <.+>]")
             .setHandledContexts(FunctionContext.class)
             .name("Function")

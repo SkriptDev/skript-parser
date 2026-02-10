@@ -26,14 +26,14 @@ public abstract class SectionValue<S extends ArgumentSection, T> implements Expr
             return false;
         }
         section = Expression.getLinkedSection(parseContext.getParserState(), getSectionClass(), getSelectorFunction())
-                .orElse(null);
+            .orElse(null);
         if (section == null) {
             var logger = parseContext.getLogger();
             logger.error(
-                    "Couldn't find a section linked to the expression '" +
-                            toString(TriggerContext.DUMMY, logger.isDebug()) +
-                            "'",
-                    ErrorType.SEMANTIC_ERROR
+                "Couldn't find a section linked to the expression '" +
+                    toString(TriggerContext.DUMMY, logger.isDebug()) +
+                    "'",
+                ErrorType.SEMANTIC_ERROR
             );
             return false;
         }
@@ -49,12 +49,12 @@ public abstract class SectionValue<S extends ArgumentSection, T> implements Expr
      * This method is run before the section linked to this {@code SectionValue} is identified, and should be used
      * to initialize fields and other class data using the usual parameters of the {@link SyntaxElement#init} function.
      *
-     * @param expressions an array of expressions representing all the expressions that are being passed
-     *                    to this {@code SectionValue}. As opposed to Skript, elements of this array can't be {@code null}.
+     * @param expressions    an array of expressions representing all the expressions that are being passed
+     *                       to this {@code SectionValue}. As opposed to Skript, elements of this array can't be {@code null}.
      * @param matchedPattern the index of the pattern that was successfully matched. It corresponds to the order of
      *                       the syntaxes in registration
-     * @param parseContext an object containing additional information about the parsing of this {@code SectionValue},
-     *                     like regex matches and parse marks
+     * @param parseContext   an object containing additional information about the parsing of this {@code SectionValue},
+     *                       like regex matches and parse marks
      * @return {@code true} if the {@code SectionValue} was pre-initialized successfully, {@code false} otherwise.
      * @see SyntaxElement#init
      */
@@ -63,10 +63,10 @@ public abstract class SectionValue<S extends ArgumentSection, T> implements Expr
     /**
      * This method is run after the section linked to this {@code SectionValue} is identified, and should be used to
      * make some additional verifications/setup operations on the linked {@link ArgumentSection} that was identified.
-     *
+     * <p>
      * By default, this function always returns {@code true} with no added operations.
      *
-     * @param section the section that was identified as corresponding to this {@code SectionValue}
+     * @param section      the section that was identified as corresponding to this {@code SectionValue}
      * @param parseContext the parse context used previously
      * @return {@code true} if the {@code SectionValue} was post-initialized successfully, {@code false} otherwise.
      */
@@ -76,13 +76,13 @@ public abstract class SectionValue<S extends ArgumentSection, T> implements Expr
 
     /**
      * Returns the selector function for this {@code SectionValue}.
-     *
+     * <p>
      * This function is supplied with a list of all the sections of the type described by {@link #getSectionClass()},
      * and returns an Optional describing the section that this {@code SectionValue} should be linked to, or an empty
      * Optional if no matching section was found. This is useful for targeting a specific section out of multiple
      * surrounding ones based on criteria specific to the implementation.
-     *
-     * By default, this always picks the first matching function (i.e the innermost one), if there is one.
+     * <p>
+     * By default, this always picks the getFirst matching function (i.e the innermost one), if there is one.
      *
      * @return the selector function for this {@code SectionValue}.
      */
@@ -95,7 +95,7 @@ public abstract class SectionValue<S extends ArgumentSection, T> implements Expr
      * the linked section and the {@link TriggerContext}.
      *
      * @param section the linked section
-     * @param ctx the {@link TriggerContext}
+     * @param ctx     the {@link TriggerContext}
      * @return the values of this {@code SectionValue}
      */
     public abstract T[] getSectionValues(S section, TriggerContext ctx);

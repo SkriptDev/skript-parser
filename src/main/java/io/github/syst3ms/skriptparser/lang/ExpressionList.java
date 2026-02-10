@@ -17,17 +17,17 @@ import java.util.function.Function;
 
 /**
  * A list of expressions
+ *
  * @param <T> the common supertype of all expressions in this list
  */
 @SuppressWarnings("unchecked")
 public class ExpressionList<T> implements Expression<T> {
 
-    protected Expression<? extends T>[] expressions;
-
+    protected final boolean single;
     @Nullable
     private final ExpressionList<?> source;
     private final Class<T> returnType;
-    protected final boolean single;
+    protected Expression<? extends T>[] expressions;
     protected boolean and;
 
     public ExpressionList(Expression<? extends T>[] expressions, Class<T> returnType, boolean and) {
@@ -68,14 +68,16 @@ public class ExpressionList<T> implements Expression<T> {
 
     /**
      * Retrieves all {@link Expression}s within this ExpressionList.
+     *
      * @return all {@link Expression}s relating to this ExpressionList.
      */
     public Expression<? extends T>[] getExpressions() {
-    	return expressions;
+        return expressions;
     }
 
     /**
      * Retrieves all values of this Expression using a function that will be applied to each expression.
+     *
      * @param function the function
      * @return an array of the values
      */

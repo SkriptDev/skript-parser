@@ -231,10 +231,9 @@ public class Type<T> {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (!(obj instanceof Type)) {
+        if (!(obj instanceof Type<?> o)) {
             return false;
         } else {
-            var o = (Type<?>) obj;
             return typeClass.equals(o.typeClass) && baseName.equals(o.baseName) &&
                 Arrays.equals(pluralForms, o.pluralForms);
         }

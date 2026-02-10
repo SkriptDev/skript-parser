@@ -63,11 +63,11 @@ public class FileParserTest {
         assertEquals(
             expected,
             parseLines(Arrays.asList(
-                    "nested sections",
-                    "section:",
-                    "\tother section:",
-                    "\t\telement"
-                ))
+                "nested sections",
+                "section:",
+                "\tother section:",
+                "\t\telement"
+            ))
         );
         expected = Arrays.asList(
             simpleFileLine("elements after section", 0, 1),

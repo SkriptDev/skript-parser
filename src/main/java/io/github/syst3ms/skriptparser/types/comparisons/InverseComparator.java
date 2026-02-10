@@ -2,8 +2,9 @@ package io.github.syst3ms.skriptparser.types.comparisons;
 
 /**
  * A {@linkplain Comparator} that is the opposite of another one
- * @param <T1> the first type
- * @param <T2> the second type
+ *
+ * @param <T1> the getFirst type
+ * @param <T2> the getSecond type
  */
 public class InverseComparator<T1, T2> extends Comparator<T1, T2> {
     private final Comparator<? super T2, ? super T1> comparator;

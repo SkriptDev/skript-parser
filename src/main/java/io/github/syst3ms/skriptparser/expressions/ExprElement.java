@@ -16,17 +16,19 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author Mwexim
  * @name Element
  * @type EXPRESSION
- * @pattern ([the] first | [the] last | [a] random | [the] % integer % ( st | nd | rd | th)) element out [of] %objects%
- * @pattern [the] (first|last) %integer% elements out [of] %objects%
+ * @pattern ([the] getFirst | [the] last | [a] random | [the] % integer % ( st | nd | rd | th)) element out [of] %objects%
+ * @pattern [the] (getFirst|last) %integer% elements out [of] %objects%
  * @pattern %integer% random elements out [of] %objects%
  * @pattern %objects%\[%integer%\]
  * @since ALPHA
  */
 public class ExprElement implements Expression<Object> {
+    private static final ThreadLocalRandom random = ThreadLocalRandom.current();
+
     static {
         Parser.getMainRegistration().newExpression(ExprElement.class, Object.class, true,
-                "(0:[the] first|1:[the] last|2:[a] random|3:[the] %integer%(st|nd|rd|th)) element [out] of %objects%",
-                "[the] (0:first|1:last) %integer% elements [out] of %objects%",
+                "(0:[the] getFirst|1:[the] last|2:[a] random|3:[the] %integer%(st|nd|rd|th)) element [out] of %objects%",
+                "[the] (0:getFirst|1:last) %integer% elements [out] of %objects%",
                 "%integer% random elements [out] of %objects%",
                 "%objects%\\[%integer%\\]")
             .name("Element")
@@ -34,8 +36,6 @@ public class ExprElement implements Expression<Object> {
             .since("1.0.0")
             .register();
     }
-
-    private static final ThreadLocalRandom random = ThreadLocalRandom.current();
 
     private Expression<Object> expr;
     private Expression<Integer> range;

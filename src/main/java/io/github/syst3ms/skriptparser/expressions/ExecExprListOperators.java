@@ -16,8 +16,8 @@ import java.util.Arrays;
  * Basic list operators that return the following elements:
  * <ul>
  *      <li>{@code pop}: the last element</li>
- *      <li>{@code shift/poll}: the first element</li>
- *      <li>{@code extract}: a specific (or just the first/last) element</li>
+ *      <li>{@code shift/poll}: the getFirst element</li>
+ *      <li>{@code extract}: a specific (or just the getFirst/last) element</li>
  *      <li>{@code splice}: elements in a certain bound</li>
  * </ul>
  * However, this syntax can also be used as an effect. If this is the case, instead of returning
@@ -29,195 +29,195 @@ import java.util.Arrays;
  * when a negative step function is used, the list is reversed as well as the lower and upper bounds,
  * which means the lower bound must be higher than the upper bound.
  *
+ * @author Mwexim
  * @name List Operators
  * @type EFFECT/EXPRESSION
- * @pattern extract [the] (last|first|%integer%(st|nd|rd|th)) element out [of] %objects%
+ * @pattern extract [the] (last|getFirst|%integer%(st|nd|rd|th)) element out [of] %objects%
  * @pattern pop %objects%
- * @pattern (shift|poll) %objects%
+ * @pattern (shift | poll) %objects%
  * @pattern splice %objects% (from %integer% to %integer%|starting (at|from) %integer%|up to %integer%) [[with] step %integer%]
- * @since ALPHA
- * @author Mwexim
  * @see ExprElement
+ * @since ALPHA
  */
 public class ExecExprListOperators extends ExecutableExpression<Object> {
-	static {
-		Parser.getMainRegistration().addExecutableExpression(
-				ExecExprListOperators.class,
-				Object.class,
-				false,
-				"extract [the] (0:last|1:first|2:%integer%(st|nd|rd|th)) element out [of] %objects%",
-				"pop %objects%",
-				"(shift|poll) %objects%",
-				"splice %objects% (0:from %integer% to %integer%|1:starting (at|from) %integer%|2:up to %integer%) [[with] step %integer%]"
-		);
-	}
+    static {
+        Parser.getMainRegistration().addExecutableExpression(
+            ExecExprListOperators.class,
+            Object.class,
+            false,
+            "extract [the] (0:last|1:getFirst|2:%integer%(st|nd|rd|th)) element out [of] %objects%",
+            "pop %objects%",
+            "(shift|poll) %objects%",
+            "splice %objects% (0:from %integer% to %integer%|1:starting (at|from) %integer%|2:up to %integer%) [[with] step %integer%]"
+        );
+    }
 
-	// 0 = last, 1 = first, 2 = indexed, 3 = spliced
-	private int type;
-	private Expression<Object> list;
-	private Expression<Integer> index;
-	private Expression<Integer> lower;
-	private Expression<Integer> upper;
-	private Expression<Integer> step;
+    // 0 = last, 1 = getFirst, 2 = indexed, 3 = spliced
+    private int type;
+    private Expression<Object> list;
+    private Expression<Integer> index;
+    private Expression<Integer> lower;
+    private Expression<Integer> upper;
+    private Expression<Integer> step;
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
-		switch (matchedPattern) {
-			case 0:
-				type = parseContext.getNumericMark();
-				list = (Expression<Object>) (type == 2 ? expressions[1] : expressions[0]);
-				if (type == 2)
-					index = (Expression<Integer>) expressions[0];
-				break;
-			case 1:
-			case 2:
-				type = matchedPattern - 1;
-				list = (Expression<Object>) expressions[0];
-				break;
-			case 3:
-				type = 3;
-				list = (Expression<Object>) expressions[0];
-				switch (parseContext.getNumericMark()) {
-					case 0:
-						lower = (Expression<Integer>) expressions[1];
-						upper = (Expression<Integer>) expressions[2];
-						if (expressions.length == 4)
-							step = (Expression<Integer>) expressions[3];
-						break;
-					case 1:
-						lower = (Expression<Integer>) expressions[1];
-						if (expressions.length == 3)
-							step = (Expression<Integer>) expressions[2];
-						break;
-					case 2:
-						upper = (Expression<Integer>) expressions[1];
-						if (expressions.length == 3)
-							step = (Expression<Integer>) expressions[2];
-						break;
-					default:
-						throw new IllegalStateException();
-				}
-		}
-		var logger = parseContext.getLogger();
-		if (!list.acceptsChange(ChangeMode.SET, list.getReturnType(), false)) {
-			logger.error(
-					list.toString(TriggerContext.DUMMY, logger.isDebug())
-							+ "' cannot be set to multiple values",
-					ErrorType.SEMANTIC_ERROR
-			);
-			return false;
-		} else if (list.isSingle()) {
-			logger.error(
-					list.toString(TriggerContext.DUMMY, logger.isDebug()) + " represents a single value",
-					ErrorType.SEMANTIC_ERROR,
-					"List operators only work on multiple objects at the same time"
-			);
-			return false;
-		}
-		return true;
-	}
+    @SuppressWarnings("unchecked")
+    @Override
+    public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
+        switch (matchedPattern) {
+            case 0:
+                type = parseContext.getNumericMark();
+                list = (Expression<Object>) (type == 2 ? expressions[1] : expressions[0]);
+                if (type == 2)
+                    index = (Expression<Integer>) expressions[0];
+                break;
+            case 1:
+            case 2:
+                type = matchedPattern - 1;
+                list = (Expression<Object>) expressions[0];
+                break;
+            case 3:
+                type = 3;
+                list = (Expression<Object>) expressions[0];
+                switch (parseContext.getNumericMark()) {
+                    case 0:
+                        lower = (Expression<Integer>) expressions[1];
+                        upper = (Expression<Integer>) expressions[2];
+                        if (expressions.length == 4)
+                            step = (Expression<Integer>) expressions[3];
+                        break;
+                    case 1:
+                        lower = (Expression<Integer>) expressions[1];
+                        if (expressions.length == 3)
+                            step = (Expression<Integer>) expressions[2];
+                        break;
+                    case 2:
+                        upper = (Expression<Integer>) expressions[1];
+                        if (expressions.length == 3)
+                            step = (Expression<Integer>) expressions[2];
+                        break;
+                    default:
+                        throw new IllegalStateException();
+                }
+        }
+        var logger = parseContext.getLogger();
+        if (!list.acceptsChange(ChangeMode.SET, list.getReturnType(), false)) {
+            logger.error(
+                list.toString(TriggerContext.DUMMY, logger.isDebug())
+                    + "' cannot be set to multiple values",
+                ErrorType.SEMANTIC_ERROR
+            );
+            return false;
+        } else if (list.isSingle()) {
+            logger.error(
+                list.toString(TriggerContext.DUMMY, logger.isDebug()) + " represents a single value",
+                ErrorType.SEMANTIC_ERROR,
+                "List operators only work on multiple objects at the same time"
+            );
+            return false;
+        }
+        return true;
+    }
 
-	@Override
-	public Object[] getValues(TriggerContext ctx, boolean isEffect) {
-		var values = list.getValues(ctx);
-		if (values.length == 0)
-			return new Object[0];
+    @Override
+    public Object[] getValues(TriggerContext ctx, boolean isEffect) {
+        var values = list.getValues(ctx);
+        if (values.length == 0)
+            return new Object[0];
 
-		switch (type) {
-			case 0:
-				if (isEffect)
-					list.change(ctx, ChangeMode.SET, Arrays.copyOfRange(values, 0, values.length - 1));
-				return new Object[] {values[values.length - 1]};
-			case 1:
-				if (isEffect)
-					list.change(ctx, ChangeMode.SET, Arrays.copyOfRange(values, 1, values.length));
-				return new Object[] {values[0]};
-			case 2:
-				int ind = index.getSingle(ctx)
-						.filter(n -> Integer.signum(n) > 0 && n.compareTo(Integer.valueOf(values.length)) <= 0)
-						.map(n -> n.intValue() - 1)
-						.orElse(-1);
-				if (ind == -1) {
-					return new Object[0];
-				}
+        switch (type) {
+            case 0:
+                if (isEffect)
+                    list.change(ctx, ChangeMode.SET, Arrays.copyOfRange(values, 0, values.length - 1));
+                return new Object[]{values[values.length - 1]};
+            case 1:
+                if (isEffect)
+                    list.change(ctx, ChangeMode.SET, Arrays.copyOfRange(values, 1, values.length));
+                return new Object[]{values[0]};
+            case 2:
+                int ind = index.getSingle(ctx)
+                    .filter(n -> Integer.signum(n) > 0 && n.compareTo(Integer.valueOf(values.length)) <= 0)
+                    .map(n -> n.intValue() - 1)
+                    .orElse(-1);
+                if (ind == -1) {
+                    return new Object[0];
+                }
 
-				// When used as an effect
-				if (isEffect) {
-					var skipped = new Object[values.length - 1];
-					for (int i = 0, k = 0; i < values.length; i++) {
-						if (i == ind) {
-							continue;
-						}
-						skipped[k++] = values[i];
-					}
-					list.change(ctx, ChangeMode.SET, skipped);
-				}
-				return new Object[] {values[ind]};
-			case 3:
-				var low = lower != null
-						? lower.getSingle(ctx).filter(n -> Integer.signum(n) > 0).map(n -> n.intValue() - 1).orElse(-1)
-						: 0;
-				var up = upper != null
-						? upper.getSingle(ctx).filter(n -> n.compareTo(Integer.valueOf(values.length)) <= 0).map(Integer::intValue).orElse(values.length)
-						: values.length;
-				var st = step != null
-						? step.getSingle(ctx).filter(n -> Integer.signum(n) != 0 && n.compareTo(Integer.valueOf(-values.length)) >= 0 && n.compareTo(Integer.valueOf(values.length)) <= 0).map(Integer::intValue).orElse(0)
-						: 1;
+                // When used as an effect
+                if (isEffect) {
+                    var skipped = new Object[values.length - 1];
+                    for (int i = 0, k = 0; i < values.length; i++) {
+                        if (i == ind) {
+                            continue;
+                        }
+                        skipped[k++] = values[i];
+                    }
+                    list.change(ctx, ChangeMode.SET, skipped);
+                }
+                return new Object[]{values[ind]};
+            case 3:
+                var low = lower != null
+                    ? lower.getSingle(ctx).filter(n -> Integer.signum(n) > 0).map(n -> n.intValue() - 1).orElse(-1)
+                    : 0;
+                var up = upper != null
+                    ? upper.getSingle(ctx).filter(n -> n.compareTo(Integer.valueOf(values.length)) <= 0).map(Integer::intValue).orElse(values.length)
+                    : values.length;
+                var st = step != null
+                    ? step.getSingle(ctx).filter(n -> Integer.signum(n) != 0 && n.compareTo(Integer.valueOf(-values.length)) >= 0 && n.compareTo(Integer.valueOf(values.length)) <= 0).map(Integer::intValue).orElse(0)
+                    : 1;
 
-				if (st < 0) {
-					CollectionUtils.reverseArray(values);
-					st = -st;
-					int temp = low;
-					low = up - 1;
-					up = temp + 1;
-				}
-				if (low == -1 || up == -1 || up == 0 || st == 0 || low > up) {
-					if (isEffect)
-						list.change(ctx, ChangeMode.SET, new Object[0]);
-					return new Object[0];
-				} else if (low == up) {
-					// Nothing to change
-					return new Object[0];
-				}
+                if (st < 0) {
+                    CollectionUtils.reverseArray(values);
+                    st = -st;
+                    int temp = low;
+                    low = up - 1;
+                    up = temp + 1;
+                }
+                if (low == -1 || up == -1 || up == 0 || st == 0 || low > up) {
+                    if (isEffect)
+                        list.change(ctx, ChangeMode.SET, new Object[0]);
+                    return new Object[0];
+                } else if (low == up) {
+                    // Nothing to change
+                    return new Object[0];
+                }
 
-				var spliced = new ArrayList<>();
-				var changed = new ArrayList<>();
-				for (int i = 0; i < values.length; i++) {
-					if (i >= low && i < up && (i - low) % st == 0) {
-						spliced.add(values[i]);
-					} else {
-						changed.add(values[i]);
-					}
-				}
+                var spliced = new ArrayList<>();
+                var changed = new ArrayList<>();
+                for (int i = 0; i < values.length; i++) {
+                    if (i >= low && i < up && (i - low) % st == 0) {
+                        spliced.add(values[i]);
+                    } else {
+                        changed.add(values[i]);
+                    }
+                }
 
-				if (isEffect)
-					list.change(ctx, ChangeMode.SET, changed.toArray());
-				return spliced.toArray(new Object[0]);
-			default:
-				throw new IllegalStateException();
-		}
-	}
+                if (isEffect)
+                    list.change(ctx, ChangeMode.SET, changed.toArray());
+                return spliced.toArray(new Object[0]);
+            default:
+                throw new IllegalStateException();
+        }
+    }
 
-	@Override
-	public boolean isSingle() {
-		return type != 3;
-	}
+    @Override
+    public boolean isSingle() {
+        return type != 3;
+    }
 
-	@Override
-	public String toString(TriggerContext ctx, boolean debug) {
-		switch (type) {
-			case 0:
-				return "pop " + list.toString(ctx, debug);
-			case 1:
-				return "poll " + list.toString(ctx, debug);
-			case 2:
-				return "extract element number " + index.toString(ctx, debug) + " from " + list.toString(ctx, debug);
-			case 3:
-				return "splice " + list.toString(ctx, debug) + " from " + lower.toString(ctx, debug)
-						+ (upper != null ? upper.toString(ctx, debug) : "");
-			default:
-				throw new IllegalStateException();
-		}
-	}
+    @Override
+    public String toString(TriggerContext ctx, boolean debug) {
+        switch (type) {
+            case 0:
+                return "pop " + list.toString(ctx, debug);
+            case 1:
+                return "poll " + list.toString(ctx, debug);
+            case 2:
+                return "extract element number " + index.toString(ctx, debug) + " from " + list.toString(ctx, debug);
+            case 3:
+                return "splice " + list.toString(ctx, debug) + " from " + lower.toString(ctx, debug)
+                    + (upper != null ? upper.toString(ctx, debug) : "");
+            default:
+                throw new IllegalStateException();
+        }
+    }
 }

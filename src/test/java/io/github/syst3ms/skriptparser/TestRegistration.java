@@ -14,47 +14,47 @@ import java.util.TimeZone;
 
 public class TestRegistration {
 
-	public static void register() {
-		try {
-			Field regField = Parser.class.getDeclaredField("registration");
-			regField.setAccessible(true);
-			String s = new Random().nextInt(10000) + "-addon";
-			regField.set(null, new SkriptRegistration(new TestAddon(s)));
-		} catch (NoSuchFieldException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
-		DefaultRegistration.register();
-		try {
-			FileUtils.loadClasses(
-				Path.of("build/classes/java/main"),
-				"io.github.syst3ms.skriptparser",
-				"effects",
-				"expressions",
-				"lang",
-				"sections",
-				"tags"
-			);
-			FileUtils.loadClasses(
-				Path.of("build/classes/java/test"),
-				"io.github.syst3ms.skriptparser",
-				"syntax"
-			);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		Parser.getMainRegistration().register();
+    public static void register() {
+        try {
+            Field regField = Parser.class.getDeclaredField("registration");
+            regField.setAccessible(true);
+            String s = new Random().nextInt(10000) + "-addon";
+            regField.set(null, new SkriptRegistration(new TestAddon(s)));
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        DefaultRegistration.register();
+        try {
+            FileUtils.loadClasses(
+                Path.of("build/classes/java/main"),
+                "io.github.syst3ms.skriptparser",
+                "effects",
+                "expressions",
+                "lang",
+                "sections",
+                "tags"
+            );
+            FileUtils.loadClasses(
+                Path.of("build/classes/java/test"),
+                "io.github.syst3ms.skriptparser",
+                "syntax"
+            );
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Parser.getMainRegistration().register();
 
-		/*
-		 * Now, we need to change some fields to keep all tests consistent.
-		 */
+        /*
+         * Now, we need to change some fields to keep all tests consistent.
+         */
 
-		// defaultTimezone field
-		try {
-			Field timeZone = SkriptDate.class.getDeclaredField("defaultTimeZone");
-			timeZone.setAccessible(true);
-			timeZone.set(null, TimeZone.getTimeZone(ZoneOffset.UTC));
-		} catch (NoSuchFieldException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
-	}
+        // defaultTimezone field
+        try {
+            Field timeZone = SkriptDate.class.getDeclaredField("defaultTimeZone");
+            timeZone.setAccessible(true);
+            timeZone.set(null, TimeZone.getTimeZone(ZoneOffset.UTC));
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
 }

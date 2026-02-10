@@ -9,6 +9,7 @@ import java.util.function.Function;
 
 /**
  * A simple expression with a fixed function to retrieve its values
+ *
  * @param <T> the type of the values
  */
 public class SimpleExpression<T> implements Expression<T> {
@@ -53,7 +54,7 @@ public class SimpleExpression<T> implements Expression<T> {
     public String toString(TriggerContext ctx, boolean debug) {
         // If the representation is not given, the default TypeManager#toString will be used to convert each value separately
         if (representation == null) {
-            return TypeManager.toString((Object[]) function.apply(ctx));
+            return TypeManager.toString(function.apply(ctx));
         } else {
             return representation;
         }

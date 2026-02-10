@@ -16,7 +16,7 @@ public abstract class ArgumentSection extends CodeSection implements Finishing {
 
     /**
      * This function is called from the section containing the code, and returns an Optional describing
-     * the first {@link Statement} that should be run in the consumer.
+     * the getFirst {@link Statement} that should be run in the consumer.
      * <br>
      * By default, returns {@link CodeSection#getFirst()}.
      */
@@ -34,6 +34,7 @@ public abstract class ArgumentSection extends CodeSection implements Finishing {
      * of only when the execution has finished (see {@linkplain #finish()} for that)
      * <br>
      * By default, does nothing.
+     *
      * @param item the last statement
      * @see EffContinue
      * @see EffReturn
@@ -52,6 +53,7 @@ public abstract class ArgumentSection extends CodeSection implements Finishing {
 
     /**
      * Sets the arguments that should be passed to the section code.
+     *
      * @param arguments this section's arguments
      */
     public void setArguments(Object... arguments) {

@@ -63,7 +63,7 @@ public class EffEscape extends Effect {
                 ? ((SelfReferencing) val).getActualNext()
                 : val.getNext());
 
-            // Because otherwise SelfReferencing sections will first reference to themselves
+            // Because otherwise SelfReferencing sections will getFirst reference to themselves
             if (current.filter(val -> val instanceof Finishing).isEmpty())
                 am--;
         }

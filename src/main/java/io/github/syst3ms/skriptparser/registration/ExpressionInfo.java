@@ -12,6 +12,7 @@ import java.util.Map;
 
 /**
  * A class containing info about an {@link Expression} syntax
+ *
  * @param <C> the {@link Expression} class
  * @param <T> the return type of the {@link Expression}
  */

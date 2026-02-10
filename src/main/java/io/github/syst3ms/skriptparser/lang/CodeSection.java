@@ -21,6 +21,7 @@ import java.util.function.Predicate;
 
 /**
  * Represents a section of runnable code.
+ *
  * @see SecConditional
  * @see SecLoop
  * @see SecWhile
@@ -38,10 +39,11 @@ public abstract class CodeSection extends Statement {
      * By default, this simply parses all items inside it, but this can be overridden.
      * In case an extending class just needs to do some additional operations on top of what the default implementation
      * already does, then call {@code super.loadSection(section)} before any such operations.
+     *
      * @param section the {@link FileSection} representing this {@linkplain CodeSection}
-     * @param logger the logger
+     * @param logger  the logger
      * @return {@code true} if the items inside of the section were loaded properly, {@code false} if there was a
-     *         problem
+     * problem
      */
     public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {
         parserState.setSyntaxRestrictions(getAllowedSyntaxes(), isRestrictingExpressions());
@@ -62,8 +64,20 @@ public abstract class CodeSection extends Statement {
     public abstract Optional<? extends Statement> walk(TriggerContext ctx);
 
     /**
+     * The items returned by this method are not representative of the execution of the code, meaning that all items
+     * in the list may not be all executed. The list should rather be considered as a flat view of all the lines inside
+     * the section. Prefer {@link Statement#runAll(Statement, TriggerContext)} to run the contents of this section
+     *
+     * @return all items inside this section
+     */
+    public List<Statement> getItems() {
+        return items;
+    }
+
+    /**
      * Sets the items inside this lists, and also modifies other fields, reflected through the outputs of {@link #getFirst()},
      * {@link #getLast()} and {@link Statement#getParent()}.
+     *
      * @param items the items to set
      */
     public final void setItems(List<Statement> items) {
@@ -76,17 +90,7 @@ public abstract class CodeSection extends Statement {
     }
 
     /**
-     * The items returned by this method are not representative of the execution of the code, meaning that all items
-     * in the list may not be all executed. The list should rather be considered as a flat view of all the lines inside
-     * the section. Prefer {@link Statement#runAll(Statement, TriggerContext)} to run the contents of this section
-     * @return all items inside this section
-     */
-    public List<Statement> getItems() {
-        return items;
-    }
-
-    /**
-     * @return the first item of this section, or the item after the section if it's empty, or {@code null} if there is
+     * @return the getFirst item of this section, or the item after the section if it's empty, or {@code null} if there is
      * no item after this section, in the latter case
      */
     public final Optional<? extends Statement> getFirst() {
@@ -106,6 +110,7 @@ public abstract class CodeSection extends Statement {
      * is to return an empty list, which equates to no restrictions. If overridden, this allows the creation of specialized,
      * DSL-like sections in which only select {@linkplain Statement statements} and other {@linkplain CodeSection sections}
      * (and potentially, but not necessarily, expressions).
+     *
      * @return a list of the classes of each syntax allowed inside this CodeSection
      * @see #isRestrictingExpressions()
      */
@@ -116,8 +121,9 @@ public abstract class CodeSection extends Statement {
     /**
      * Whether the syntax restrictions outlined in {@link #getAllowedSyntaxes()} should also apply to expressions.
      * This is usually undesirable, so it is false by default.
-     *
+     * <p>
      * This should return true <b>if and only if</b> {@link #getAllowedSyntaxes()} contains an {@linkplain Expression} class.
+     *
      * @return whether the use of expressions is also restricted by {@link #getAllowedSyntaxes()}. False by default.
      */
     protected boolean isRestrictingExpressions() {
@@ -147,11 +153,11 @@ public abstract class CodeSection extends Statement {
                 // Otherwise, we don't wanna do anything
             } else if (statement instanceof CodeSection) {
                 finished = ((CodeSection) statement).checkFinishing(
-                        finishingTest,
-                        logger,
-                        currentSectionLine + 1,
-                        warnUnreachable,
-                        errorMessage
+                    finishingTest,
+                    logger,
+                    currentSectionLine + 1,
+                    warnUnreachable,
+                    errorMessage
                 );
             } else {
                 finished = finishingTest.test(statement);
@@ -170,11 +176,11 @@ public abstract class CodeSection extends Statement {
                                   int currentSectionLine,
                                   boolean warnUnreachable) {
         return checkFinishing(
-                finishingTest,
-                logger,
-                currentSectionLine,
-                warnUnreachable,
-                "The code inside of this section should end in a finishing statement, but it doesn't"
+            finishingTest,
+            logger,
+            currentSectionLine,
+            warnUnreachable,
+            "The code inside of this section should end in a finishing statement, but it doesn't"
         );
     }
 
@@ -182,11 +188,11 @@ public abstract class CodeSection extends Statement {
                                 int currentSectionLine,
                                 boolean warnUnreachable) {
         return checkFinishing(
-                s -> s instanceof EffReturn,
-                logger,
-                currentSectionLine,
-                warnUnreachable,
-                "The code inside of this section should return a value, but it doesn't"
+            s -> s instanceof EffReturn,
+            logger,
+            currentSectionLine,
+            warnUnreachable,
+            "The code inside of this section should return a value, but it doesn't"
         );
     }
 }

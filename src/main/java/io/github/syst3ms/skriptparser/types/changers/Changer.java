@@ -5,6 +5,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 
 /**
  * An interface for anything that can be changed
+ *
  * @param <T> the type of the thing to change
  * @see Expression#change(TriggerContext, ChangeMode, Object[])
  * @see Expression#acceptsChange(ChangeMode)
@@ -18,9 +19,10 @@ public interface Changer<T> {
 
     /**
      * Changes the implementing object
-     * @param toChange the current values
+     *
+     * @param toChange   the current values
      * @param changeWith the values to change with
-     * @param mode the change mode
+     * @param mode       the change mode
      */
     void change(T[] toChange, Object[] changeWith, ChangeMode mode);
 }

@@ -45,7 +45,7 @@ public class ParserState {
     }
 
     /**
-     * @return a list of all enclosing {@linkplain CodeSection}s, with the closest one first
+     * @return a list of all enclosing {@linkplain CodeSection}s, with the closest one getFirst
      */
     public LinkedList<CodeSection> getCurrentSections() {
         return new LinkedList<>(currentSections);

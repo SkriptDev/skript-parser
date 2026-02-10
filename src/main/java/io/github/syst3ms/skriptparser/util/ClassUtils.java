@@ -13,7 +13,7 @@ public class ClassUtils {
     }
 
     /**
-     * @param cs the array of classes
+     * @param cs         the array of classes
      * @param interfaces whether or not to account for interfaces
      * @return the nearest common superclass of the provided classes
      */

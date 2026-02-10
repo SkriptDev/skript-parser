@@ -11,11 +11,11 @@ import java.util.regex.Pattern;
 /**
  * Check if the given strings match a certain regex expression.
  *
+ * @author Mwexim
  * @name Match
  * @type CONDITION
  * @pattern %strings% [do[es](n't| not)] [part[ial]ly] match[es] %strings%
  * @since ALPHA
- * @author Mwexim
  */
 public class CondExprMatch extends ConditionalExpression {
     static {
@@ -45,21 +45,21 @@ public class CondExprMatch extends ConditionalExpression {
     @Override
     public boolean check(TriggerContext ctx) {
         return matched.check(
+            ctx,
+            toMatch -> pattern.check(
                 ctx,
-                toMatch -> pattern.check(
-                        ctx,
-                        pattern -> partly ? Pattern.compile(pattern).matcher(toMatch).find() : toMatch.matches(pattern)
-                ),
-                isNegated()
+                pattern -> partly ? Pattern.compile(pattern).matcher(toMatch).find() : toMatch.matches(pattern)
+            ),
+            isNegated()
         );
     }
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
         return matched.toString(ctx, debug)
-                + (isNegated() ? " does not" : "")
-                + (partly ? " partially" : "")
-                + (isNegated() ? " match " : " matches ")
-                + pattern.toString(ctx, debug);
+            + (isNegated() ? " does not" : "")
+            + (partly ? " partially" : "")
+            + (isNegated() ? " match " : " matches ")
+            + pattern.toString(ctx, debug);
     }
 }

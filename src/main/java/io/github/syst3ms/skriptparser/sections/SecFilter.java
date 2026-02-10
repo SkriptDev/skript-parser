@@ -26,11 +26,11 @@ import java.util.Optional;
  * or not by the returned boolean.
  * Note that the filtered expression will be changed, hence why it can't be a literal list.
  *
+ * @author Mwexim
  * @name Filter
  * @type SECTION
  * @pattern filter %~objects%
  * @since ALPHA
- * @author Mwexim
  */
 public class SecFilter extends ReturnSection<Boolean> implements SelfReferencing {
     static {
@@ -44,25 +44,24 @@ public class SecFilter extends ReturnSection<Boolean> implements SelfReferencing
             .register();
     }
 
+    private final List<Object> result = new ArrayList<>();
     private Expression<?> filtered;
-
     @Nullable
     private Statement actualNext;
     @Nullable
     private Iterator<?> iterator;
-    private final List<Object> result = new ArrayList<>();
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         filtered = expressions[0];
         var logger = parseContext.getLogger();
         if (!filtered.acceptsChange(ChangeMode.SET, filtered.getReturnType(), false)
-                || filtered.acceptsChange(ChangeMode.DELETE).isEmpty()) {
+            || filtered.acceptsChange(ChangeMode.DELETE).isEmpty()) {
             logger.error(
-                    "The expression '" +
-                            filtered.toString(TriggerContext.DUMMY, logger.isDebug()) +
-                            "' cannot be changed",
-                    ErrorType.SEMANTIC_ERROR
+                "The expression '" +
+                    filtered.toString(TriggerContext.DUMMY, logger.isDebug()) +
+                    "' cannot be changed",
+                ErrorType.SEMANTIC_ERROR
             );
             return false;
         }
@@ -82,13 +81,13 @@ public class SecFilter extends ReturnSection<Boolean> implements SelfReferencing
         boolean isVariable = filtered instanceof Variable<?>;
         if (iterator == null)
             iterator = isVariable
-                    ? ((Variable<?>) filtered).variablesIterator(ctx)
-                    : filtered.iterator(ctx);
+                ? ((Variable<?>) filtered).variablesIterator(ctx)
+                : filtered.iterator(ctx);
 
         if (iterator.hasNext()) {
             setArguments(isVariable
-                    ? ((Pair<String, Object>) iterator.next()).getSecond()
-                    : iterator.next()
+                ? ((Pair<String, Object>) iterator.next()).getSecond()
+                : iterator.next()
             );
             return start();
         } else {

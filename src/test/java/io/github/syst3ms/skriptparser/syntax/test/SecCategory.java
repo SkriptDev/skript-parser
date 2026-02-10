@@ -18,19 +18,19 @@ import java.util.Optional;
 public class SecCategory extends CodeSection {
     static {
         Parser.getMainRegistration().addSection(
-                SecCategory.class,
-                "category [test]"
+            SecCategory.class,
+            "category [test]"
         );
     }
 
     private final SectionConfiguration config = new SectionConfiguration.Builder()
-            .addLiteral("number", BigInteger.class)
-            .addList("multiple")
-            .addList("more multiple values")
-            .addKey("unused")
-            .addOptionalKey("optional")
-            .addSection("die")
-            .build();
+        .addLiteral("number", BigInteger.class)
+        .addList("multiple")
+        .addList("more multiple values")
+        .addKey("unused")
+        .addOptionalKey("optional")
+        .addSection("die")
+        .build();
 
     @Override
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {

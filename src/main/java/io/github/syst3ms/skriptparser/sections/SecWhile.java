@@ -19,11 +19,11 @@ import java.util.Optional;
  * This section will keep executing the statements inside until the given condition
  * does not hold anymore.
  *
+ * @author Mwexim
  * @name While
  * @type SECTION
  * @pattern while %=boolean%
  * @since ALPHA
- * @author Mwexim
  */
 public class SecWhile extends CodeSection implements Continuable, SelfReferencing {
     static {

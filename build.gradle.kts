@@ -1,6 +1,7 @@
 plugins {
     id("java")
     id("maven-publish")
+    id("checkstyle")
 }
 group = "com.github.SkriptDev"
 version = "1.0.6"
@@ -56,6 +57,17 @@ tasks {
     java {
         withSourcesJar()
     }
+    checkstyle {
+        // Specify the version of the Checkstyle tool to use
+        toolVersion = "10.21.0" // Use a recent version of Checkstyle
+
+        isIgnoreFailures = false
+
+        // Point to your custom Checkstyle configuration file
+        // The default location is config/checkstyle/checkstyleMain.xml
+        configFile = file("${rootProject.projectDir}/config/checkstyle/checkstyle.xml")
+    }
+
     publishing {
         publications {
             create<MavenPublication>("maven") {

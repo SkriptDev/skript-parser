@@ -35,7 +35,8 @@ public class VariableString extends TaggedExpression {
 
     /**
      * Creates a new instance of a VariableString.
-     * @param s the text to create a new instance from, with its surrounding quotes
+     *
+     * @param s      the text to create a new instance from, with its surrounding quotes
      * @param logger the logger
      * @return {@code null} if either:
      * <ul>
@@ -50,8 +51,8 @@ public class VariableString extends TaggedExpression {
         if (s.startsWith("\"") && s.endsWith("\"") && StringUtils.nextSimpleCharacterIndex(s, 0) == s.length()) {
             return newInstance(s.substring(1, s.length() - 1), parserState, logger);
         } else if (s.startsWith("'") && s.endsWith("'") && StringUtils.nextSimpleCharacterIndex(s, 0) == s.length()) {
-            return Optional.of(new VariableString(new String[] {
-                    s.substring(1, s.length() - 1).replace("\\\"", "\"")
+            return Optional.of(new VariableString(new String[]{
+                s.substring(1, s.length() - 1).replace("\\\"", "\"")
             }));
         }
         return Optional.empty();
@@ -59,9 +60,10 @@ public class VariableString extends TaggedExpression {
 
     /**
      * Creates a new instance of a VariableString from the text inside a string literal.
-     * @param s the content of the string literal, without quotes
+     *
+     * @param s           the content of the string literal, without quotes
      * @param parserState the current parser state
-     * @param logger the logger
+     * @param logger      the logger
      * @return a new instance of a VariableString, or {@code null} if there are unbalanced {@literal %} symbols
      */
     public static Optional<VariableString> newInstance(String s, ParserState parserState, SkriptLogger logger) {
@@ -92,7 +94,7 @@ public class VariableString extends TaggedExpression {
                 }
                 data.add(expression.get());
                 i += content.get().length() + 1;
-           // } else if (c == '<') {
+                // } else if (c == '<') {
 //                if (i == charArray.length - 1
 //                        || Character.isWhitespace(charArray[i + 1])) {
 //                    sb.append(c);
@@ -189,8 +191,8 @@ public class VariableString extends TaggedExpression {
 
         // Filters all non-usable tags away right from the start.
         var actualData = Arrays.stream(data)
-                .filter(o -> !(o instanceof Tag) || ((Tag) o).isUsable(tagCtx))
-                .toArray();
+            .filter(o -> !(o instanceof Tag) || ((Tag) o).isUsable(tagCtx))
+            .toArray();
         var sb = new StringBuilder();
         int currentTags = 1;
         List<Tag> ongoingTags = new ArrayList<>();

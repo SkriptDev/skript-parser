@@ -8,10 +8,10 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 /**
  * A wrapper that turns a condition into a boolean expression than can be used anywhere.
  *
+ * @author Syst3ms
  * @name Whether
  * @pattern whether %=boolean%
  * @since ALPHA
- * @author Syst3ms
  */
 public class ExprWhether implements Expression<Boolean> {
     static {

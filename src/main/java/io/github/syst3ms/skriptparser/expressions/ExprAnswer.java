@@ -12,13 +12,15 @@ import java.util.Map;
  * Retrieve the last input of the user in a {@link EffAsk} effect.
  * This will essentially return the last line of the console.
  *
+ * @author ItsTheSky
  * @name Last Answer
  * @type EXPRESSION
  * @pattern [the] [last] (answer|response)
  * @since ALPHA
- * @author ItsTheSky
  */
 public class ExprAnswer implements Expression<String> {
+
+    private static final Map<TriggerContext, String> answers = new HashMap<>();
 
     static {
         // We won't be needing this
@@ -29,8 +31,6 @@ public class ExprAnswer implements Expression<String> {
 //                "[the] [last] (answer|response)"
 //        );
     }
-
-    private static final Map<TriggerContext, String> answers = new HashMap<>();
 
     public static void addAnswer(TriggerContext ctx, String answer) {
         answers.put(ctx, answer);
@@ -44,8 +44,8 @@ public class ExprAnswer implements Expression<String> {
     @Override
     public String[] getValues(TriggerContext ctx) {
         return answers.containsKey(ctx)
-                ? new String[] {answers.get(ctx)}
-                : new String[0];
+            ? new String[]{answers.get(ctx)}
+            : new String[0];
     }
 
     @Override

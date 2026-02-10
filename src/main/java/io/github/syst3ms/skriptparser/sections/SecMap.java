@@ -47,13 +47,12 @@ public class SecMap extends ReturnSection<Object> implements SelfReferencing {
             .register();
     }
 
+    private final List<Object> result = new ArrayList<>();
     private Expression<?> mapped;
-
     @Nullable
     private Statement actualNext;
     @Nullable
     private Iterator<?> iterator;
-    private final List<Object> result = new ArrayList<>();
 
     @Override
     public boolean loadSection(FileSection section, ParserState parserState, SkriptLogger logger) {

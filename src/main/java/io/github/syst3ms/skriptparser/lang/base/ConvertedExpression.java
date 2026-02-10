@@ -16,6 +16,7 @@ import java.util.function.Function;
 /**
  * An expression that has been converted to another type. Type conversion is only being done at runtime, since the values
  * of the source expression aren't known until runtime.
+ *
  * @param <F> The type of the source expression
  * @param <T> The new, converted type of this expression
  * @see Converters
@@ -33,8 +34,9 @@ public class ConvertedExpression<F, T> implements Expression<T> {
 
     /**
      * Creates a new instance that converts the result by using the registered converters.
-     * @param v the source Expression
-     * @param to the Class to convert to
+     *
+     * @param v   the source Expression
+     * @param to  the Class to convert to
      * @param <F> the original return type
      * @param <T> the converted return type
      * @return an optional ConvertedExpression instance
@@ -42,16 +44,17 @@ public class ConvertedExpression<F, T> implements Expression<T> {
     @SuppressWarnings("unchecked")
     public static <F, T> Optional<? extends ConvertedExpression<F, T>> newInstance(Expression<F> v, Class<T> to) {
         return Converters.getConverter(v.getReturnType(), to)
-                .map(c -> new ConvertedExpression<>(v, to, (Function<? super F, Optional<? extends T>>) c));
+            .map(c -> new ConvertedExpression<>(v, to, (Function<? super F, Optional<? extends T>>) c));
     }
 
     /**
      * Creates a new instance that converts the result by using the given converter.
-     * @param v the source Expression
-     * @param to the Class to convert to
+     *
+     * @param v         the source Expression
+     * @param to        the Class to convert to
      * @param converter the converter to use
-     * @param <F> the original return type
-     * @param <T> the converted return type
+     * @param <F>       the original return type
+     * @param <T>       the converted return type
      * @return an optional ConvertedExpression instance
      */
     @SuppressWarnings("unchecked")

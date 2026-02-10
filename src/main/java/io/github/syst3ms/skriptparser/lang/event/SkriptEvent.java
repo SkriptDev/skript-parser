@@ -55,7 +55,7 @@ public abstract class SkriptEvent implements SyntaxElement {
      * This is undesirable if we don't want the restriction of having to declare functions before using them. This is especially
      * counter-productive if we're dealing with multiple scripts.
      * <p>
-     * To solve this problem, {@link Trigger triggers} with a higher loading priority number will be loaded first.
+     * To solve this problem, {@link Trigger triggers} with a higher loading priority number will be loaded getFirst.
      *
      * @return the loading priority number. 0 by default
      */
@@ -87,6 +87,13 @@ public abstract class SkriptEvent implements SyntaxElement {
      */
     public boolean isRestrictingExpressions() {
         return false;
+    }
+
+    /**
+     * Called when this event is unloaded.
+     * This is optional to override.
+     */
+    public void unload() {
     }
 
 }

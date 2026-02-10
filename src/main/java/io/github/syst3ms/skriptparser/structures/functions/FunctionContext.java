@@ -2,17 +2,7 @@ package io.github.syst3ms.skriptparser.structures.functions;
 
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 
-public class FunctionContext implements TriggerContext {
-
-    private final Function<?> owningFunction;
-
-    public FunctionContext(Function<?> owningFunction) {
-        this.owningFunction = owningFunction;
-    }
-
-    public Function<?> getOwningFunction() {
-        return owningFunction;
-    }
+public record FunctionContext(Function<?> owningFunction) implements TriggerContext {
 
     @Override
     public String getName() {

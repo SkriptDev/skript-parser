@@ -20,13 +20,13 @@ import java.util.Optional;
  * The default part can be used to provide actions when no match was found.
  * Note that you can only use one default statement.
  *
+ * @author Mwexim
  * @name Case
  * @type SECTION
- * @pattern (case|when) %*objects%
- * @pattern ([by] default|otherwise)
- * @since ALPHA
- * @author Mwexim
+ * @pattern (case | when) %*objects%
+ * @pattern ([by] default | otherwise)
  * @see SecSwitch
+ * @since ALPHA
  */
 @SuppressWarnings("unchecked")
 public class SecCase extends CodeSection {
@@ -67,24 +67,24 @@ public class SecCase extends CodeSection {
             matchWith = (Expression<Object>) expressions[0];
             if (!matchWith.isSingle() && matchWith.isAndList()) {
                 logger.error(
-                        "Only 'or'-lists may be used, found '" + matchWith.toString(TriggerContext.DUMMY, logger.isDebug()),
-                        ErrorType.SEMANTIC_ERROR
+                    "Only 'or'-lists may be used, found '" + matchWith.toString(TriggerContext.DUMMY, logger.isDebug()),
+                    ErrorType.SEMANTIC_ERROR
                 );
                 return false;
             } else if (switchSection.getDefault().isPresent()) {
                 logger.error(
-                        "A 'case'-section cannot be placed behind a 'default'-statement.",
-                        ErrorType.SEMANTIC_ERROR,
-                        "Place this statement before the 'default'-statement to provide the same behavior."
+                    "A 'case'-section cannot be placed behind a 'default'-statement.",
+                    ErrorType.SEMANTIC_ERROR,
+                    "Place this statement before the 'default'-statement to provide the same behavior."
                 );
                 return false;
             }
             switchSection.getCases().add(this);
         } else if (switchSection.getDefault().isPresent()) {
             logger.error(
-                    "Only one 'default'-statement may be used inside a 'switch'-section",
-                    ErrorType.SEMANTIC_ERROR,
-                    "Merge this section with the other 'default'-section to provide the same behavior."
+                "Only one 'default'-statement may be used inside a 'switch'-section",
+                ErrorType.SEMANTIC_ERROR,
+                "Merge this section with the other 'default'-section to provide the same behavior."
             );
             return false;
         } else {
@@ -97,16 +97,16 @@ public class SecCase extends CodeSection {
     public Optional<? extends Statement> walk(TriggerContext ctx) {
         if (isMatching) {
             return switchSection.getMatch().getSingle(ctx)
-                    .filter(toMatch -> matchWith.check(
-                            ctx,
-                            with -> Comparators.compare(toMatch, with).is(Relation.EQUAL)
-                    ))
-                    .flatMap(__ -> {
-                        switchSection.setDone(true);
-                        return getFirst();
-                    })
-                    .map(val -> (Statement) val)
-                    .or(() -> Optional.of(switchSection));
+                .filter(toMatch -> matchWith.check(
+                    ctx,
+                    with -> Comparators.compare(toMatch, with).is(Relation.EQUAL)
+                ))
+                .flatMap(__ -> {
+                    switchSection.setDone(true);
+                    return getFirst();
+                })
+                .map(val -> (Statement) val)
+                .or(() -> Optional.of(switchSection));
         } else {
             return getFirst();
         }
