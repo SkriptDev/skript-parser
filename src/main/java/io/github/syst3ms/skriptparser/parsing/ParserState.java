@@ -45,7 +45,7 @@ public class ParserState {
     }
 
     /**
-     * @return a list of all enclosing {@linkplain CodeSection}s, with the closest one first
+     * @return a list of all enclosing {@linkplain CodeSection}s, with the closest one getFirst
      */
     public LinkedList<CodeSection> getCurrentSections() {
         return new LinkedList<>(currentSections);
@@ -131,7 +131,7 @@ public class ParserState {
     public boolean forbidsSyntax(Class<? extends SyntaxElement> c) {
         if (isntAllowingSyntax)
             return true;
-        var allowedSyntaxes = restrictions.getLast().first();
+        var allowedSyntaxes = restrictions.getLast().getFirst();
         return !allowedSyntaxes.isEmpty() && !allowedSyntaxes.contains(c);
     }
 
@@ -139,7 +139,7 @@ public class ParserState {
      * @return whether the current syntax restrictions also apply to expressions
      */
     public boolean isRestrictingExpressions() {
-        return restrictions.getLast().second();
+        return restrictions.getLast().getSecond();
     }
 
     /**

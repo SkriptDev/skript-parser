@@ -6,7 +6,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 
 /**
- * A shorthand expression for giving things a default value. If the first thing isn't set, the second thing will be returned.
+ * A shorthand expression for giving things a default value. If the getFirst thing isn't set, the getSecond thing will be returned.
  *
  * @author Olyno
  * @name Default Value
@@ -18,7 +18,7 @@ public class ExprDefaultValue implements Expression<Object> {
         Parser.getMainRegistration().newExpression(ExprDefaultValue.class, Object.class, false,
                 "%objects% (otherwise|?) %objects%")
             .name("Default Value")
-            .description("Returns the first expression if it's set, otherwise the second expression.")
+            .description("Returns the getFirst expression if it's set, otherwise the getSecond expression.")
             .examples("set {_var} to {_otherVarIfSet} otherwise \"world\"",
                 "send {_varIfSet} ? \"ruh roh, no message\"")
             .since("1.0.0");

@@ -224,13 +224,13 @@ public class ExpressionElement implements PatternElement {
             });
             /*
              * If multiple types are possible, and a variable is matched, it will have the type
-             * of the first option, but all options should be supported.
+             * of the getFirst option, but all options should be supported.
              * We manually change the return type of the variable awaiting a major overhaul.
              * TODO create a better type system for this that supports union types
              */
             expression.ifPresent(e -> {
                 if (e instanceof Variable && types.length > 1) {
-                    var typeClasses = Arrays.stream(types).map(val -> val.type().getTypeClass()).toArray(Class[]::new);
+                    var typeClasses = Arrays.stream(types).map(val -> val.getType().getTypeClass()).toArray(Class[]::new);
                     ((Variable<?>) e).setReturnType(ClassUtils.getCommonSuperclass(typeClasses));
                 }
             });

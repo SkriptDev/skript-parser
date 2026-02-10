@@ -1270,6 +1270,7 @@ public class SkriptRegistration {
         private BiConsumer<C, T[]> listSetterFunction;
         private State state = State.PRESENT;
         private Usage usage = Usage.EXPRESSION_ONLY;
+        private String description;
 
         @SuppressWarnings("unchecked")
         private Class<? extends C>[] excluded = new Class[0];
@@ -1309,6 +1310,11 @@ public class SkriptRegistration {
             return this;
         }
 
+        public final ContextValueRegistrar<C, T> description(String description) {
+            this.description = description;
+            return this;
+        }
+
         @Override
         public void register() {
             var pattern = PatternParser.parsePattern(this.pattern, logger);
@@ -1324,11 +1330,14 @@ public class SkriptRegistration {
             // Register the context value
             if (this.isSingle) {
                 assert singleFunction != null;
-                contextValues.add(ContextValue.createSingle(context, type.get(), pattern.get(), singleFunction, singleSetterFunction, state, usage, excluded));
+                contextValues.add(ContextValue.createSingle(context, type.get(), pattern.get(),
+                    singleFunction, singleSetterFunction, state, usage, description, excluded));
             } else {
                 assert listFunction != null;
-                contextValues.add(ContextValue.createList(context, type.get(), pattern.get(), listFunction, listSetterFunction, state, usage, excluded));
+                contextValues.add(ContextValue.createList(context, type.get(), pattern.get(),
+                    listFunction, listSetterFunction, state, usage, description, excluded));
             }
         }
     }
+
 }

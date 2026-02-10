@@ -20,7 +20,7 @@ public class DefaultFunctions {
                 }
             })
             .name("Mod")
-            .description("Returns the remainder of the division of the first number by the second one.")
+            .description("Returns the remainder of the division of the getFirst number by the getSecond one.")
             .examples("set {_remainder} to mod(10, 3)",
                 "if mod({_var}, 2) = 0:")
             .since("1.0.0")

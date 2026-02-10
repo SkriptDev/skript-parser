@@ -90,7 +90,7 @@ public abstract class CodeSection extends Statement {
     }
 
     /**
-     * @return the first item of this section, or the item after the section if it's empty, or {@code null} if there is
+     * @return the getFirst item of this section, or the item after the section if it's empty, or {@code null} if there is
      * no item after this section, in the latter case
      */
     public final Optional<? extends Statement> getFirst() {

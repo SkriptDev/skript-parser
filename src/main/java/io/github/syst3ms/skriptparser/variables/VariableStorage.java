@@ -252,7 +252,7 @@ public abstract class VariableStorage implements Closeable {
     /**
      * Called after all storages have been loaded, and variables
      * have been redistributed if settings have changed.
-     * This should commit the first transaction.
+     * This should commit the getFirst transaction.
      */
     protected abstract void allLoaded();
 

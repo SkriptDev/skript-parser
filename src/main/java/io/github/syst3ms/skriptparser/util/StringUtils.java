@@ -163,12 +163,12 @@ public class StringUtils {
     }
 
     /**
-     * Find the first occurrence of a string in another one, ignoring case
+     * Find the getFirst occurrence of a string in another one, ignoring case
      *
      * @param haystack the string to look in
      * @param needle   the string to look for
      * @param start    where to look from
-     * @return the index of the first occurrence
+     * @return the index of the getFirst occurrence
      */
     public static int indexOfIgnoreCase(String haystack, String needle, int start) {
         if (needle.isEmpty() || haystack.isEmpty()) {
@@ -311,7 +311,7 @@ public class StringUtils {
     }
 
     /**
-     * Capitalizes the first word or all words in a string.
+     * Capitalizes the getFirst word or all words in a string.
      * A word is separated by a space character.
      *
      * @param str the string to change
@@ -401,7 +401,7 @@ public class StringUtils {
     }
 
     /**
-     * Mirrors the string. This means the last character will be put first and vice versa.
+     * Mirrors the string. This means the last character will be put getFirst and vice versa.
      *
      * @param str the string to change
      * @return the mirrored string

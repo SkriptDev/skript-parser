@@ -65,7 +65,7 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
             discriminant = Integer.parseInt(m.group(2));
         }
         loopedClass = TypeManager.getPatternType(loopedString)
-            .map(patternType -> patternType.type().getTypeClass())
+            .map(patternType -> patternType.getType().getTypeClass())
             .orElse(null);
         return true;
     }
@@ -75,7 +75,7 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
         return sections -> {
             int j = 1;
             SecLoop loop = null;
-            // The closest section is first, let's reverse this behavior for convenience
+            // The closest section is getFirst, let's reverse this behavior for convenience
             Collections.reverse(sections);
             for (SecLoop l : sections) {
                 Class<?> loopedType = l.getLoopedExpression().getReturnType();
@@ -134,9 +134,9 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
             }
             var current = (Pair<String, Object>) loop.getArguments()[0];
             if (isIndex) {
-                return new String[]{current.first()};
+                return new String[]{current.getFirst()};
             }
-            one[0] = current.second();
+            one[0] = current.getSecond();
             return one;
         }
         Object[] arguments = loop.getArguments();

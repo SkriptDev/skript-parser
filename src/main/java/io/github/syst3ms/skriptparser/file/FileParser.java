@@ -22,7 +22,7 @@ public class FileParser {
      *
      * @param fileName            the name of the file the lines belong to
      * @param lines               the list of lines to parse
-     * @param expectedIndentation the indentation level the first line is expected to be at
+     * @param expectedIndentation the indentation level the getFirst line is expected to be at
      * @param lastLine            a parameter that keeps track of the line count throughout recursive calls of this method when
      *                            parsing sections
      * @param logger              the logger

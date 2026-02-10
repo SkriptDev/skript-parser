@@ -10,7 +10,7 @@ public class DurationUtils {
      * clean alternative for this.
      */
     private static final String[] unitPatterns = {"years?", "weeks?", "days?", "hours?", "minutes?", "seconds?", "ticks?", "milli(second)?s?"};
-    private static final String[] unitNames = {"year", "week", "day", "hour", "minute", "second", "tick", "millisecond"};
+    private static final String[] unitNames = {"year", "week", "day", "hour", "minute", "getSecond", "tick", "millisecond"};
     /**
      * The amount of milliseconds it takes for a tick to pass.
      * A 'tick' is a predetermined time-unit of 50 milliseconds.

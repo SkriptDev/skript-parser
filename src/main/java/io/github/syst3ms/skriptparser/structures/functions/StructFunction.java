@@ -55,7 +55,7 @@ public class StructFunction extends Structure {
             for (FunctionParameter<?> parameter : parameters) {
                 for (FunctionParameter<?> p : parameters) {
                     if (p == parameter) continue;
-                    if (parameter.name().equals(p.name())) {
+                    if (parameter.getName().equals(p.getName())) {
                         logger.error("Functions parameters cannot have the same name.", ErrorType.SEMANTIC_ERROR);
                         return false;
                     }

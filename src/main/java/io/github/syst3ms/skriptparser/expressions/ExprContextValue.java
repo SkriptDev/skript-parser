@@ -145,7 +145,7 @@ public class ExprContextValue<T, C extends TriggerContext> implements Expression
 
     @Override
     public Class<? extends T> getReturnType() {
-        return this.info.getReturnType().type().getTypeClass();
+        return this.info.getReturnType().getType().getTypeClass();
     }
 
     @Override

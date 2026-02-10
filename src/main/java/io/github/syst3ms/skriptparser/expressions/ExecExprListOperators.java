@@ -16,8 +16,8 @@ import java.util.Arrays;
  * Basic list operators that return the following elements:
  * <ul>
  *      <li>{@code pop}: the last element</li>
- *      <li>{@code shift/poll}: the first element</li>
- *      <li>{@code extract}: a specific (or just the first/last) element</li>
+ *      <li>{@code shift/poll}: the getFirst element</li>
+ *      <li>{@code extract}: a specific (or just the getFirst/last) element</li>
  *      <li>{@code splice}: elements in a certain bound</li>
  * </ul>
  * However, this syntax can also be used as an effect. If this is the case, instead of returning
@@ -32,7 +32,7 @@ import java.util.Arrays;
  * @author Mwexim
  * @name List Operators
  * @type EFFECT/EXPRESSION
- * @pattern extract [the] (last|first|%integer%(st|nd|rd|th)) element out [of] %objects%
+ * @pattern extract [the] (last|getFirst|%integer%(st|nd|rd|th)) element out [of] %objects%
  * @pattern pop %objects%
  * @pattern (shift | poll) %objects%
  * @pattern splice %objects% (from %integer% to %integer%|starting (at|from) %integer%|up to %integer%) [[with] step %integer%]
@@ -45,14 +45,14 @@ public class ExecExprListOperators extends ExecutableExpression<Object> {
             ExecExprListOperators.class,
             Object.class,
             false,
-            "extract [the] (0:last|1:first|2:%integer%(st|nd|rd|th)) element out [of] %objects%",
+            "extract [the] (0:last|1:getFirst|2:%integer%(st|nd|rd|th)) element out [of] %objects%",
             "pop %objects%",
             "(shift|poll) %objects%",
             "splice %objects% (0:from %integer% to %integer%|1:starting (at|from) %integer%|2:up to %integer%) [[with] step %integer%]"
         );
     }
 
-    // 0 = last, 1 = first, 2 = indexed, 3 = spliced
+    // 0 = last, 1 = getFirst, 2 = indexed, 3 = spliced
     private int type;
     private Expression<Object> list;
     private Expression<Integer> index;

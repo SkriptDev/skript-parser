@@ -128,7 +128,7 @@ public interface Expression<T> extends SyntaxElement {
         return SyntaxManager.getExpressionExact(this)
             .orElseThrow(() -> new SkriptParserException("Unregistered expression class: " + getClass().getName()))
             .getReturnType()
-            .single();
+            .isSingle();
     }
 
     /**
@@ -138,7 +138,7 @@ public interface Expression<T> extends SyntaxElement {
         return SyntaxManager.getExpressionExact(this)
             .orElseThrow(() -> new SkriptParserException("Unregistered expression class: " + getClass().getName()))
             .getReturnType()
-            .type()
+            .getType()
             .getTypeClass();
     }
 

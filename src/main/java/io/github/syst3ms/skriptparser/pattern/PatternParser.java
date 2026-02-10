@@ -95,8 +95,8 @@ public class PatternParser {
                     optionalGroup = parsePattern(matcher.group(3), logger)
                             .map(el -> {
                                 if (el instanceof ChoiceGroup && mark.isEmpty())
-                                    // Patterns like '[:(first|second)]' act differently than in the original Skript.
-                                    // Developers probably want to write ':[first|second]' instead, but the two actually
+                                    // Patterns like '[:(getFirst|getSecond)]' act differently than in the original Skript.
+                                    // Developers probably want to write ':[getFirst|getSecond]' instead, but the two actually
                                     // have different behavior.
                                     logger.warn(
                                             "The parse mark in the '"
@@ -240,7 +240,7 @@ public class PatternParser {
                         patternTypes.add(t.get());
                     }
                     var acceptConditional = m.group(3) != null;
-                    if (acceptConditional && patternTypes.stream().noneMatch(t -> t.type().getTypeClass() == Boolean.class)) {
+                    if (acceptConditional && patternTypes.stream().noneMatch(t -> t.getType().getTypeClass() == Boolean.class)) {
                         logger.error("Can't use the '=' flag on non-boolean types (index " + initialPos + ")", ErrorType.SEMANTIC_ERROR);
                         return Optional.empty();
                     }

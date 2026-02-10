@@ -26,7 +26,7 @@ public abstract class Statement implements SyntaxElement {
      * Runs all code starting at a given point sequentially.
      * Do note this will not clear local variables after running.
      *
-     * @param start   the Statement the method should first run
+     * @param start   the Statement the method should getFirst run
      * @param context the context
      * @return {@code true} if the code ran normally, and {@code false} if any exception occurred
      */

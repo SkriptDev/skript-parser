@@ -86,7 +86,7 @@ public class SecFilter extends ReturnSection<Boolean> implements SelfReferencing
 
         if (iterator.hasNext()) {
             setArguments(isVariable
-                ? ((Pair<String, Object>) iterator.next()).second()
+                ? ((Pair<String, Object>) iterator.next()).getSecond()
                 : iterator.next()
             );
             return start();

@@ -383,7 +383,7 @@ public class NumberMath {
         boolean[] isComposite = new boolean[size];
         List<Integer> computedPrimes = new ArrayList<>();
 
-        // We first disqualify multiples of primes that have been generated before
+        // We getFirst disqualify multiples of primes that have been generated before
         if (cachedPrimes != null) {
             for (int gen : cachedPrimes) {
                 if (gen * gen > end)

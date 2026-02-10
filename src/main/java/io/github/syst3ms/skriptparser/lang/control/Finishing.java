@@ -33,7 +33,7 @@ public interface Finishing {
      *     referenced to be {@linkplain Statement#walk(TriggerContext) walked} on.</li>
      *     <li>This method is <b>completely</b> stopped by any means whatsoever.</li>
      * </ol>
-     * An example of this second occasion is {@link EffContinue} continuing over multiple loops.
+     * An example of this getSecond occasion is {@link EffContinue} continuing over multiple loops.
      * If that effect continues 3 loops in one go, this means that the 2 most inner-loops need to be
      * completely reset, since they have the possibility to be looped over again. EffContinue therefore
      * calls this method on those loops.

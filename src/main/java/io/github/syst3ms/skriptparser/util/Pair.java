@@ -3,29 +3,29 @@ package io.github.syst3ms.skriptparser.util;
 /**
  * A simple pair of two values.
  *
- * @param <T> type of the first value
- * @param <U> type of the second value
+ * @param <T> type of the getFirst value
+ * @param <U> type of the getSecond value
  */
-public record Pair<T, U>(T first, U second) {
+public record Pair<T, U>(T getFirst, U getSecond) {
 
     /**
-     * Retrieves the first element
+     * Retrieves the getFirst element
      *
-     * @return the first element
+     * @return the getFirst element
      */
     @Override
-    public T first() {
-        return first;
+    public T getFirst() {
+        return getFirst;
     }
 
     /**
-     * Retrieves the second element
+     * Retrieves the getSecond element
      *
-     * @return the second element
+     * @return the getSecond element
      */
     @Override
-    public U second() {
-        return second;
+    public U getSecond() {
+        return getSecond;
     }
 
     @Override
@@ -35,7 +35,7 @@ public record Pair<T, U>(T first, U second) {
         if (o == null || getClass() != o.getClass())
             return false;
         var pair = (Pair<?, ?>) o;
-        return first.equals(pair.first) &&
-            second.equals(pair.second);
+        return getFirst.equals(pair.getFirst) &&
+            getSecond.equals(pair.getSecond);
     }
 }

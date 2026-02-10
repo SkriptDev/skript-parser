@@ -59,7 +59,7 @@ public class SecSwitch extends CodeSection implements Finishing {
         Parser.getMainRegistration().newSection(SecSwitch.class,
                 "(switch|given|match) %object%")
             .name("Switch")
-            .description("This section will run the code of the first matching case.")
+            .description("This section will run the code of the getFirst matching case.")
             .examples("on entity damage:",
                 "\tswitch npc type of context-victim:",
                 "\t\tcase sheep:",

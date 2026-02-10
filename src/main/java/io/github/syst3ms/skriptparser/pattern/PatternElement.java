@@ -44,7 +44,7 @@ public interface PatternElement {
     }
 
     static List<PatternElement> getPossibleInputs(List<PatternElement> elements) {
-        List<PatternElement> optionalPossibilities = new ArrayList<>(); // We generally want to get the non-optional ones out of the way first
+        List<PatternElement> optionalPossibilities = new ArrayList<>(); // We generally want to get the non-optional ones out of the way getFirst
         List<PatternElement> possibilities = new ArrayList<>();
         for (var element : elements) {
             if (element instanceof TextElement || element instanceof RegexGroup) {

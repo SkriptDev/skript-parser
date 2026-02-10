@@ -290,7 +290,7 @@ public class DefaultRegistration {
             .register();
 
         registration.newType(FunctionParameter.class, "functionparameter", "functionparameter@s")
-            .toStringFunction(parameter -> parameter.name() + ": " + parameter.type().getName())
+            .toStringFunction(parameter -> parameter.getName() + ": " + parameter.getType().getName())
             .noDoc()
             .register();
 

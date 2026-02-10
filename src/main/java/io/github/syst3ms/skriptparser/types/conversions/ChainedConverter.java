@@ -9,7 +9,7 @@ import java.util.function.Function;
  * Used to chain converters to build a single converter. This is automatically created when a new converter is added.
  *
  * @param <F> same as Converter's <F> (from)
- * @param <M> the middle type, i.e. the type the first converter converts to and the second converter comverts from.
+ * @param <M> the middle type, i.e. the type the getFirst converter converts to and the getSecond converter comverts from.
  * @param <T> same as Converter's <T> (to)
  * @author Peter Güttinger
  * @see Converters#registerConverter(Class, Class, Function)
