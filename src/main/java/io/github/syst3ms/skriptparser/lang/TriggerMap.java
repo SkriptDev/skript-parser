@@ -77,8 +77,11 @@ public class TriggerMap {
      * @param <T>     Trigger context type
      */
     public static <T extends TriggerContext> void callTriggersByContext(T context) {
-        getTriggersByContext(context.getClass()).forEach(t -> Statement.runAll(t, context));
-        Variables.clearLocalVariables(context);
+        getTriggersByContext(context.getClass()).forEach(t -> {
+            Statement.runAll(t, context);
+            Variables.clearLocalVariables(context);
+        });
+
     }
 
 }
