@@ -13,6 +13,7 @@ import java.util.function.Consumer;
  */
 public abstract class Statement implements SyntaxElement {
     public static Consumer<IllegalStateException> illegalStateRunnable;
+    public static Consumer<Exception> exceptionHandler;
     @Nullable
     protected CodeSection parent;
     @Nullable
@@ -20,6 +21,10 @@ public abstract class Statement implements SyntaxElement {
 
     public static void setIllegalStateHandler(Consumer<IllegalStateException> consumer) {
         Statement.illegalStateRunnable = consumer;
+    }
+
+    public static void setExceptionHandler(Consumer<Exception> consumer) {
+        Statement.exceptionHandler = consumer;
     }
 
     /**
@@ -48,8 +53,12 @@ public abstract class Statement implements SyntaxElement {
             }
             return false;
         } catch (Exception e) {
+            if (exceptionHandler != null) {
+                exceptionHandler.accept(e);
+            }
             System.err.println("An exception occurred. Stack trace:");
             e.printStackTrace();
+
         }
         return false;
     }
