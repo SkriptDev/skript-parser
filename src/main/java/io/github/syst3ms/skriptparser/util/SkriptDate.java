@@ -12,8 +12,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class SkriptDate implements Comparable<SkriptDate> {
-    // TODO make a config for this
-    public final static String DATE_FORMAT = "EEEE dd MMMM yyyy HH:mm:ss.SSS"; // Add 'zzzXXX' to display time zone as well
+    public static String DATE_FORMAT = "EEEE dd MMMM yyyy HH:mm:ss.SSS"; // Add 'zzzXXX' to display time zone as well
     public final static Locale DATE_LOCALE = Locale.US;
 
     private static final TimeZone defaultTimeZone = TimeZone.getDefault();
@@ -91,6 +90,10 @@ public class SkriptDate implements Comparable<SkriptDate> {
      */
     public static TimeZone getDefaultTimeZone() {
         return defaultTimeZone;
+    }
+
+    public static void setDefaultDateFormat(String format) {
+        DATE_FORMAT = format;
     }
 
     /**
