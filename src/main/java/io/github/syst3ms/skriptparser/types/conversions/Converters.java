@@ -23,11 +23,11 @@ public abstract class Converters {
      */
     public static final int ALL_CHAINING = 0;
     /**
-     * A flag declaring a converter may only be the getFirst part of a {@link ChainedConverter}
+     * A flag declaring a converter may only be the first part of a {@link ChainedConverter}
      */
     public static final int NO_LEFT_CHAINING = 1;
     /**
-     * A flag declaring a converter may only be the getSecond part of a {@link ChainedConverter}
+     * A flag declaring a converter may only be the second part of a {@link ChainedConverter}
      */
     public static final int NO_RIGHT_CHAINING = 2;
     /**

@@ -95,8 +95,8 @@ public class PatternParser {
                     optionalGroup = parsePattern(matcher.group(3), logger)
                             .map(el -> {
                                 if (el instanceof ChoiceGroup && mark.isEmpty())
-                                    // Patterns like '[:(getFirst|getSecond)]' act differently than in the original Skript.
-                                    // Developers probably want to write ':[getFirst|getSecond]' instead, but the two actually
+                                    // Patterns like '[:(first|second)]' act differently than in the original Skript.
+                                    // Developers probably want to write ':[first|second]' instead, but the two actually
                                     // have different behavior.
                                     logger.warn(
                                             "The parse mark in the '"

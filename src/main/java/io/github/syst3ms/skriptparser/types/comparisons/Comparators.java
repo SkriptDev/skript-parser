@@ -32,8 +32,8 @@ public class Comparators {
     /**
      * Registers a {@link Comparator}.
      *
-     * @param t1 class of getFirst type
-     * @param t2 class of getSecond type
+     * @param t1 class of first type
+     * @param t2 class of second type
      * @param c  the comparator
      * @throws IllegalArgumentException if any given class is equal to <code>Object.class</code>
      */

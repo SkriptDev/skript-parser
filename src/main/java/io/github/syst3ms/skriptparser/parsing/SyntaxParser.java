@@ -154,7 +154,7 @@ public class SyntaxParser {
         if (s.toLowerCase().startsWith("list ")) {
             s = s.substring("list ".length());
         } else {
-            // We parse boolean operators getFirst to prevent clutter while parsing.
+            // We parse boolean operators first to prevent clutter while parsing.
             var booleanOperator = matchExpressionInfo(s, EXPRESSION_BOOLEAN_OPERATORS, expectedType, parserState, logger);
             if (booleanOperator.isPresent()) {
                 recentExpressions.acknowledge(EXPRESSION_BOOLEAN_OPERATORS);

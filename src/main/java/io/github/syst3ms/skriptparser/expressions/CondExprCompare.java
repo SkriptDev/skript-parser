@@ -133,7 +133,7 @@ public class CondExprCompare extends ConditionalExpression {
                 || firstEach && first.isSingle() != second.isSingle()
                 || second.isSingle() != third.isSingle())) {
                 /*
-                 * What is ruled out here is using "each" when "getSecond" and "third" don't match in number or in and/or type.
+                 * What is ruled out here is using "each" when "second" and "third" don't match in number or in and/or type.
                  * Otherwise these are fundamentally the same checks as above but when "third" is present.
                  */
                 logger.error(

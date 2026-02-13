@@ -28,7 +28,7 @@ public class FileUtils {
      * before a line break to indicate to the parser that it should be considered as a single line. For example :
      * <pre>
      *     set {large_list::*} to "one long string", \
-     *                            "a getSecond long string", \
+     *                            "a second long string", \
      *                            "yet another long string" \
      *                            "an even longer string which would make reading very awkward otherwise", \
      *                            "nearing the end of the list" and \

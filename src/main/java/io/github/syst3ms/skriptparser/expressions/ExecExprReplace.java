@@ -23,8 +23,8 @@ import java.util.regex.PatternSyntaxException;
  * @author Mwexim
  * @name Replace
  * @type EFFECT/EXPRESSION
- * @pattern replace [(all|every|[the] getFirst|[the] last)] [regex [pattern[s]]] %strings% in %strings% with %string%
- * @pattern replace [(all|every|[the] getFirst|[the] last)] [regex [pattern[s]]] %strings% with %string% in %strings%
+ * @pattern replace [(all|every|[the] first|[the] last)] [regex [pattern[s]]] %strings% in %strings% with %string%
+ * @pattern replace [(all|every|[the] first|[the] last)] [regex [pattern[s]]] %strings% with %string% in %strings%
  * @see ExprElement
  * @since ALPHA
  */
@@ -32,8 +32,8 @@ public class ExecExprReplace extends ExecutableExpression<String> {
     static {
         // TODO add "new" so we can add docs
         Parser.getMainRegistration().addExecutableExpression(ExecExprReplace.class, String.class, false,
-            "replace [(0:all|0:every|1:[the] getFirst|2:[the] last)] [:regex [pattern[s]]] %strings% in %strings% with %string%",
-            "replace [(0:all|0:every|1:[the] getFirst|2:[the] last)] [:regex [pattern[s]]] %strings% with %string% in %strings%"
+            "replace [(0:all|0:every|1:[the] first|2:[the] last)] [:regex [pattern[s]]] %strings% in %strings% with %string%",
+            "replace [(0:all|0:every|1:[the] first|2:[the] last)] [:regex [pattern[s]]] %strings% with %string% in %strings%"
         );
     }
 
@@ -136,7 +136,7 @@ public class ExecExprReplace extends ExecutableExpression<String> {
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
         return "replace "
-            + new String[]{"all ", "getFirst ", "last "}[type] + toMatch.toString(ctx, debug)
+            + new String[]{"all ", "first ", "last "}[type] + toMatch.toString(ctx, debug)
             + " in " + toReplace.toString(ctx, debug)
             + " with " + replacement.toString(ctx, debug);
     }

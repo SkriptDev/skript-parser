@@ -5,8 +5,8 @@ import java.util.function.BiFunction;
 /**
  * An interface for comparing values of two given types
  *
- * @param <T1> the getFirst type
- * @param <T2> the getSecond value
+ * @param <T1> the first type
+ * @param <T2> the second value
  * @see Comparators
  */
 public abstract class Comparator<T1, T2> implements BiFunction<T1, T2, Relation> {
@@ -17,8 +17,8 @@ public abstract class Comparator<T1, T2> implements BiFunction<T1, T2, Relation>
     }
 
     /**
-     * @param t1 the getFirst value
-     * @param t2 the getSecond value
+     * @param t1 the first value
+     * @param t2 the second value
      * @return the {@linkplain Relation relation} between the two values
      */
     @Override

@@ -8,7 +8,7 @@ import java.math.BigDecimal;
  * <p>This API allows to efficiently calculate the various powers of x in a taylor series by storing intermediate results.</p>
  * <p>For example x<sup>n</sup> can be calculated using one multiplication by storing the previously calculated x<sup>n-1</sup> and x.</p>
  *
- * <p>{@link #getCurrentPower()} will be called getFirst to retrieve the initial value.</p>
+ * <p>{@link #getCurrentPower()} will be called first to retrieve the initial value.</p>
  * <p>
  * For later iterations {@link #calculateNextPower()} will be called before {@link #getCurrentPower()}.
  * <p>

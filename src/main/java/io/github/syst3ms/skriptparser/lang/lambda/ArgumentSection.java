@@ -16,7 +16,7 @@ public abstract class ArgumentSection extends CodeSection implements Finishing {
 
     /**
      * This function is called from the section containing the code, and returns an Optional describing
-     * the getFirst {@link Statement} that should be run in the consumer.
+     * the first {@link Statement} that should be run in the consumer.
      * <br>
      * By default, returns {@link CodeSection#getFirst()}.
      */

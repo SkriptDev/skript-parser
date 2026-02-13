@@ -29,7 +29,7 @@ import java.util.TreeMap;
 
 /**
  * A reference to a variable, whose value is only known at runtime. It can be local to the event, meaning it isn't
- * defined outside of the event it was getFirst defined in. It can also be a list of multiple values. It can also be both.
+ * defined outside of the event it was first defined in. It can also be a list of multiple values. It can also be both.
  *
  * @param <T> the common supertype of the possibly multiple values of the variable
  */
