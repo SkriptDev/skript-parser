@@ -75,7 +75,7 @@ public class ExprLoopValue extends SectionValue<SecLoop, Object> {
         return sections -> {
             int j = 1;
             SecLoop loop = null;
-            // The closest section is getFirst, let's reverse this behavior for convenience
+            // The closest section is first, let's reverse this behavior for convenience
             Collections.reverse(sections);
             for (SecLoop l : sections) {
                 Class<?> loopedType = l.getLoopedExpression().getReturnType();

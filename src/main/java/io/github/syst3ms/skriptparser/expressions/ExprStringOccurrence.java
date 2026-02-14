@@ -7,21 +7,21 @@ import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.util.DoubleOptional;
 
 /**
- * The index of the getFirst or last occurrence of a given string in a string.
+ * The index of the first or last occurrence of a given string in a string.
  * Note that indices in Skript start at 1.
  *
  * @author Mwexim
  * @name Occurrence
  * @type EXPRESSION
- * @pattern [the] (getFirst|last) occurrence of %string% in %string%
+ * @pattern [the] (first|last) occurrence of %string% in %string%
  * @since ALPHA
  */
 public class ExprStringOccurrence implements Expression<Number> {
     static {
         Parser.getMainRegistration().newExpression(ExprStringOccurrence.class, Number.class, true,
-                "[the] (0:getFirst|1:last) occurrence of %string% in %string%")
+                "[the] (0:first|1:last) occurrence of %string% in %string%")
             .name("Occurrence")
-            .description("Returns the index of the getFirst or last occurrence of a given string in a string.")
+            .description("Returns the index of the first or last occurrence of a given string in a string.")
             .since("1.0.0")
             .register();
     }
@@ -50,7 +50,7 @@ public class ExprStringOccurrence implements Expression<Number> {
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
-        return (first ? "getFirst" : "last") + " occurrence of " + needle.toString(ctx, debug) + " in " + haystack.toString(ctx, debug);
+        return (first ? "first" : "last") + " occurrence of " + needle.toString(ctx, debug) + " in " + haystack.toString(ctx, debug);
     }
 
 }

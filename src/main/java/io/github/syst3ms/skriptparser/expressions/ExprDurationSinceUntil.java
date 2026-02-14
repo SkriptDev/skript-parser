@@ -10,8 +10,8 @@ import java.time.Duration;
 
 /**
  * Compares the given date with the current date.
- * Note that the getFirst pattern is to compare with the past
- * and the getSecond one to compare with the future.
+ * Note that the first pattern is to compare with the past
+ * and the second one to compare with the future.
  * Note that the accuracy can be off some milliseconds.
  *
  * @author Mwexim

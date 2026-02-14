@@ -13,19 +13,19 @@ public enum Relation {
      */
     NOT_EQUAL(0),
     /**
-     * The getFirst object is greater than the other one
+     * The first object is greater than the other one
      */
     GREATER(1),
     /**
-     * The getFirst object is greater or equal to the other one
+     * The first object is greater or equal to the other one
      */
     GREATER_OR_EQUAL(1),
     /**
-     * The getFirst object is smaller than the other one
+     * The first object is smaller than the other one
      */
     SMALLER(-1),
     /**
-     * The getFirst object is smaller or equal to the other one
+     * The first object is smaller or equal to the other one
      */
     SMALLER_OR_EQUAL(-1);
 

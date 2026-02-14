@@ -8,6 +8,7 @@ import io.github.syst3ms.skriptparser.lang.VariableString;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParserState;
+import io.github.syst3ms.skriptparser.types.TypeManager.StringMode;
 import io.github.syst3ms.skriptparser.util.MultiMap;
 import org.jetbrains.annotations.Nullable;
 
@@ -153,7 +154,7 @@ public class Variables {
         var vs = VariableString.newInstance(
             input.startsWith(LOCAL_VARIABLE_TOKEN) ? input.substring(LOCAL_VARIABLE_TOKEN.length()).strip() : input,
             parserState,
-            logger
+            logger, StringMode.VARIABLE
         );
         var finalS = input;
         return vs.map(v -> new Variable<>(v, finalS.startsWith(LOCAL_VARIABLE_TOKEN), finalS.endsWith(LIST_SEPARATOR + "*"), types));

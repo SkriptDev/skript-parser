@@ -13,6 +13,7 @@ import java.util.function.Consumer;
  */
 public abstract class Statement implements SyntaxElement {
     public static Consumer<IllegalStateException> illegalStateRunnable;
+    public static Consumer<Exception> exceptionHandler;
     @Nullable
     protected CodeSection parent;
     @Nullable
@@ -22,11 +23,15 @@ public abstract class Statement implements SyntaxElement {
         Statement.illegalStateRunnable = consumer;
     }
 
+    public static void setExceptionHandler(Consumer<Exception> consumer) {
+        Statement.exceptionHandler = consumer;
+    }
+
     /**
      * Runs all code starting at a given point sequentially.
      * Do note this will not clear local variables after running.
      *
-     * @param start   the Statement the method should getFirst run
+     * @param start   the Statement the method should first run
      * @param context the context
      * @return {@code true} if the code ran normally, and {@code false} if any exception occurred
      */
@@ -48,8 +53,12 @@ public abstract class Statement implements SyntaxElement {
             }
             return false;
         } catch (Exception e) {
+            if (exceptionHandler != null) {
+                exceptionHandler.accept(e);
+            }
             System.err.println("An exception occurred. Stack trace:");
             e.printStackTrace();
+
         }
         return false;
     }

@@ -8,6 +8,7 @@ import io.github.syst3ms.skriptparser.parsing.SyntaxParser;
 import io.github.syst3ms.skriptparser.registration.tags.Tag;
 import io.github.syst3ms.skriptparser.registration.tags.TagManager;
 import io.github.syst3ms.skriptparser.types.TypeManager;
+import io.github.syst3ms.skriptparser.types.TypeManager.StringMode;
 import io.github.syst3ms.skriptparser.util.CollectionUtils;
 import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.Contract;
@@ -27,10 +28,12 @@ public class VariableString extends TaggedExpression {
      */
     private final Object[] data;
     private final boolean simple;
+    private final StringMode stringMode;
 
-    private VariableString(Object[] data) {
+    private VariableString(Object[] data, StringMode stringMode) {
         this.data = data;
         this.simple = data.length == 1 && data[0] instanceof String;
+        this.stringMode = stringMode;
     }
 
     /**
@@ -41,7 +44,7 @@ public class VariableString extends TaggedExpression {
      * @return {@code null} if either:
      * <ul>
      *     <li>The argument isn't quoted correctly</li>
-     *     <li>{@link #newInstance(String, ParserState, SkriptLogger)} returned null, which can happen when the string literal is of the form
+     *     <li>{@link #newInstance(String, ParserState, SkriptLogger, StringMode)} returned null, which can happen when the string literal is of the form
      *     {@code "..."}</li>
      *     <li>Something went very wrong when parsing a raw literal {@code R"possible delimiter(...)possible delimiter'}
      *     </li>
@@ -49,11 +52,11 @@ public class VariableString extends TaggedExpression {
      */
     public static Optional<VariableString> newInstanceWithQuotes(String s, ParserState parserState, SkriptLogger logger) {
         if (s.startsWith("\"") && s.endsWith("\"") && StringUtils.nextSimpleCharacterIndex(s, 0) == s.length()) {
-            return newInstance(s.substring(1, s.length() - 1), parserState, logger);
+            return newInstance(s.substring(1, s.length() - 1), parserState, logger, StringMode.STRING);
         } else if (s.startsWith("'") && s.endsWith("'") && StringUtils.nextSimpleCharacterIndex(s, 0) == s.length()) {
             return Optional.of(new VariableString(new String[]{
                 s.substring(1, s.length() - 1).replace("\\\"", "\"")
-            }));
+            }, StringMode.STRING));
         }
         return Optional.empty();
     }
@@ -66,7 +69,7 @@ public class VariableString extends TaggedExpression {
      * @param logger      the logger
      * @return a new instance of a VariableString, or {@code null} if there are unbalanced {@literal %} symbols
      */
-    public static Optional<VariableString> newInstance(String s, ParserState parserState, SkriptLogger logger) {
+    public static Optional<VariableString> newInstance(String s, ParserState parserState, SkriptLogger logger, StringMode stringMode) {
         List<Object> data = new ArrayList<>(StringUtils.count(s, "%"));
         var sb = new StringBuilder();
         var charArray = s.toCharArray();
@@ -162,7 +165,7 @@ public class VariableString extends TaggedExpression {
         if (sb.length() > 0) {
             data.add(sb.toString());
         }
-        return Optional.of(new VariableString(data.toArray()));
+        return Optional.of(new VariableString(data.toArray(), stringMode));
     }
 
     @Override
@@ -200,7 +203,7 @@ public class VariableString extends TaggedExpression {
         for (int i = 0; i < actualData.length; i++) {
             var o = actualData[i];
             if (o instanceof Expression) {
-                sb.append(TypeManager.toString(((Expression<?>) o).getValues(ctx), TypeManager.StringMode.VARIABLE));
+                sb.append(TypeManager.toString(((Expression<?>) o).getValues(ctx), this.stringMode));
             } else if (o instanceof Tag) {
                 ongoingTags.add((Tag) o);
                 int indexOfNext = CollectionUtils.ordinalConditionalIndexOf(actualData, ++currentTags, t -> t instanceof Tag);

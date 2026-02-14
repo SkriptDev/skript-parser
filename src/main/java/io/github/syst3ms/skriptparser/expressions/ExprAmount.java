@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * The amount of elements in a given list.
- * Note that when getting the size of a list variable, it will only return the size of the getFirst layer of elements.
+ * Note that when getting the size of a list variable, it will only return the size of the first layer of elements.
  * If you want to get the whole list size, including nested layers in a variable, use the recursive size instead.
  *
  * @author Olyno, Mwexim

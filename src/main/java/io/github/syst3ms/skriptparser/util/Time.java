@@ -15,8 +15,7 @@ import java.util.regex.Pattern;
  * @author Mwexim
  */
 public class Time implements Comparable<Time> {
-    // TODO make a config for this
-    public final static String TIME_FORMAT = "HH:mm:ss.SSS";
+    public static String TIME_FORMAT = "HH:mm:ss.SSS";
     public final static Locale TIME_LOCALE = Locale.US;
 
     /**
@@ -83,6 +82,10 @@ public class Time implements Comparable<Time> {
     public static Time of(SkriptDate date) {
         var lcd = date.toLocalDateTime();
         return new Time(lcd.toLocalTime());
+    }
+
+    public static void setDefaultTimeFormat(String format) {
+        TIME_FORMAT = format;
     }
 
     /**

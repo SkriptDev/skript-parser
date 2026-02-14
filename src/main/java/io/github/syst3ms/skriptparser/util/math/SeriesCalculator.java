@@ -106,7 +106,7 @@ public abstract class SeriesCalculator {
 
     /**
      * Returns the factor of the highest term already calculated.
-     * <p>When called for the getFirst time will return the factor of the getFirst term (index 0).</p>
+     * <p>When called for the first time will return the factor of the first term (index 0).</p>
      * <p>After this call the method {@link #calculateNextFactor()} will be called to prepare for the next term.</p>
      *
      * @return the factor of the highest term

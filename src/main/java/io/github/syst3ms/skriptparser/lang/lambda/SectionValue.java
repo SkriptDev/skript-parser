@@ -82,7 +82,7 @@ public abstract class SectionValue<S extends ArgumentSection, T> implements Expr
      * Optional if no matching section was found. This is useful for targeting a specific section out of multiple
      * surrounding ones based on criteria specific to the implementation.
      * <p>
-     * By default, this always picks the getFirst matching function (i.e the innermost one), if there is one.
+     * By default, this always picks the first matching function (i.e the innermost one), if there is one.
      *
      * @return the selector function for this {@code SectionValue}.
      */
