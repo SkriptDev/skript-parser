@@ -71,7 +71,11 @@ public abstract class PropertyExpression<O, T> implements Expression<T> {
     @SuppressWarnings("unchecked")
     @Override
     public T[] getValues(TriggerContext ctx) {
-        List<T> list = this.owner.stream(ctx).map(this::getProperty).filter(Objects::nonNull).toList();
+        if (this.owner == null) return null;
+        List<T> list = this.owner.stream(ctx)
+            .filter(Objects::nonNull)
+            .map(this::getProperty)
+            .toList();
         return list.toArray((T[]) Array.newInstance(getReturnType(), list.size()));
     }
 
