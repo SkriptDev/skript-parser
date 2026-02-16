@@ -371,6 +371,21 @@ public class SkriptRegistration {
     }
 
     /**
+     * Create a new {@link ExecutableExpression}
+     *
+     * @param c          the Expression's class
+     * @param returnType the Expression's return type
+     * @param isSingle   whether the Expression is a single value
+     * @param patterns   the Expression's patterns
+     * @param <C>        the Expression
+     * @param <T>        the Expression's return type
+     * @return An {@link ExecutableExpression} to continue the registration process
+     */
+    public <C extends ExecutableExpression<T>, T> ExecutableExpressionRegistrar<C, T> newExecutableExpression(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
+        return new ExecutableExpressionRegistrar<>(c, returnType, isSingle, patterns);
+    }
+
+    /**
      * Registers an {@link ExecutableExpression}
      *
      * @param c          the Expression's class
@@ -1011,6 +1026,25 @@ public class SkriptRegistration {
                         setPriority(Math.min(priority, findAppropriatePriority(e)));
                 })
                 .collect(Collectors.toList());
+        }
+    }
+
+    public class ExecutableExpressionRegistrar<C extends ExecutableExpression<? extends T>, T> extends SyntaxRegistrar<C> {
+
+        EffectRegistrar<C> effectRegistrar;
+        ExpressionRegistrar<C, T> expressionRegistrar;
+
+        ExecutableExpressionRegistrar(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
+            super(c, patterns);
+            this.effectRegistrar = new EffectRegistrar<>(c, patterns);
+            this.expressionRegistrar = new ExpressionRegistrar<>(c, returnType, isSingle, patterns);
+
+        }
+
+        @Override
+        public void register() {
+            this.effectRegistrar.register();
+            this.expressionRegistrar.register();
         }
     }
 

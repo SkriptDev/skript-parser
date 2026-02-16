@@ -41,15 +41,21 @@ import java.util.Arrays;
  */
 public class ExecExprListOperators extends ExecutableExpression<Object> {
     static {
-        Parser.getMainRegistration().addExecutableExpression(
-            ExecExprListOperators.class,
-            Object.class,
-            false,
-            "extract [the] (0:last|1:first|2:%integer%(st|nd|rd|th)) element out [of] %objects%",
-            "pop %objects%",
-            "(shift|poll) %objects%",
-            "splice %objects% (0:from %integer% to %integer%|1:starting (at|from) %integer%|2:up to %integer%) [[with] step %integer%]"
-        );
+        Parser.getMainRegistration().newExecutableExpression(ExecExprListOperators.class, Object.class, false,
+                "extract [the] (0:last|1:first|2:%integer%(st|nd|rd|th)) element out [of] %objects%",
+                "pop %objects%",
+                "(shift|poll) %objects%",
+                "splice %objects% (0:from %integer% to %integer%|1:starting (at|from) %integer%|2:up to %integer%) [[with] step %integer%]")
+            .name("List Operators")
+            .description("Basic list operators that return the following elements:",
+                " - `extract` = A specific (or just the first/last) element.",
+                " - `pop` = The last element.",
+                " - `shift/poll` = The first element.",
+                " - `splice` = Elements in a certain bound.",
+                "When used as an effect, rather than returning these items, it will remove them from the list.")
+            .examples()
+            .since("1.0.0")
+            .register();
     }
 
     // 0 = last, 1 = first, 2 = indexed, 3 = spliced
