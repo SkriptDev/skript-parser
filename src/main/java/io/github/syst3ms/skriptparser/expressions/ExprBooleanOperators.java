@@ -3,10 +3,9 @@ package io.github.syst3ms.skriptparser.expressions;
 import io.github.syst3ms.skriptparser.Parser;
 import io.github.syst3ms.skriptparser.lang.Expression;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.lang.base.ConditionalExpression;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Optional;
 
 /**
  * Basic boolean operators. It is possible to use conditions inside the operators.
@@ -18,7 +17,7 @@ import java.util.Optional;
  * @pattern %=boolean% (and|&&) %=boolean%
  * @since ALPHA
  */
-public class ExprBooleanOperators implements Expression<Boolean> {
+public class ExprBooleanOperators extends ConditionalExpression {
     static {
         Parser.getMainRegistration().newExpression(
                 ExprBooleanOperators.class, Boolean.class, true,
@@ -47,19 +46,36 @@ public class ExprBooleanOperators implements Expression<Boolean> {
         if (expressions.length > 1) {
             second = (Expression<Boolean>) expressions[1];
         }
+        setNegated(matchedPattern == 0);
         return true;
     }
 
+    // Leaving this here in case this was a bad idea to change to ConditionalExpression
+//    @Override
+//    public Boolean[] getValues(TriggerContext ctx) {
+//        assert second != null || pattern == 0;
+//        return first.getSingle(ctx)
+//            .flatMap(f -> pattern == 0
+//                ? Optional.of(!f)
+//                : second.getSingle(ctx).map(s -> pattern == 1 ? f || s : f && s)
+//            )
+//            .map(val -> new Boolean[]{val})
+//            .orElse(new Boolean[0]);
+//    }
+
     @Override
-    public Boolean[] getValues(TriggerContext ctx) {
-        assert second != null || pattern == 0;
-        return first.getSingle(ctx)
-            .flatMap(f -> pattern == 0
-                ? Optional.of(!f)
-                : second.getSingle(ctx).map(s -> pattern == 1 ? f || s : f && s)
-            )
-            .map(val -> new Boolean[]{val})
-            .orElse(new Boolean[0]);
+    public boolean check(TriggerContext ctx) {
+        return this.first.check(ctx, firstBoolean -> {
+            if (this.second == null) {
+                return firstBoolean;
+            }
+            return this.second.check(ctx, secondBoolean -> {
+                if (this.pattern == 1) {
+                    return firstBoolean || secondBoolean;
+                }
+                return firstBoolean && secondBoolean;
+            });
+        }, isNegated());
     }
 
     @Override
