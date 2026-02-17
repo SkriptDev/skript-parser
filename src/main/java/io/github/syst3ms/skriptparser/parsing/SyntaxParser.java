@@ -154,12 +154,15 @@ public class SyntaxParser {
         if (s.toLowerCase().startsWith("list ")) {
             s = s.substring("list ".length());
         } else {
-            // We parse boolean operators first to prevent clutter while parsing.
-            var booleanOperator = matchExpressionInfo(s, EXPRESSION_BOOLEAN_OPERATORS, expectedType, parserState, logger);
-            if (booleanOperator.isPresent()) {
-                recentExpressions.acknowledge(EXPRESSION_BOOLEAN_OPERATORS);
-                logger.clearErrors();
-                return booleanOperator;
+            // TODO bandaid patch to stop checking strings if they're booleans operators
+            if (s.matches("(?:(?<=\\s)|^)(?:not|or|and|\\\\\\\\|&&)(?=\\s|$)(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)")) {
+                // We parse boolean operators first to prevent clutter while parsing.
+                var booleanOperator = matchExpressionInfo(s, EXPRESSION_BOOLEAN_OPERATORS, expectedType, parserState, logger);
+                if (booleanOperator.isPresent()) {
+                    recentExpressions.acknowledge(EXPRESSION_BOOLEAN_OPERATORS);
+                    logger.clearErrors();
+                    return booleanOperator;
+                }
             }
         }
         if (!expectedType.isSingle()) {
