@@ -1142,6 +1142,22 @@ public class SkriptRegistration {
             return this;
         }
 
+        public String getFunctionName() {
+            return this.functionName;
+        }
+
+        public Class<T> getReturnType() {
+            return this.returnType;
+        }
+
+        public Documentation getDocumentation() {
+            return this.documentation;
+        }
+
+        public List<FunctionParameter<?>> getParams() {
+            return this.params;
+        }
+
         @Override
         public void register() {
             this.javaFunction = new JavaFunction<>(this.functionName,
