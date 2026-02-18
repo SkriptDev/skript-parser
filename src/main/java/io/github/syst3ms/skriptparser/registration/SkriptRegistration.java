@@ -952,7 +952,7 @@ public class SkriptRegistration {
         protected final Class<C> c;
         protected final List<String> patterns = new ArrayList<>();
         protected final Map<String, Object> data = new HashMap<>();
-        protected final Documentation documentation = new Documentation();
+        protected Documentation documentation = new Documentation();
         protected int priority;
 
         SyntaxRegistrar(Class<C> c, String... patterns) {
@@ -1058,6 +1058,11 @@ public class SkriptRegistration {
 
         @Override
         public void register() {
+            // Carry over docs from this register to effect/expr registrars
+            this.effectRegistrar.documentation = this.documentation;
+            this.expressionRegistrar.documentation = this.documentation;
+
+            // Register both effect and expression
             this.effectRegistrar.register();
             this.expressionRegistrar.register();
         }
