@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.util;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.Random;
 import java.util.function.Predicate;
 
@@ -13,6 +14,11 @@ public class CollectionUtils {
     @SafeVarargs
     public static <T> T[] arrayOf(T... values) {
         return values;
+    }
+
+    @SafeVarargs
+    public static <T> Optional<T[]> optionalArrayOf(T... values) {
+        return Optional.of(values);
     }
 
     public static <T> T getRandom(T[] array) {
