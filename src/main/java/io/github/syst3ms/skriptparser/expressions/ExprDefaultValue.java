@@ -21,7 +21,8 @@ public class ExprDefaultValue implements Expression<Object> {
             .description("Returns the first expression if it's set, otherwise the second expression.")
             .examples("set {_var} to {_otherVarIfSet} otherwise \"world\"",
                 "send {_varIfSet} ? \"ruh roh, no message\"")
-            .since("1.0.0");
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<Object> firstValue, secondValue;
