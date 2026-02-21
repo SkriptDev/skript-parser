@@ -7,8 +7,10 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
 import io.github.syst3ms.skriptparser.registration.PatternInfos;
+import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
+import io.github.syst3ms.skriptparser.types.changers.Changer;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -31,9 +33,9 @@ public class EffChange extends Effect {
     public static final PatternInfos<ChangeMode> PATTERNS = new PatternInfos<>(new Object[][]{
         {"set %~objects% to %objects%", ChangeMode.SET},
         {"%~objects% = %objects%", ChangeMode.SET},
-        {"add %objects% to %~objects%", ChangeMode.ADD},
+        {"(add|give) %objects% to %~objects%", ChangeMode.ADD},
         {"%~objects% += %objects%", ChangeMode.ADD},
-        {"remove %objects% from %~objects%", ChangeMode.REMOVE},
+        {"(remove|subtract) %objects% from %~objects%", ChangeMode.REMOVE},
         {"%~objects% -= %objects%", ChangeMode.REMOVE},
         {"remove (all|every) %objects% from %~objects%", ChangeMode.REMOVE_ALL},
         {"(delete|clear) %~objects%", ChangeMode.DELETE},
@@ -54,6 +56,8 @@ public class EffChange extends Effect {
     }
 
     private Expression<?> changed;
+    @Nullable
+    private Changer<?> changer;
     @Nullable
     private Expression<?> changeWith;
     private ChangeMode mode;
@@ -80,11 +84,35 @@ public class EffChange extends Effect {
             assert mode == ChangeMode.DELETE || mode == ChangeMode.RESET;
             boolean present = changed.acceptsChange(mode).isPresent();
             if (!present) {
+                Class<?> returnType = this.changed.getReturnType();
+                Type<?> type = TypeManager.getByClass(returnType).orElse(null);
+                if (type != null) {
+                    Changer<?> changer = type.getDefaultChanger().orElse(null);
+                    if (changer != null) {
+                        present = changer.acceptsChange(mode) != null;
+                        if (present) {
+                            this.changer = changer;
+                        }
+                    }
+                }
+            }
+            if (!present) {
                 logger.error("Cannot " + mode.name().toLowerCase() + " " + changedString, ErrorType.SEMANTIC_ERROR);
             }
             return present;
         } else {
-            if (changed.acceptsChange(mode).isEmpty()) {
+            boolean present = this.changed.acceptsChange(mode).isPresent();
+            if (!present) {
+                Type<?> changedType = TypeManager.getByClass(this.changed.getReturnType()).orElseThrow();
+                Changer<?> changer = changedType.getDefaultChanger().orElse(null);
+                if (changer != null) {
+                    present = changer.acceptsChange(mode) != null;
+                    if (present) {
+                        this.changer = changer;
+                    }
+                }
+            }
+            if (!present) {
                 switch (mode) {
                     case SET:
                         logger.error(changedString + " cannot be set to anything", ErrorType.SEMANTIC_ERROR);
@@ -100,10 +128,22 @@ public class EffChange extends Effect {
                         throw new IllegalStateException();
                 }
                 return false;
-            } else if (!changed.acceptsChange(mode, changeWith)) {
-                var type = TypeManager.getByClassExact(changeWith.getReturnType());
-                assert type.isPresent();
-                String changeTypeName = type.get().withIndefiniteArticle(!changeWith.isSingle());
+            } else if (!this.changed.acceptsChange(mode, this.changeWith)) {
+                Type<?> changeWithType = TypeManager.getByClassExact(this.changeWith.getReturnType()).orElseThrow();
+
+                Type<?> changedType = TypeManager.getByClass(this.changed.getReturnType()).orElseThrow();
+                Changer<?> changer = changedType.getDefaultChanger().orElse(null);
+                if (changer != null) {
+                    for (Class<?> aClass : changer.acceptsChange(mode)) {
+                        if (changeWithType.getTypeClass().isAssignableFrom(aClass)) {
+                            this.changer = changer;
+                            return true;
+                        }
+                    }
+
+                }
+
+                String changeTypeName = changeWithType.withIndefiniteArticle(!this.changeWith.isSingle());
                 switch (mode) {
                     case SET:
                         logger.error(changedString + " cannot be set to " + changeTypeName, ErrorType.SEMANTIC_ERROR);
@@ -128,13 +168,27 @@ public class EffChange extends Effect {
     @Override
     public void execute(TriggerContext ctx) {
         if (changeWith == null) {
-            changed.change(ctx, mode, new Object[0]);
+            if (this.changer != null) {
+                applyChanger(this.changer, new Object[0], ctx);
+            } else {
+                this.changed.change(ctx, mode, new Object[0]);
+            }
         } else {
             var values = changeWith.getValues(ctx);
             if (values == null || values.length == 0)
                 return;
-            changed.change(ctx, mode, values);
+            if (this.changer != null) {
+                applyChanger(this.changer, values, ctx);
+            } else {
+                this.changed.change(ctx, mode, values);
+            }
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> void applyChanger(Changer<T> changer, Object[] change, TriggerContext ctx) {
+        T[] array = (T[]) this.changed.getArray(ctx);
+        changer.change(array, change, this.mode);
     }
 
     @Override
@@ -150,4 +204,5 @@ public class EffChange extends Effect {
             default -> throw new IllegalStateException();
         };
     }
+
 }

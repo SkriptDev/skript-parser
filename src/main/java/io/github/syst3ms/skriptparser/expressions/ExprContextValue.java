@@ -122,7 +122,13 @@ public class ExprContextValue<T, C extends TriggerContext> implements Expression
 
     @Override
     public Optional<Class<?>[]> acceptsChange(ChangeMode mode) {
-        if (mode == ChangeMode.SET && this.info.canBeSet()) return Optional.of(new Class<?>[]{getReturnType()});
+        if (mode == ChangeMode.SET && this.info.canBeSet()) {
+            if (this.info.getListSetterFunction() != null) {
+                return Optional.of(new Class<?>[]{getReturnType().arrayType()});
+            } else {
+                return Optional.of(new Class<?>[]{getReturnType()});
+            }
+        }
         return Optional.empty();
     }
 
@@ -134,7 +140,9 @@ public class ExprContextValue<T, C extends TriggerContext> implements Expression
         if (this.info.isSingle()) {
             this.info.getSingleSetterFunction().accept((C) ctx, (T) changeWith[0]);
         } else {
-            this.info.getListSetterFunction().accept((C) ctx, (T[]) changeWith);
+            T[] o = (T[])Array.newInstance(getReturnType(), changeWith.length);
+            System.arraycopy(changeWith, 0, o, 0, changeWith.length);
+            this.info.getListSetterFunction().accept((C) ctx,  o);
         }
     }
 

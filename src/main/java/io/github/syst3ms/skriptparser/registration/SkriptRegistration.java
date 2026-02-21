@@ -33,6 +33,9 @@ import io.github.syst3ms.skriptparser.registration.context.ContextValues;
 import io.github.syst3ms.skriptparser.registration.tags.Tag;
 import io.github.syst3ms.skriptparser.registration.tags.TagInfo;
 import io.github.syst3ms.skriptparser.registration.tags.TagManager;
+import io.github.syst3ms.skriptparser.structures.functions.FunctionParameter;
+import io.github.syst3ms.skriptparser.structures.functions.Functions;
+import io.github.syst3ms.skriptparser.structures.functions.JavaFunction;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 import io.github.syst3ms.skriptparser.types.changers.Arithmetic;
@@ -46,6 +49,7 @@ import io.github.syst3ms.skriptparser.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -80,6 +84,7 @@ public class SkriptRegistration {
     private final List<TagInfo<? extends Tag>> tags = new ArrayList<>();
     private final List<SkriptEventInfo<?>> events = new ArrayList<>();
     private final List<StructureInfo<?>> structures = new ArrayList<>();
+    private final List<FunctionRegistrar<?>> functions = new ArrayList<>();
     private final SkriptAddon registerer;
     private final SkriptLogger logger;
     protected boolean newTypes;
@@ -170,6 +175,13 @@ public class SkriptRegistration {
      */
     public List<StructureInfo<?>> getStructures() {
         return this.structures;
+    }
+
+    /**
+     * @return All currently registered functions
+     */
+    public List<FunctionRegistrar<?>> getFunctions() {
+        return this.functions;
     }
 
     /**
@@ -368,6 +380,21 @@ public class SkriptRegistration {
     public <C extends ExecutableExpression<T>, T> void addExecutableExpression(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
         addExpression(c, returnType, isSingle, patterns);
         addEffect(c, patterns);
+    }
+
+    /**
+     * Create a new {@link ExecutableExpression}
+     *
+     * @param c          the Expression's class
+     * @param returnType the Expression's return type
+     * @param isSingle   whether the Expression is a single value
+     * @param patterns   the Expression's patterns
+     * @param <C>        the Expression
+     * @param <T>        the Expression's return type
+     * @return An {@link ExecutableExpression} to continue the registration process
+     */
+    public <C extends ExecutableExpression<T>, T> ExecutableExpressionRegistrar<C, T> newExecutableExpression(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
+        return new ExecutableExpressionRegistrar<>(c, returnType, isSingle, patterns);
     }
 
     /**
@@ -750,6 +777,9 @@ public class SkriptRegistration {
         Converters.registerConverters(this);
         Converters.createMissingConverters();
         finishConsumers.forEach(consumer -> consumer.accept(registerer));
+        for (FunctionRegistrar<?> function : getFunctions()) {
+            Functions.registerFunction(this, function.javaFunction);
+        }
         if (ignoreLogs) {
             logger.clearLogs();
             return new ArrayList<>();
@@ -922,7 +952,7 @@ public class SkriptRegistration {
         protected final Class<C> c;
         protected final List<String> patterns = new ArrayList<>();
         protected final Map<String, Object> data = new HashMap<>();
-        protected final Documentation documentation = new Documentation();
+        protected Documentation documentation = new Documentation();
         protected int priority;
 
         SyntaxRegistrar(Class<C> c, String... patterns) {
@@ -1012,6 +1042,145 @@ public class SkriptRegistration {
                 })
                 .collect(Collectors.toList());
         }
+    }
+
+    public class ExecutableExpressionRegistrar<C extends ExecutableExpression<? extends T>, T> extends SyntaxRegistrar<C> {
+
+        EffectRegistrar<C> effectRegistrar;
+        ExpressionRegistrar<C, T> expressionRegistrar;
+
+        ExecutableExpressionRegistrar(Class<C> c, Class<T> returnType, boolean isSingle, String... patterns) {
+            super(c, patterns);
+            this.effectRegistrar = new EffectRegistrar<>(c, patterns);
+            this.expressionRegistrar = new ExpressionRegistrar<>(c, returnType, isSingle, patterns);
+
+        }
+
+        @Override
+        public void register() {
+            // Carry over docs from this register to effect/expr registrars
+            this.effectRegistrar.documentation = this.documentation;
+            this.expressionRegistrar.documentation = this.documentation;
+
+            // Register both effect and expression
+            this.effectRegistrar.register();
+            this.expressionRegistrar.register();
+        }
+    }
+
+    public class FunctionRegistrar<T> implements Registrar {
+
+        private final Documentation documentation = new Documentation();
+        private final String functionName;
+        private final Class<T> returnType;
+        private final boolean isSingle;
+        private final List<FunctionParameter<?>> params = new ArrayList<>();
+        public JavaFunction<T> javaFunction;
+        private Function<Object[][],T[]> func;
+
+        public FunctionRegistrar(String functionName, Class<T> returnType, boolean isSingle) {
+            this.functionName = functionName;
+            this.returnType = returnType;
+            this.isSingle = isSingle;
+        }
+
+        public FunctionRegistrar<T> parameter(String name, Class<?> type, boolean single) {
+            FunctionParameter<?> param = new FunctionParameter<>(name, type, single);
+            this.params.add(param);
+            return this;
+        }
+
+        public FunctionRegistrar<T> parameter(String name, Class<?> type) {
+            FunctionParameter<?> param = new FunctionParameter<>(name, type, true);
+            this.params.add(param);
+            return this;
+        }
+
+
+        public FunctionRegistrar<T> execute(Function<Object[][],T[]> params) {
+            this.func = params;
+            return this;
+        }
+
+        @SuppressWarnings("unchecked")
+        public FunctionRegistrar<T> executeSingle(Function<Object[][],T> params) {
+            this.func = objects -> {
+                T[] o = (T[]) Array.newInstance(this.returnType, 1);
+                o[0] = params.apply(objects);
+                return o;
+            };
+            return this;
+        }
+
+        public FunctionRegistrar<T> noDoc() {
+            this.documentation.noDoc();
+            return this;
+        }
+
+        public FunctionRegistrar<T> experimental() {
+            this.documentation.experimental();
+            return this;
+        }
+
+        public FunctionRegistrar<T> experimental(String message) {
+            this.documentation.experimental(message);
+            return this;
+        }
+
+        public FunctionRegistrar<T> name(String name) {
+            this.documentation.setName(name);
+            return this;
+        }
+
+        public FunctionRegistrar<T> description(String... description) {
+            this.documentation.setDescription(description);
+            return this;
+        }
+
+        public FunctionRegistrar<T> examples(String... examples) {
+            this.documentation.setExamples(examples);
+            return this;
+        }
+
+        public FunctionRegistrar<T> since(String since) {
+            this.documentation.setSince(since);
+            return this;
+        }
+
+        public String getFunctionName() {
+            return this.functionName;
+        }
+
+        public Class<T> getReturnType() {
+            return this.returnType;
+        }
+
+        public Documentation getDocumentation() {
+            return this.documentation;
+        }
+
+        public List<FunctionParameter<?>> getParams() {
+            return this.params;
+        }
+
+        @Override
+        public void register() {
+            this.javaFunction = new JavaFunction<>(this.functionName,
+                this.params.toArray(new FunctionParameter[0]),
+                this.returnType,
+                this.isSingle) {
+                @Override
+                public T[] executeSimple(Object[][] params) {
+                    return func.apply(params);
+                }
+            };
+            SkriptRegistration.this.functions.add(this);
+        }
+    }
+
+    public <T> FunctionRegistrar<T> newJavaFunction(String functionName, Class<T> returnType, boolean isSingle) {
+        return new FunctionRegistrar<>(functionName, returnType, isSingle);
+
     }
 
     public class ExpressionRegistrar<C extends Expression<? extends T>, T> extends SyntaxRegistrar<C> {

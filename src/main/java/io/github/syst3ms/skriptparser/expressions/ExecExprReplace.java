@@ -31,10 +31,13 @@ import java.util.regex.PatternSyntaxException;
 public class ExecExprReplace extends ExecutableExpression<String> {
     static {
         // TODO add "new" so we can add docs
-        Parser.getMainRegistration().addExecutableExpression(ExecExprReplace.class, String.class, false,
+        Parser.getMainRegistration().newExecutableExpression(ExecExprReplace.class, String.class, false,
             "replace [(0:all|0:every|1:[the] first|2:[the] last)] [:regex [pattern[s]]] %strings% in %strings% with %string%",
-            "replace [(0:all|0:every|1:[the] first|2:[the] last)] [:regex [pattern[s]]] %strings% with %string% in %strings%"
-        );
+            "replace [(0:all|0:every|1:[the] first|2:[the] last)] [:regex [pattern[s]]] %strings% with %string% in %strings%")
+            .name("Replace")
+            .description("Replaces certain occurrences in a string with another string and returns those applied strings.")
+            .since("1.0.0")
+            .register();
     }
 
     private Expression<String> toMatch;

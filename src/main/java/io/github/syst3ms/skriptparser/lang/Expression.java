@@ -111,6 +111,9 @@ public interface Expression<T> extends SyntaxElement {
      */
     default Optional<? extends T> getSingle(TriggerContext ctx) {
         var values = getValues(ctx);
+        if (values == null) {
+            return Optional.empty();
+        }
         if (values.length == 0) {
             return Optional.empty();
         } else if (values.length > 1) {

@@ -111,6 +111,13 @@ public class ExprFunctionCall implements Expression<Object> {
     }
 
     @Override
+    public Class<?> getReturnType() {
+        Optional<Class<?>> returnType = (Optional<Class<?>>) this.function.getReturnType();
+        if (returnType.isPresent()) return returnType.get();
+        return Object.class;
+    }
+
+    @Override
     public String toString(TriggerContext ctx, boolean debug) {
         return function.getName() + "(" + (parsedExpr != null ? parsedExpr.toString(ctx, debug) : "") + ")";
     }

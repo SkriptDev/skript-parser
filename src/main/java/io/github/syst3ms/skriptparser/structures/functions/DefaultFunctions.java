@@ -7,17 +7,14 @@ public class DefaultFunctions {
 
     static {
         SkriptRegistration reg = Parser.getMainRegistration();
-        Functions.newJavaFunction(reg, new JavaFunction<>(
-                "mod",
-                new FunctionParameter[]{new FunctionParameter<>("i", Number.class, true), new FunctionParameter<>("m", Number.class, true)},
-                Number.class,
-                true) {
-                @Override
-                public Number[] executeSimple(Object[][] params) {
-                    Number d = (Number) params[0][0];
-                    Number m = (Number) params[1][0];
-                    return new Number[]{d.doubleValue() % m.doubleValue()};
-                }
+
+        reg.newJavaFunction("mod", Number.class, true)
+            .parameter("i", Number.class, true)
+            .parameter("m", Number.class, true)
+            .executeSingle(params -> {
+                Number i = (Number) params[0][0];
+                Number m = (Number) params[1][0];
+                return i.doubleValue() % m.doubleValue();
             })
             .name("Mod")
             .description("Returns the remainder of the division of the first number by the second one.")

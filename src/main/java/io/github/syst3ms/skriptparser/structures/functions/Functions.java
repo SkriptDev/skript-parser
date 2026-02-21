@@ -127,10 +127,15 @@ public class Functions {
     }
 
 
+    /**
+     * Use {@link SkriptRegistration#newJavaFunction(String, Class, boolean)} instead
+     */
+    @Deprecated(forRemoval = true)
     public static FunctionDefinition newJavaFunction(SkriptRegistration registration, JavaFunction<?> function) {
         return new FunctionDefinition(registration, function);
     }
 
+    @Deprecated(forRemoval = true)
     public static class FunctionDefinition {
         private final SkriptRegistration registration;
         private final Documentation documentation = new Documentation();
@@ -186,4 +191,5 @@ public class Functions {
             Functions.registerFunction(this.registration, this.function);
         }
     }
+
 }
