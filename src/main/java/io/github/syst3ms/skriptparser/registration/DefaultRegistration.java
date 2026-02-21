@@ -285,7 +285,7 @@ public class DefaultRegistration {
             .name("Type")
             .description("Represents a type/class.")
             .since("1.0.0")
-            .literalParser(s -> TypeManager.getByExactName(s.toLowerCase()).orElse(null))
+            .literalParser(s -> TypeManager.getByName(s.toLowerCase()).orElse(null))
             .toStringFunction(Type::getBaseName)
             .register();
 
