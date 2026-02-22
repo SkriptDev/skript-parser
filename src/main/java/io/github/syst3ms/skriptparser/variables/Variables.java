@@ -56,6 +56,24 @@ public class Variables {
 
     public static void shutdown() {
         for (VariableStorage storage : STORAGES) {
+            // Write all variables to their storages
+            // This needs to be done on shutdown to make sure changes to an object
+            // are properly serialized and saved after their initial save
+            variableMap.getMap().forEach((key, object) -> {
+                if (!storage.accept(key)) return;
+
+                SerializedVariable serialized = storage.serialize(key, object);
+                if (serialized != null) {
+                    SerializedVariable.Value value = serialized.value();
+                    if (value == null) {
+                        storage.save(key, null, null);
+                    } else {
+                        storage.save(key, value.type(), value.data());
+                    }
+                }
+
+            });
+            // Close storage
             try {
                 storage.close();
             } catch (IOException e) {

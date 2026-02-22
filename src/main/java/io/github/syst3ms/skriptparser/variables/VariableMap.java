@@ -18,6 +18,10 @@ public class VariableMap {
 
     private final Map<String, Object> map = new HashMap<>(); // Ordering is not important right now
 
+    public Map<String, Object> getMap() {
+        return this.map;
+    }
+
     private static String[] splitList(String name) {
         return Pattern.compile(Pattern.quote(Variables.LIST_SEPARATOR)).split(name);
     }
