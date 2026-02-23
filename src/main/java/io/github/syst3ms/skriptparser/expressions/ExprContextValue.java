@@ -83,8 +83,9 @@ public class ExprContextValue<T, C extends TriggerContext> implements Expression
                     }
                     return false;
                 } else if (state != info.getState()) {
-                    logger.error("The time state of this context value (" + state.toString().toLowerCase() + ") is incorrect", ErrorType.SEMANTIC_ERROR);
-                    return false;
+                    // TODO might find a way to re-implement this later
+                    //logger.error("The time state of this context value (" + state.toString().toLowerCase() + ") is incorrect", ErrorType.SEMANTIC_ERROR);
+                    continue;
                 } else if (parserState.isRestrictingExpressions() && parserState.forbidsSyntax(ExprContextValue.class)) {
                     logger.setContext(ErrorContext.RESTRICTED_SYNTAXES);
                     logger.error("The enclosing section does not allow the use of context expressions.", ErrorType.SEMANTIC_ERROR);
