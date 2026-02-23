@@ -300,7 +300,7 @@ public abstract class VariableStorage implements Closeable {
     public <T> SerializedVariable serialize(String name, @Nullable T value) {
         if (value == null)
             return new SerializedVariable(name, null);
-        Type<T> type = (Type<T>) TypeManager.getByClassExact(value.getClass()).orElse(null);
+        Type<T> type = (Type<T>) TypeManager.getByClass(value.getClass()).orElse(null);
         if (type == null) return null;
         //throw new UnsupportedOperationException("Class '" + value.getClass().getName() + "' cannot be serialized. No type registered.");
         TypeSerializer<T> serializer = type.getSerializer().orElse(null);
