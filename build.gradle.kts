@@ -4,7 +4,7 @@ plugins {
     id("checkstyle")
 }
 group = "com.github.SkriptDev"
-version = "1.0.10"
+version = "1.0.11"
 
 repositories {
     mavenCentral()
