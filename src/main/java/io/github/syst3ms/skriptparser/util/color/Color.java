@@ -1,5 +1,6 @@
 package io.github.syst3ms.skriptparser.util.color;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -116,6 +117,7 @@ public class Color {
      * @see #COLOR_PATTERN
      */
     public static Optional<Color> ofHex(String hex) {
+        hex = hex.toLowerCase(Locale.ROOT);
         if (!hex.matches(COLOR_PATTERN.pattern()))
             return Optional.empty();
 
