@@ -60,21 +60,22 @@ public class ExpressionLoader<T> extends OptionLoader {
         }
 
         Expression<?> expression = exprOptional.get();
-        if (Variable.class.isAssignableFrom(expression.getClass())) {
-            Class<?> returnType = expression.getReturnType();
-
-            if (!this.typeClass.isAssignableFrom(returnType)) {
-                Optional<? extends Function<?, Optional<? extends T>>> converter = Converters.getConverter(returnType, this.typeClass);
-                if (converter.isPresent()) {
-                    ConvertedExpression<?, T> tConvertedExpression = ConvertedExpression.newInstance(expression, this.typeClass, converter.get());
-                    config.getData().put(this.key, tConvertedExpression);
-                    return true;
-                }
-
-                logger.error("Expression '" + s + "' does not return a " + typeClass.getSimpleName() + " found: " + expression.getReturnType().getSimpleName(), ErrorType.SEMANTIC_ERROR);
-                return false;
-            }
-        }
+        // This broke stuff, but I'm going to leave it just in case
+//        if (Variable.class.isAssignableFrom(expression.getClass())) {
+//            Class<?> returnType = expression.getReturnType();
+//
+//            if (!this.typeClass.isAssignableFrom(returnType)) {
+//                Optional<? extends Function<?, Optional<? extends T>>> converter = Converters.getConverter(returnType, this.typeClass);
+//                if (converter.isPresent()) {
+//                    ConvertedExpression<?, T> tConvertedExpression = ConvertedExpression.newInstance(expression, this.typeClass, converter.get());
+//                    config.getData().put(this.key, tConvertedExpression);
+//                    return true;
+//                }
+//
+//                logger.error("Expression '" + s + "' does not return a " + typeClass.getSimpleName() + " found: " + expression.getReturnType().getSimpleName(), ErrorType.SEMANTIC_ERROR);
+//                return false;
+//            }
+//        }
 
         config.getData().put(this.key, expression);
         return true;
