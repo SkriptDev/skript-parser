@@ -251,6 +251,25 @@ public class DefaultRegistration {
                     return gson.fromJson(element, String.class);
                 }
             })
+            .arithmetic(new Arithmetic<String, String>() {
+                @Override
+                public String difference(String first, String second) {
+                    return first.substring(second.length());
+                }
+                @Override
+                public String add(String value, String difference) {
+                    return value + difference;
+                }
+                @Override
+                public String subtract(String value, String difference) {
+                    return value.substring(0, value.length() - difference.length());
+                }
+
+                @Override
+                public Class<? extends String> getRelativeType() {
+                    return String.class;
+                }
+            })
             .register();
 
         registration.newType(Boolean.class, "boolean", "boolean@s")

@@ -59,6 +59,7 @@ public class CondExprCompare extends ConditionalExpression {
                 "if {_string} is not equal to {_string2}:",
                 "if 1 = 1:")
             .since("1.0.0")
+            .setPriority(0)
             .register();
     }
 

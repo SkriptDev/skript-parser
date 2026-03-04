@@ -17,11 +17,26 @@ public class StructFunction extends Structure {
     static {
         Parser.getMainRegistration()
             .newStructure(StructFunction.class, "*[:local[ ]] func[tion] <" + Functions.FUNCTION_NAME_REGEX + ">" +
-                "\\([params:%*functionparameters%]\\)[return: \\:\\: <.+>]")
+                "\\([params:%*functionparameters%]\\)[return: (\\:\\:|returns|-\\>) <.+>]")
             .setHandledContexts(FunctionContext.class)
             .name("Function")
-            .description("Creates a function that can be called from other scripts.")
+            .description("Creates a function that can be called from other scripts.",
+                "`local` indicates a function that can only be called from the same script.")
             .since("1.0.0")
+            .examples("function getName(p: player) :: string:",
+                "\treturn name of {_p}",
+                "",
+                "function getLocation(e: entity) returns location:",
+                "\treturn location of {_e}",
+                "",
+                "function getWorld(e: entity) -> world:",
+                "\treturn world of {_e}",
+                "",
+                "function spawn(p: players):",
+                "\tteleport {_p::*} to {spawn}",
+                "",
+                "function broadcast(m: string, p: players):",
+                "\tsend {_m} to {_p::*}")
             .register();
     }
 
