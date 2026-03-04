@@ -953,7 +953,7 @@ public class SkriptRegistration {
         protected final List<String> patterns = new ArrayList<>();
         protected final Map<String, Object> data = new HashMap<>();
         protected Documentation documentation = new Documentation();
-        protected int priority;
+        protected int priority = 5;
 
         SyntaxRegistrar(Class<C> c, String... patterns) {
             this.c = c;

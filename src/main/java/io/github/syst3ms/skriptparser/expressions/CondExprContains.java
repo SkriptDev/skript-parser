@@ -30,7 +30,6 @@ public class CondExprContains extends ConditionalExpression {
                 "%string% [1:does(n't| not)] contain[s] %string%",
                 "%objects% [1:do[es](n't| not)] contain[s] %objects%"
             )
-            .setPriority(2)
             .name("Contains")
             .description("Checks if a given list of objects contain a given element. You can also check if a string contains another string.")
             .examples("if {_string} contains \"hello\":",
