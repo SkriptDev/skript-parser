@@ -16,10 +16,11 @@ public class VariableMap {
      */
     private static final Comparator<String> NUMERIC_INDEX_COMPARATOR = Comparator.comparingInt(Integer::parseInt);
 
-    private final Map<String, Object> map = new HashMap<>(); // Ordering is not important right now
+    private final Map<String, Object> hashMap = new HashMap<>(); // Ordering is not important right now
+    private final Map<String, Object> treeMap = new TreeMap<>();
 
     public Map<String, Object> getMap() {
-        return this.map;
+        return this.hashMap;
     }
 
     private static String[] splitList(String name) {
@@ -37,22 +38,15 @@ public class VariableMap {
     @SuppressWarnings("unchecked")
     public Optional<Object> getVariable(String name) {
         if (!name.endsWith("*")) {
-            return Optional.ofNullable(map.get(name));
+            return Optional.ofNullable(hashMap.get(name));
         } else {
             var split = splitList(name);
-            var current = map;
+            var current = treeMap;
             for (var i = 0; i < split.length; i++) {
                 var n = split[i];
                 if (n.equals("*")) {
                     assert i == split.length - 1;
-
-                    // We sort the indexes as best as we can
-                    boolean numerical = current.keySet().stream()
-                        .allMatch(val -> val.matches("[1-9][0-9]*"));
-                    var treeMap = new TreeMap<>(numerical ? NUMERIC_INDEX_COMPARATOR : Comparator.<String>naturalOrder());
-                    treeMap.putAll(current);
-
-                    return Optional.of(treeMap);
+                    return Optional.of(current);
                 }
                 var o = current.get(n);
                 if (o == null) {
@@ -79,13 +73,13 @@ public class VariableMap {
     public void setVariable(String name, @Nullable Object value) {
         if (!name.endsWith("*")) {
             if (value == null) {
-                map.remove(name);
+                hashMap.remove(name);
             } else {
-                map.put(name, value);
+                hashMap.put(name, value);
             }
         }
         var split = splitList(name);
-        var parent = map;
+        var parent = treeMap;
         for (var i = 0; i < split.length; i++) {
             var n = split[i];
             var current = parent.get(n);
@@ -147,7 +141,7 @@ public class VariableMap {
      * Clears all variables
      */
     public void clearVariables() {
-        map.clear();
+        hashMap.clear();
     }
 
     @SuppressWarnings("unchecked")
@@ -156,7 +150,7 @@ public class VariableMap {
             if (e.getKey() == null) {
                 continue;
             }
-            map.remove(parent + Variables.LIST_SEPARATOR + e.getKey());
+            hashMap.remove(parent + Variables.LIST_SEPARATOR + e.getKey());
             var val = e.getValue();
             if (val instanceof Map) {
                 deleteFromHashMap(parent + Variables.LIST_SEPARATOR + e.getKey(), (Map<String, Object>) val);
