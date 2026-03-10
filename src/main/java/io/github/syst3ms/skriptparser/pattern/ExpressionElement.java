@@ -78,7 +78,7 @@ public class ExpressionElement implements PatternElement {
                     }
                     return -1;
                 }
-                var i = StringUtils.indexOfIgnoreCase(s, text, index);
+                var i = findTextWithBoundary(s, text.strip(), index);
                 while (i != -1) {
                     var toParse = s.substring(index, i).strip();
                     var expression = parse(toParse, typeArray, context.getParserState(), logger);
@@ -86,7 +86,7 @@ public class ExpressionElement implements PatternElement {
                         context.addExpression(expression.get());
                         return index + toParse.length();
                     }
-                    i = StringUtils.indexOfIgnoreCase(s, text, i + 1);
+                    i = findTextWithBoundary(s, text.strip(), i + 1);
                 }
             } else if (possibleInput instanceof RegexGroup) {
                 var m = ((RegexGroup) possibleInput).getPattern().matcher(s).region(index, s.length());
@@ -223,6 +223,36 @@ public class ExpressionElement implements PatternElement {
             }
         }
         return -1;
+    }
+
+    /**
+     * Finds the index of text in a string, respecting word boundaries for keywords like "or", "and", "nor".
+     * @param s the string to search in
+     * @param text the text to find
+     * @param start the starting index
+     * @return the index where text was found, or -1 if not found
+     */
+    private int findTextWithBoundary(String s, String text, int start) {
+        if (text.isEmpty()) {
+            return -1;
+        }
+        // Check if this is a keyword that needs word boundary checking
+        var lowerText = text.toLowerCase();
+        var needsBoundaryCheck = lowerText.equals("or") || lowerText.equals("and") || lowerText.equals("nor");
+
+        var i = StringUtils.indexOfIgnoreCase(s, text, start);
+        while (i != -1 && needsBoundaryCheck) {
+            // Check word boundaries
+            var beforeIsWordChar = i > 0 && Character.isLetterOrDigit(s.charAt(i - 1));
+            var afterIsWordChar = (i + text.length() < s.length()) && Character.isLetterOrDigit(s.charAt(i + text.length()));
+
+            if (!beforeIsWordChar && !afterIsWordChar) {
+                return i; // Valid word boundary match
+            }
+            // Try next occurrence
+            i = StringUtils.indexOfIgnoreCase(s, text, i + 1);
+        }
+        return i;
     }
 
     private List<String> splitAtSpaces(String s) {
