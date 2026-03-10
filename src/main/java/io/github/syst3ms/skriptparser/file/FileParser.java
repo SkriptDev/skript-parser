@@ -30,11 +30,18 @@ public class FileParser {
      */
     public static List<FileElement> parseFileLines(String fileName, List<String> lines, int expectedIndentation, int lastLine, SkriptLogger logger) {
         List<FileElement> elements = new ArrayList<>();
+        boolean multiLineComment = false;
         for (var i = 0; i < lines.size(); i++) {
             var line = lines.get(i);
+
+            // Multi line comment sections
+            if (!line.isBlank() && line.startsWith("###")) {
+                multiLineComment = !multiLineComment;
+            }
+
             String content = removeComments(line);
 
-            if (content.isEmpty()) {
+            if (multiLineComment || content.isEmpty()) {
                 elements.add(new VoidElement(fileName, lastLine + i, expectedIndentation));
                 continue;
             }
