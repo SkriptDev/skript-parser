@@ -106,23 +106,93 @@ public class ExpressionElement implements PatternElement {
                 }
             } else {
                 assert possibleInput instanceof ExpressionElement;
-                var nextPossibleInputs = PatternElement.getPossibleInputs(flattened.subList(context.getPatternIndex() + 1, flattened.size()));
+                // Find the index of the next expression element in the flattened list
+                // We need to find the first ExpressionElement after the current position
+                var expressionIndex = -1;
+                for (var i = possibilityIndex + 1; i < flattened.size(); i++) {
+                    var elem = flattened.get(i);
+                    // Skip optional groups and look inside them
+                    if (elem instanceof OptionalGroup) {
+                        var inner = PatternElement.flatten(((OptionalGroup) elem).getElement());
+                        if (inner.stream().anyMatch(e -> e instanceof ExpressionElement)) {
+                            continue; // Skip optional groups containing expressions
+                        }
+                    } else if (elem instanceof ExpressionElement) {
+                        expressionIndex = i;
+                        break;
+                    }
+                }
+                if (expressionIndex == -1) {
+                    continue;
+                }
+                // When the expression is the last element, nextPossibleInputs will contain "\0" (end of line)
+                // which we handle below, so we should NOT skip this case!
+                var nextPossibleInputs = PatternElement.getPossibleInputs(flattened.subList(expressionIndex + 1, flattened.size()));
                 if (nextPossibleInputs.stream().anyMatch(pe -> !(pe instanceof TextElement))) {
                     continue;
                 }
                 for (var nextPossibleInput : nextPossibleInputs) {
                     var text = ((TextElement) nextPossibleInput).getText();
-                    if (text.equals("")) {
+                    if (text.equals("\0")) {
+                        // End of line marker - parse the rest and we're done
                         var rest = s.substring(index);
                         var splits = splitAtSpaces(rest);
-                        for (var split : splits) {
-                            var i = StringUtils.indexOfIgnoreCase(s, split, index);
-                            if (i != -1) {
-                                var toParse = s.substring(index, i);
-                                var expression = parse(toParse, typeArray, context.getParserState(), logger);
-                                if (expression.isPresent()) {
-                                    context.addExpression(expression.get());
-                                    return index + toParse.length();
+                        if (splits.isEmpty()) {
+                            return -1;
+                        }
+                        // Try parsing progressively larger prefixes
+                        for (var splitCount = 1; splitCount < splits.size(); splitCount++) {
+                            var endIndex = index;
+                            for (var j = 0; j < splitCount; j++) {
+                                var splitIndex = s.indexOf(splits.get(j), endIndex);
+                                if (splitIndex == -1) {
+                                    break;
+                                }
+                                endIndex = splitIndex + splits.get(j).length();
+                            }
+                            while (endIndex < s.length() && Character.isWhitespace(s.charAt(endIndex))) {
+                                endIndex++;
+                            }
+                            if (endIndex > index) {
+                                var toParse = s.substring(index, endIndex).strip();
+                                if (!toParse.isEmpty()) {
+                                    var expression = parse(toParse, typeArray, context.getParserState(), logger);
+                                    if (expression.isPresent()) {
+                                        context.addExpression(expression.get());
+                                        return endIndex;
+                                    }
+                                }
+                            }
+                        }
+                        return -1;
+                    } else if (text.isEmpty() || text.isBlank()) {
+                        var rest = s.substring(index);
+                        var splits = splitAtSpaces(rest);
+                        if (splits.isEmpty()) {
+                            return -1;
+                        }
+                        // Try parsing progressively larger prefixes (first 1 token, then first 2 tokens, etc.)
+                        for (var splitCount = 1; splitCount < splits.size(); splitCount++) {
+                            var endIndex = index;
+                            for (var j = 0; j < splitCount; j++) {
+                                var splitIndex = s.indexOf(splits.get(j), endIndex);
+                                if (splitIndex == -1) {
+                                    break;
+                                }
+                                endIndex = splitIndex + splits.get(j).length();
+                            }
+                            // Find the start of the next token (skip whitespace)
+                            while (endIndex < s.length() && Character.isWhitespace(s.charAt(endIndex))) {
+                                endIndex++;
+                            }
+                            if (endIndex > index) {
+                                var toParse = s.substring(index, endIndex).strip();
+                                if (!toParse.isEmpty()) {
+                                    var expression = parse(toParse, typeArray, context.getParserState(), logger);
+                                    if (expression.isPresent()) {
+                                        context.addExpression(expression.get());
+                                        return endIndex;
+                                    }
                                 }
                             }
                         }
@@ -137,11 +207,14 @@ public class ExpressionElement implements PatternElement {
                         for (var split : splits) {
                             var i = StringUtils.indexOfIgnoreCase(s, split, index);
                             if (i != -1) {
-                                var toParse = s.substring(index, i);
+                                var toParse = s.substring(index, i).strip();
+                                if (toParse.isEmpty()) {
+                                    continue;
+                                }
                                 var expression = parse(toParse, typeArray, context.getParserState(), logger);
                                 if (expression.isPresent()) {
                                     context.addExpression(expression.get());
-                                    return index + toParse.length();
+                                    return i;
                                 }
                             }
                         }
