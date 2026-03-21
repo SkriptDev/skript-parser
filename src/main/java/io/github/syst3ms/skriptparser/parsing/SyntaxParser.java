@@ -356,7 +356,7 @@ public class SyntaxParser {
      */
     public static <T> Optional<? extends Expression<? extends T>> parseListLiteral(String s, PatternType<T> expectedType, ParserState parserState, SkriptLogger logger) {
         assert !expectedType.isSingle();
-        if (!s.contains(",") && !s.contains("and") && !s.contains("nor") && !s.contains("or"))
+        if (!s.contains(",") && !s.matches(".*\\b(?:and|n?or)\\b.*"))
             return Optional.empty();
         List<String> parts = new ArrayList<>();
         var m = LIST_SPLIT_PATTERN.matcher(s);

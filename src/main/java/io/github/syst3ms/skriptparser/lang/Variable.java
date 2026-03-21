@@ -424,6 +424,11 @@ public class Variable<T> implements Expression<T> {
 
     @Override
     public String toString(TriggerContext ctx, boolean debug) {
+        // When in debug mode or using a dummy context, show the variable name instead of its value
+        if (debug || ctx == TriggerContext.DUMMY) {
+            String l = this.local ? "_" : "";
+            return "{" + l + name.toString(ctx) + "}";
+        }
         return TypeManager.toString(getValues(ctx));
     }
 

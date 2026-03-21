@@ -1,6 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.types.changers.ChangeMode;
 import io.github.syst3ms.skriptparser.util.ClassUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
@@ -207,6 +208,27 @@ public class ExpressionList<T> implements Expression<T> {
     @Override
     public Expression<?> getSource() {
         return source != null ? source : this;
+    }
+
+    @Override
+    public Optional<Class<?>[]> acceptsChange(ChangeMode mode) {
+        // Check if all expressions in the list accept this change mode
+        for (var expr : expressions) {
+            if (expr.acceptsChange(mode).isEmpty()) {
+                return Optional.empty();
+            }
+        }
+        // If all expressions accept the change, return the accepted types from the first expression
+        // (assuming all expressions have compatible types)
+        return expressions[0].acceptsChange(mode);
+    }
+
+    @Override
+    public void change(TriggerContext ctx, ChangeMode mode, Object[] changeWith) throws UnsupportedOperationException {
+        // Apply the change to all expressions in the list
+        for (var expr : expressions) {
+            expr.change(ctx, mode, changeWith);
+        }
     }
 
 }
