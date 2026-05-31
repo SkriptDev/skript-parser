@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.lang.TriggerMap;
 import io.github.syst3ms.skriptparser.lang.event.StartOnLoadEvent;
+import io.github.syst3ms.skriptparser.parsing.Script;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 import io.github.syst3ms.skriptparser.structures.functions.StructFunction;
@@ -24,12 +25,12 @@ public class Skript extends SkriptAddon {
     }
 
     @Override
-    public void finishedLoading(@Nullable String scriptName) {
+    public void finishedLoading(@Nullable Script script) {
         List<Trigger> triggers;
-        if (scriptName == null) {
+        if (script == null) {
             triggers = TriggerMap.getAllTriggers();
         } else {
-            triggers = TriggerMap.getTriggersByScript(scriptName).values().stream().flatMap(List::stream).toList();
+            triggers = TriggerMap.getTriggersByScript(script).values().stream().flatMap(List::stream).toList();
         }
         triggers.stream().sorted(Comparator.comparing(trigger -> trigger.getEvent().getLoadingPriority())).forEach(trigger -> {
             if (trigger.getEvent() instanceof StartOnLoadEvent event) {

@@ -9,6 +9,7 @@ import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
+import io.github.syst3ms.skriptparser.parsing.Script;
 import io.github.syst3ms.skriptparser.types.Type;
 import io.github.syst3ms.skriptparser.types.TypeManager;
 
@@ -92,8 +93,8 @@ public class StructFunction extends Structure {
             }
             if (type.isPlural(rawReturnType)) returnSingle = false;
         }
-        String scriptName = parseContext.getLogger().getFileName().replace(".sk", "");
-        function = new ScriptFunction<>(scriptName, local, functionName, parameters, returnType, returnSingle);
+        Script script = parseContext.getLogger().getScript();
+        function = new ScriptFunction<>(script, local, functionName, parameters, returnType, returnSingle);
         if (!Functions.isValidFunction(function, parseContext.getLogger())) {
             return false;
         }

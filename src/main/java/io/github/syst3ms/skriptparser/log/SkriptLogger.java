@@ -2,6 +2,8 @@ package io.github.syst3ms.skriptparser.log;
 
 import io.github.syst3ms.skriptparser.file.FileElement;
 import io.github.syst3ms.skriptparser.file.FileSection;
+import io.github.syst3ms.skriptparser.parsing.Script;
+import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -56,7 +58,7 @@ public class SkriptLogger {
     private boolean hasError = false;
     private final LinkedList<ErrorContext> errorContext = new LinkedList<>();
     // File
-    private String fileName;
+    private Script script;
     private List<FileElement> fileElements;
     private int line = -1;
     // Logs
@@ -72,13 +74,19 @@ public class SkriptLogger {
         this(false);
     }
 
+    @Deprecated(forRemoval = true)
+    public void setFileInfo(String fileName, List<FileElement> fileElements) {
+        Script script = ScriptLoader.getScriptByName(fileName);
+        setFileInfo(script, fileElements);
+    }
+
     /**
      * Provides the logger information about the file it's currently parsing
-     * @param fileName the file name
+     * @param script the {@link Script} this logger is for
      * @param fileElements the {@link FileElement}s of the current file
      */
-    public void setFileInfo(String fileName, List<FileElement> fileElements) {
-        this.fileName = fileName;
+    public void setFileInfo(Script script, List<FileElement> fileElements) {
+        this.script = script;
         this.fileElements = flatten(fileElements);
     }
 
@@ -153,7 +161,7 @@ public class SkriptLogger {
                                 message,
                                 line + 1,
                                 fileElements.get(line).getLineContent(),
-                                fileName),
+                                script.scriptName()),
                         type, line, ctx, error, tip
                 ));
             }
@@ -298,8 +306,16 @@ public class SkriptLogger {
         this.debug = debug;
     }
 
+    /**
+     * @deprecated use {@link #getScript()} instead.
+     */
+    @Deprecated(forRemoval = true)
     public String getFileName() {
-        return fileName;
+        return script.scriptName();
+    }
+
+    public Script getScript() {
+        return script;
     }
 
     /**

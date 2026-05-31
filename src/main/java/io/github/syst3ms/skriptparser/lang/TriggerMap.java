@@ -1,5 +1,7 @@
 package io.github.syst3ms.skriptparser.lang;
 
+import io.github.syst3ms.skriptparser.parsing.Script;
+import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import io.github.syst3ms.skriptparser.structures.functions.Functions;
 import io.github.syst3ms.skriptparser.variables.Variables;
 
@@ -14,40 +16,67 @@ import java.util.TreeMap;
  */
 public class TriggerMap {
 
-    private static final Map<String, Map<Class<? extends TriggerContext>, List<Trigger>>> TRIGGERS = new TreeMap<>();
+    private static final Map<Script, Map<Class<? extends TriggerContext>, List<Trigger>>> TRIGGERS = new TreeMap<>();
+
+    /**
+     * @deprecated Use {@link #addTrigger(Script, Class, Trigger)} instead.
+     */
+    @Deprecated(forRemoval = true)
+    public static void addTrigger(String scriptName, Class<? extends TriggerContext> context, Trigger trigger) {
+        Script script = ScriptLoader.getScriptByName(scriptName);
+        if (script != null) addTrigger(script, context, trigger);
+    }
 
     /**
      * Add a trigger to the map.
      *
-     * @param scriptName Name of a script
+     * @param script     The script to add the trigger to
      * @param context    Trigger context class to which the trigger should be added
      * @param trigger    Trigger to add
      */
-    public static void addTrigger(String scriptName, Class<? extends TriggerContext> context, Trigger trigger) {
-        TRIGGERS.computeIfAbsent(scriptName, k -> new HashMap<>()).computeIfAbsent(context, k -> new ArrayList<>()).add(trigger);
+    public static void addTrigger(Script script, Class<? extends TriggerContext> context, Trigger trigger) {
+        TRIGGERS.computeIfAbsent(script, k -> new HashMap<>()).computeIfAbsent(context, k -> new ArrayList<>()).add(trigger);
+    }
+
+    /**
+     * @deprecated Use {@link #clearTriggers(Script)} instead.
+     */
+    @Deprecated(forRemoval = true)
+    public static void clearTriggers(String scriptName) {
+        Script script = ScriptLoader.getScriptByName(scriptName);
+        if (script != null) clearTriggers(script);
     }
 
     /**
      * Clear all triggers for a script.
      *
-     * @param scriptName Script name to clear triggers for
+     * @param script Script to clear triggers for
      */
-    public static void clearTriggers(String scriptName) {
-        TRIGGERS.getOrDefault(scriptName, Map.of()).values().forEach(triggers -> {
+    public static void clearTriggers(Script script) {
+        TRIGGERS.getOrDefault(script, Map.of()).values().forEach(triggers -> {
             triggers.forEach(trigger -> trigger.getEvent().unload());
         });
-        TRIGGERS.remove(scriptName);
-        Functions.removeFunctions(scriptName);
+        TRIGGERS.remove(script);
+        Functions.removeFunctions(script);
+    }
+
+    /**
+     * @deprecated Use {@link #getTriggersByScript(Script)} instead.
+     */
+    @Deprecated(forRemoval = true)
+    public static Map<Class<? extends TriggerContext>, List<Trigger>> getTriggersByScript(String scriptName) {
+        Script script = ScriptLoader.getScriptByName(scriptName);
+        return script != null ? getTriggersByScript(script) : Map.of();
     }
 
     /**
      * Get all the triggers associated with a script.
      *
-     * @param scriptName Script name to get triggers for
+     * @param script Script to get triggers for
      * @return Map of trigger contexts to triggers
      */
-    public static Map<Class<? extends TriggerContext>, List<Trigger>> getTriggersByScript(String scriptName) {
-        return TRIGGERS.getOrDefault(scriptName, Map.of());
+    public static Map<Class<? extends TriggerContext>, List<Trigger>> getTriggersByScript(Script script) {
+        return TRIGGERS.getOrDefault(script, Map.of());
     }
 
     /**
