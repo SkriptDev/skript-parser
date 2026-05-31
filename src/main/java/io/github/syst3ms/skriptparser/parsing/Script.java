@@ -17,4 +17,5 @@ public record Script(Path scriptPath) implements Comparable<Script> {
     public int compareTo(Script o) {
         return this.scriptPath.compareTo(o.scriptPath);
     }
+    
 }
