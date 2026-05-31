@@ -52,7 +52,7 @@ public class Config {
             throw new RuntimeException(e);
         }
 
-        this.fileElements = FileParser.parseFileLines(path.toString(), strings, 0, 1, logger);
+        this.fileElements = FileParser.parseFileLines(path, strings, 0, 1, logger);
         logger.debug("Loaded config file at " + path + " with " + fileElements.size() + " lines");
     }
 

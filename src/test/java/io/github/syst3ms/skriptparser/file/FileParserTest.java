@@ -13,16 +13,19 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 public class FileParserTest {
+
+    private static final Path TEST_PATH = Path.of("unit-tests");
+
     private FileElement simpleFileLine(String content, int indentation, int line) {
-        return new FileElement("unit-tests", line, content, indentation);
+        return new FileElement(TEST_PATH, line, content, indentation);
     }
 
     private FileSection fileSection(String content, int indentation, int line, FileElement... elements) {
-        return new FileSection("unit-tests", line, content, Arrays.asList(elements), indentation);
+        return new FileSection(TEST_PATH, line, content, Arrays.asList(elements), indentation);
     }
 
     private List<FileElement> parseLines(List<String> lines) {
-        return FileParser.parseFileLines("unit-tests", lines, 0, 1, new SkriptLogger());
+        return FileParser.parseFileLines(TEST_PATH, lines, 0, 1, new SkriptLogger());
     }
 
     @Test

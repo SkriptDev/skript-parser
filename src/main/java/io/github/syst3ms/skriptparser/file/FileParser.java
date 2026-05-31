@@ -4,6 +4,7 @@ import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.util.FileUtils;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -16,11 +17,19 @@ public class FileParser {
     public static final Pattern COMMENT_PATTERN = Pattern.compile("#(?=(?:(?:[^\"]*\"){2})*[^\"]*$)");
 
     /**
+     * @deprecated Use {@link #parseFileLines(Path, List, int, int, SkriptLogger)} instead.
+     */
+    @Deprecated(forRemoval = true)
+    public static List<FileElement> parseFileLines(String fileName, List<String> lines, int expectedIndentation, int lastLine, SkriptLogger logger) {
+        return parseFileLines(Path.of(fileName), lines, expectedIndentation, lastLine, logger);
+    }
+
+    /**
      * Parses a {@linkplain List} of strings into a list of {@link FileElement}s. This creates {@link FileElement} and
      * {@link FileSection} objects from the lines, effectively structuring the lines into a tree.
      * This removes comments from each line, and discards any blank lines afterwards.
      *
-     * @param fileName            the name of the file the lines belong to
+     * @param filePath            the path of the file the lines belong to
      * @param lines               the list of lines to parse
      * @param expectedIndentation the indentation level the first line is expected to be at
      * @param lastLine            a parameter that keeps track of the line count throughout recursive calls of this method when
@@ -28,7 +37,7 @@ public class FileParser {
      * @param logger              the logger
      * @return a list of {@link FileElement}s
      */
-    public static List<FileElement> parseFileLines(String fileName, List<String> lines, int expectedIndentation, int lastLine, SkriptLogger logger) {
+    public static List<FileElement> parseFileLines(Path filePath, List<String> lines, int expectedIndentation, int lastLine, SkriptLogger logger) {
         List<FileElement> elements = new ArrayList<>();
         boolean multiLineComment = false;
         for (var i = 0; i < lines.size(); i++) {
@@ -42,7 +51,7 @@ public class FileParser {
             String content = removeComments(line);
 
             if (multiLineComment || content.isEmpty()) {
-                elements.add(new VoidElement(fileName, lastLine + i, expectedIndentation));
+                elements.add(new VoidElement(filePath, lastLine + i, expectedIndentation));
                 continue;
             }
 
@@ -59,20 +68,20 @@ public class FileParser {
             }
             if (content.endsWith(":")) {
                 if (i + 1 == lines.size()) {
-                    elements.add(new FileSection(fileName, lastLine + i, content.substring(0, content.length() - 1),
+                    elements.add(new FileSection(filePath, lastLine + i, content.substring(0, content.length() - 1),
                         new ArrayList<>(), expectedIndentation
                     ));
                 } else {
-                    var sectionElements = parseFileLines(fileName, lines.subList(i + 1, lines.size()),
+                    var sectionElements = parseFileLines(filePath, lines.subList(i + 1, lines.size()),
                         expectedIndentation + 1, lastLine + i + 1,
                         logger);
-                    elements.add(new FileSection(fileName, lastLine + i, content.substring(0, content.length() - 1),
+                    elements.add(new FileSection(filePath, lastLine + i, content.substring(0, content.length() - 1),
                         sectionElements, expectedIndentation
                     ));
                     i += count(sectionElements);
                 }
             } else {
-                elements.add(new FileElement(fileName, lastLine + i, content, expectedIndentation));
+                elements.add(new FileElement(filePath, lastLine + i, content, expectedIndentation));
             }
         }
         return elements;

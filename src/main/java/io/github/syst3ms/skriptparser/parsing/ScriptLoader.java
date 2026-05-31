@@ -91,7 +91,7 @@ public class ScriptLoader {
 
             LOADED_SCRIPTS.add(script);
 
-            elements = FileParser.parseFileLines(scriptName,
+            elements = FileParser.parseFileLines(scriptPath,
                 lines,
                 0,
                 1,
