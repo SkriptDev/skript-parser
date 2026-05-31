@@ -2,6 +2,7 @@ package io.github.syst3ms.skriptparser.file;
 
 import io.github.syst3ms.skriptparser.lang.entries.OptionLoader;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -15,8 +16,16 @@ public class FileSection extends FileElement {
     private final List<FileElement> elements;
     private int length = -1;
 
+    /**
+     * @deprecated Use {@link #FileSection(Path, int, String, List, int)} instead.
+     */
+    @Deprecated(forRemoval = true)
     public FileSection(String fileName, int line, String content, List<FileElement> elements, int indentation) {
-        super(fileName, line, content, indentation);
+        this(Path.of(fileName), line, content, elements, indentation);
+    }
+
+    public FileSection(Path filePath, int line, String content, List<FileElement> elements, int indentation) {
+        super(filePath, line, content, indentation);
         this.elements = elements;
     }
 

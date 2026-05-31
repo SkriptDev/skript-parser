@@ -53,7 +53,7 @@ public class ExprFunctionCall implements Expression<Object> {
     public boolean init(Expression<?>[] expressions, int matchedPattern, ParseContext parseContext) {
         MatchResult result = parseContext.getMatches().get(0); // whole pattern matched because it is one single regex
         String functionName = result.group(1);
-        Optional<Function<?>> optionalFunction = Functions.getFunctionByName(functionName, parseContext.getLogger().getFileName());
+        Optional<Function<?>> optionalFunction = Functions.getFunctionByName(functionName, parseContext.getLogger().getScript());
         SkriptLogger logger = parseContext.getLogger();
         if (optionalFunction.isEmpty()) {
             logger.error("No function was found under the name '" + functionName + "'", ErrorType.SEMANTIC_ERROR);

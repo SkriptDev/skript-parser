@@ -61,8 +61,8 @@ public class SecBirth extends CodeSection {
         if (!dead) {
             SyntaxParserTest.addError(new SkriptRuntimeException(
                 message == null
-                    ? "Birth section was not killed afterwards (" + logger.getFileName() + ")"
-                    : message.getSingle(ctx).map(s -> (String) s).orElse(TypeManager.EMPTY_REPRESENTATION) + " (" + logger.getFileName() + ")"
+                    ? "Birth section was not killed afterwards (" + logger.getScript().scriptName() + ")"
+                    : message.getSingle(ctx).map(s -> (String) s).orElse(TypeManager.EMPTY_REPRESENTATION) + " (" + logger.getScript().scriptName() + ")"
             ));
         }
         dead = false;

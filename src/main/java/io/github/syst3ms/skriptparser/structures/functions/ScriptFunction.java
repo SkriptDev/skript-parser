@@ -3,18 +3,18 @@ package io.github.syst3ms.skriptparser.structures.functions;
 import io.github.syst3ms.skriptparser.lang.Statement;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
+import io.github.syst3ms.skriptparser.parsing.Script;
 import io.github.syst3ms.skriptparser.variables.Variables;
 
 public final class ScriptFunction<T> extends Function<T> {
 
-    private final String scriptName;
-
+    private final Script script;
     private final boolean local;
     private Trigger trigger;
 
-    ScriptFunction(String scriptName, boolean local, String name, FunctionParameter<?>[] parameters, Class<? extends T> returnType, boolean returnSingle) {
+    ScriptFunction(Script script, boolean local, String name, FunctionParameter<?>[] parameters, Class<? extends T> returnType, boolean returnSingle) {
         super(name, parameters, returnType, returnSingle);
-        this.scriptName = scriptName;
+        this.script = script;
         this.local = local;
     }
 
@@ -42,8 +42,8 @@ public final class ScriptFunction<T> extends Function<T> {
         return (T[]) returnValue;
     }
 
-    public String getScriptName() {
-        return scriptName;
+    public Script getScript() {
+        return script;
     }
 
     public boolean isLocal() {

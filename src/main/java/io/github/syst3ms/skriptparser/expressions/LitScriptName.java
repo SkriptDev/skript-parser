@@ -6,7 +6,6 @@ import io.github.syst3ms.skriptparser.lang.Literal;
 import io.github.syst3ms.skriptparser.lang.TriggerContext;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.parsing.ParseContext;
-import io.github.syst3ms.skriptparser.util.FileUtils;
 
 /**
  * The name of the current executed script, without the extension.
@@ -38,7 +37,7 @@ public class LitScriptName implements Literal<String> {
 
     @Override
     public String[] getValues() {
-        return new String[]{FileUtils.removeExtension(logger.getFileName())};
+        return new String[]{logger.getScript().scriptName()};
     }
 
     @Override

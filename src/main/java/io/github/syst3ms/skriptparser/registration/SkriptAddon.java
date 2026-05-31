@@ -3,6 +3,7 @@ package io.github.syst3ms.skriptparser.registration;
 import io.github.syst3ms.skriptparser.Skript;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.lang.event.SkriptEvent;
+import io.github.syst3ms.skriptparser.parsing.Script;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,16 +53,31 @@ public abstract class SkriptAddon {
     }
 
     /**
+     * @deprecated Use {@link #finishedLoading(Script)} instead.
+     */
+    @Deprecated(forRemoval = true)
+    public void finishedLoading(@Nullable String scriptName) {
+
+    }
+
+    /**
      * Is called when a script has finished loading. Optionally overridable.
      */
-    public void finishedLoading(@Nullable String scriptName) {
+    public void finishedLoading(@Nullable Script script) {
+        if (script != null) {
+            // this is for backwards compatibility
+            // this should be made to contain no default implementation after removing all the other forRemovals, that are using scriptName instead of Script
+            finishedLoading(script.scriptName());
+        } else {
+            finishedLoading((String) null);
+        }
     }
 
     /**
      * Is called when all scripts have finished loading. Optionally overridable.
      */
     public void finishedLoading() {
-        finishedLoading(null);
+        finishedLoading((Script) null);
     }
 
     /**

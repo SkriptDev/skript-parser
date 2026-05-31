@@ -13,10 +13,12 @@ import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.LogEntry;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
 import io.github.syst3ms.skriptparser.util.FileUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -25,6 +27,29 @@ import java.util.Set;
  * Contains the logic for loading, parsing, and interpreting entire script files
  */
 public class ScriptLoader {
+
+    private static final List<Script> LOADED_SCRIPTS = new ArrayList<>();
+
+    /**
+     * Get a collection of all currently loaded scripts.
+     *
+     * @return A collection of loaded Script objects
+     */
+    public static Collection<Script> getLoadedScripts() {
+        return Collections.unmodifiableCollection(LOADED_SCRIPTS);
+    }
+
+    /**
+     * Get a loaded Script object by its parsed name.
+     * This is method is inconsistent since scripts with the same name in different directories can exist.
+     *
+     * @param scriptName The name of the script
+     * @return The Script object, or null if not loaded
+     */
+    @Deprecated(forRemoval = true)
+    public static @Nullable Script getScriptByName(String scriptName) {
+        return LOADED_SCRIPTS.stream().filter(s -> s.scriptName().equals(scriptName)).findFirst().orElse(null);
+    }
 
     /**
      * Parses and loads the provided script in memory.
@@ -46,15 +71,27 @@ public class ScriptLoader {
      */
     public static List<LogEntry> loadScript(Path scriptPath, SkriptLogger logger, boolean debug) {
         List<FileElement> elements;
-        String scriptName = scriptPath.getFileName().toString().replaceAll("(.+)\\..+", "$1");
 
-        // Clear triggers from unloaded events
-        TriggerMap.clearTriggers(scriptName);
+        Script oldScript = LOADED_SCRIPTS.stream()
+            .filter(s -> s.scriptPath().equals(scriptPath))
+            .findFirst()
+            .orElse(null);
+
+        if (oldScript != null) {
+            // Clean up the old instance from everywhere
+            TriggerMap.clearTriggers(oldScript);
+            LOADED_SCRIPTS.remove(oldScript);
+        }
+
+        Script script = new Script(scriptPath);
+        String scriptName = script.scriptName();
 
         try {
             var lines = FileUtils.readAllLines(scriptPath);
 
-            elements = FileParser.parseFileLines(scriptName,
+            LOADED_SCRIPTS.add(script);
+
+            elements = FileParser.parseFileLines(scriptPath,
                 lines,
                 0,
                 1,
@@ -65,8 +102,10 @@ public class ScriptLoader {
             e.printStackTrace();
             return Collections.emptyList();
         }
-        logger.setFileInfo(scriptPath.getFileName().toString(), elements);
+
+        logger.setFileInfo(script, elements);
         List<UnloadedTrigger> unloadedTriggers = new ArrayList<>();
+
         for (var element : elements) {
             logger.finalizeLogs();
             logger.nextLine();
@@ -100,10 +139,10 @@ public class ScriptLoader {
             Set<Class<? extends TriggerContext>> contexts = unloaded.eventInfo().getContexts();
             if (contexts.isEmpty()) {
                 // A dummy context will be used for this
-                TriggerMap.addTrigger(scriptName, TriggerContext.class, loaded);
+                TriggerMap.addTrigger(script, TriggerContext.class, loaded);
             } else {
                 for (Class<? extends TriggerContext> context : contexts) {
-                    TriggerMap.addTrigger(scriptName, context, loaded);
+                    TriggerMap.addTrigger(script, context, loaded);
                 }
             }
         }

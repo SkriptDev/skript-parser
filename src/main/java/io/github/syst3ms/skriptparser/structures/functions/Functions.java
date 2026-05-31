@@ -4,9 +4,12 @@ import io.github.syst3ms.skriptparser.docs.Documentation;
 import io.github.syst3ms.skriptparser.lang.Trigger;
 import io.github.syst3ms.skriptparser.log.ErrorType;
 import io.github.syst3ms.skriptparser.log.SkriptLogger;
+import io.github.syst3ms.skriptparser.parsing.Script;
+import io.github.syst3ms.skriptparser.parsing.ScriptLoader;
 import io.github.syst3ms.skriptparser.registration.SkriptAddon;
 import io.github.syst3ms.skriptparser.registration.SkriptRegistration;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,16 +21,31 @@ public class Functions {
 
     static final String FUNCTION_NAME_REGEX = "^[a-zA-Z0-9_]*";
     static final String FUNCTION_CALL_PATTERN = "<(" + Functions.FUNCTION_NAME_REGEX + ")\\((.*)\\)>";
-    private static final Map<String, List<Function<?>>> functionsMap = new HashMap<>();
+    private static final Map<Script, List<Function<?>>> functionsMap = new HashMap<>();
     private static final Map<SkriptAddon, List<Function<?>>> FUNCTIONS_BY_ADDON = new HashMap<>();
-    private static final String JAVA_FUNCTION_NAME = "java_functions_dont_change";
+    private static final Script JAVA_FUNCTIONS_SCRIPT = new Script(Path.of("java_functions_dont_change.sk"));
     private static final Pattern FUNCTION_NAME_PATTERN = Pattern.compile(FUNCTION_NAME_REGEX);
 
     private Functions() {
     }
 
+    /**
+     * @deprecated Use {@link #getFunctions(Script)} instead.
+     */
+    @Deprecated(forRemoval = true)
     public static List<Function<?>> getFunctions(String scriptName) {
-        return functionsMap.getOrDefault(scriptName, List.of());
+        Script script = ScriptLoader.getScriptByName(scriptName);
+        return script != null ? getFunctions(script) : List.of();
+    }
+
+    /**
+     * Get all functions associated with a script.
+     *
+     * @param script Script to get functions for
+     * @return List of functions
+     */
+    public static List<Function<?>> getFunctions(Script script) {
+        return functionsMap.getOrDefault(script, List.of());
     }
 
     public static List<Function<?>> getAllFunctions() {
@@ -39,33 +57,47 @@ public class Functions {
     }
 
     static void preRegisterFunction(ScriptFunction<?> function) {
-        String scriptName = function.getScriptName();
-        functionsMap.computeIfAbsent(scriptName, k -> new ArrayList<>()).add(function);
+        Script script = function.getScript();
+        functionsMap.computeIfAbsent(script, k -> new ArrayList<>()).add(function);
     }
 
     public static void registerFunction(ScriptFunction<?> function, Trigger trigger) {
         function.setTrigger(trigger);
     }
 
+    /**
+     * @deprecated Use {@link #removeFunctions(Script)} instead.
+     */
+    @Deprecated(forRemoval = true)
     public static void removeFunctions(String scriptName) {
-        if (functionsMap.containsKey(scriptName)) {
-            for (Function<?> function : functionsMap.get(scriptName)) {
+        Script script = ScriptLoader.getScriptByName(scriptName);
+        if (script != null) removeFunctions(script);
+    }
+
+    /**
+     * Remove all functions for a script.
+     *
+     * @param script Script to remove functions for
+     */
+    public static void removeFunctions(Script script) {
+        if (functionsMap.containsKey(script)) {
+            for (Function<?> function : functionsMap.get(script)) {
                 if (function instanceof ScriptFunction<?> sf) {
                     sf.setTrigger(null);
                 }
             }
+            functionsMap.remove(script);
         }
-        functionsMap.put(scriptName, new ArrayList<>());
     }
 
     public static void registerFunction(SkriptRegistration registration, JavaFunction<?> function) {
-        functionsMap.computeIfAbsent(JAVA_FUNCTION_NAME, k -> new ArrayList<>()).add(function);
+        functionsMap.computeIfAbsent(JAVA_FUNCTIONS_SCRIPT, k -> new ArrayList<>()).add(function);
         FUNCTIONS_BY_ADDON.computeIfAbsent(registration.getRegisterer(), k -> new ArrayList<>()).add(function);
     }
 
     public static boolean isValidFunction(ScriptFunction<?> function, SkriptLogger logger) {
-        String scriptName = function.getScriptName();
-        for (Function<?> registeredFunction : functionsMap.computeIfAbsent(scriptName, k -> new ArrayList<>())) {
+        Script script = function.getScript();
+        for (Function<?> registeredFunction : functionsMap.computeIfAbsent(script, k -> new ArrayList<>())) {
             String registeredFunctionName = registeredFunction.getName();
             String providedFunctionName = function.getName();
             if (!registeredFunctionName.equals(providedFunctionName)) continue;
@@ -75,19 +107,19 @@ public class Functions {
                 return false;
             }
             ScriptFunction<?> registeredScriptFunction = (ScriptFunction<?>) registeredFunction;
-            String registeredScriptName = registeredScriptFunction.getScriptName();
+            Script registeredScript = registeredScriptFunction.getScript();
             if (!registeredScriptFunction.isLocal()) { // already registered function is global so it takes name precedence
                 logger.error("A global script function named '" + providedFunctionName + "' already exists in " +
-                    registeredScriptName + ".", ErrorType.SEMANTIC_ERROR);
+                    registeredScript + ".", ErrorType.SEMANTIC_ERROR);
                 return false;
             }
             if (!function.isLocal()) {
                 // if a global function is trying to be defined when a local function already has that name, there will be problems in the script where the local function lies
                 logger.error("A local script function named '" + providedFunctionName + "' already exists in " +
-                    registeredScriptName + ".", ErrorType.SEMANTIC_ERROR);
+                    registeredScript + ".", ErrorType.SEMANTIC_ERROR);
                 return false;
             }
-            if (registeredScriptName.equals(function.getScriptName())) {
+            if (registeredScript.equals(function.getScript())) {
                 logger.error("Two local functions with the same name ('" + registeredFunctionName + "')" +
                     " can't exist in the same script.", ErrorType.SEMANTIC_ERROR);
                 return false;
@@ -96,23 +128,31 @@ public class Functions {
         return true;
     }
 
+    /**
+     * @deprecated Use {@link #getFunctionByName(String, Script)} instead.
+     */
+    @Deprecated(forRemoval = true)
     public static Optional<Function<?>> getFunctionByName(String name, String scriptName) {
+        if (scriptName.endsWith(".sk")) scriptName = scriptName.substring(0, scriptName.length() - 3); // old functionality did this too
+        Script script = ScriptLoader.getScriptByName(scriptName);
+        return script != null ? getFunctionByName(name, script) : Optional.empty();
+    }
+
+    public static Optional<Function<?>> getFunctionByName(String name, Script script) {
         // Find a JavaFunction
-        for (Function<?> function : functionsMap.computeIfAbsent(JAVA_FUNCTION_NAME, k -> new ArrayList<>())) {
+        for (Function<?> function : functionsMap.computeIfAbsent(JAVA_FUNCTIONS_SCRIPT, k -> new ArrayList<>())) {
             if (function.getName().equals(name)) {
                 return Optional.of(function);
             }
         }
 
         // Find a function in a script file
-        if (scriptName.endsWith(".sk")) scriptName = scriptName.substring(0, scriptName.length() - 3);
-
         for (Function<?> registeredFunction : getAllFunctions()) {
             if (!registeredFunction.getName().equals(name))
                 continue; // we don't care then!!!! goodbye continue to the next one
             if (registeredFunction instanceof ScriptFunction<?> registeredScriptFunction
                 && registeredScriptFunction.isLocal()
-                && !scriptName.equals(registeredScriptFunction.getScriptName())) {
+                && !script.equals(registeredScriptFunction.getScript())) {
                 continue;
                 //return Optional.of(registeredFunction); handled below
             }

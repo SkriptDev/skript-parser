@@ -1,5 +1,7 @@
 package io.github.syst3ms.skriptparser.file;
 
+import java.nio.file.Path;
+
 /**
  * Represents any non-blank and not comment-only line in a file. It is important to note that information about comments
  * is absent from this class, as they are discarded before being passed to the constructor.<br>
@@ -9,13 +11,21 @@ package io.github.syst3ms.skriptparser.file;
  * additional properties.</strong>
  */
 public class FileElement {
-    private final String fileName;
+    private final Path filePath;
     private final int line;
     private final String content;
     private final int indentation;
 
+    /**
+     * @deprecated Use {@link #FileElement(Path, int, String, int)} instead.
+     */
+    @Deprecated(forRemoval = true)
     public FileElement(String fileName, int line, String content, int indentation) {
-        this.fileName = fileName;
+        this(Path.of(fileName), line, content, indentation);
+    }
+
+    public FileElement(Path filePath, int line, String content, int indentation) {
+        this.filePath = filePath;
         this.line = line;
         this.content = content;
         this.indentation = indentation;
@@ -24,6 +34,7 @@ public class FileElement {
     /**
      * The returned {@link String} does not include the indentation of the line. To have the line content along with
      * indentation, use {@link #toString()}
+     *
      * @return the text content of this line, excluding any indentation.
      */
     public String getLineContent() {
@@ -34,14 +45,13 @@ public class FileElement {
     public boolean equals(Object obj) {
         if (this == obj)
             return true;
-        if (!(obj instanceof FileElement)) {
+        if (!(obj instanceof FileElement other)) {
             return false;
         } else {
-            var other = (FileElement) obj;
             return indentation == other.indentation &&
-                   line == other.line &&
-                   content.equalsIgnoreCase(other.content) &&
-                   fileName.equals(other.fileName);
+                line == other.line &&
+                content.equalsIgnoreCase(other.content) &&
+                filePath.toAbsolutePath().normalize().equals(other.filePath.toAbsolutePath().normalize());
         }
     }
 
@@ -58,14 +68,23 @@ public class FileElement {
     }
 
     /**
-     * @return the name of the file this line is contained in
+     * @deprecated Use {@link #getFilePath()} instead.
      */
+    @Deprecated(forRemoval = true)
     public String getFileName() {
-        return fileName;
+        return filePath.toString();
+    }
+
+    /**
+     * @return the path of the file this line is contained in
+     */
+    public Path getFilePath() {
+        return filePath;
     }
 
     /**
      * Line numbering starts at 1, and blank and comment-only lines are accounted for.
+     *
      * @return the line in the file where this line is located at.
      */
     public int getLine() {
