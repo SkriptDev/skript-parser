@@ -161,6 +161,31 @@ public class SkriptLogger {
     }
 
     /**
+     * Logs a {@link LogEntry}.
+     * @param entry the log entry
+     */
+    public void log(LogEntry entry) {
+        if (!open) {
+            return;
+        }
+
+        // Ignore debug entries if debug mode is disabled
+        if (entry.getType() == LogType.DEBUG && !debug) {
+            return;
+        }
+
+        if (entry.getType() == LogType.ERROR) {
+            if (!hasError) {
+                clearNotError();
+                logEntries.add(entry);
+                hasError = true;
+            }
+        } else {
+            logEntries.add(entry);
+        }
+    }
+
+    /**
      * Logs an error message
      * @param message the error message
      * @param errorType the error type
