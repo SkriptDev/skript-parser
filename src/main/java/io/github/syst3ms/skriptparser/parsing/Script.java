@@ -2,6 +2,12 @@ package io.github.syst3ms.skriptparser.parsing;
 
 import java.nio.file.Path;
 
+/**
+ * Represents a script file.
+ * This record just encapsulates the file path of the script.
+ *
+ * @param scriptPath the {@link Path} pointing to the script file
+ */
 public record Script(Path scriptPath) implements Comparable<Script> {
 
     /**
